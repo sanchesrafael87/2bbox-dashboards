@@ -91,156 +91,28 @@ body { background: #0f172a; font-family: 'DM Sans', sans-serif; color: #e2e8f0; 
 <script id="d-al" type="text/plain">eyJCVVNDQVJfUFJPRFVUTyI6eyJsYWJlbCI6IkJ1c2NhciBQcm9kdXRvIiwiY29sb3IiOiIjMTBiOTgxIiwiYmciOiJyZ2JhKDE2LDE4NSwxMjksMC4xMikifSwiUFJPRFVUT19FTkNPTlRSQURPIjp7ImxhYmVsIjoiUHJvZHV0byBFbmNvbnRyYWRvIiwiY29sb3IiOiIjMjJjNTVlIiwiYmciOiJyZ2JhKDM0LDE5Nyw5NCwwLjEyKSJ9LCJNT0RFTE9fRVNDT0xISURPIjp7ImxhYmVsIjoiTW9kZWxvIEVzY29saGlkbyIsImNvbG9yIjoiIzE0YjhhNiIsImJnIjoicmdiYSgyMCwxODQsMTY2LDAuMTIpIn0sIk9SQ0FNRU5UT19DVVNUT01JWkFETyI6eyJsYWJlbCI6Ik9yY2FtZW50byBDdXN0b20iLCJjb2xvciI6IiM4YjVjZjYiLCJiZyI6InJnYmEoMTM5LDkyLDI0NiwwLjEyKSJ9LCJESl9GT1JBX0NBVEFMT0dPIjp7ImxhYmVsIjoiRm9yYSBkbyBDYXRhbG9nbyIsImNvbG9yIjoiI2Y1OWUwYiIsImJnIjoicmdiYSgyNDUsMTU4LDExLDAuMTIpIn0sIkVTQ0FMQVJfSFVNQU5PIjp7ImxhYmVsIjoiRXNjYWxhZG8iLCJjb2xvciI6IiNlZjQ0NDQiLCJiZyI6InJnYmEoMjM5LDY4LDY4LDAuMTIpIn0sIkNPTkZJUk1BUl9QRURJRE8iOnsibGFiZWwiOiJDb25maXJtYXIgUGVkaWRvIiwiY29sb3IiOiIjM2I4MmY2IiwiYmciOiJyZ2JhKDU5LDEzMCwyNDYsMC4xMikifSwiQ09ORklSTUFSX0RJTUVOU09FUyI6eyJsYWJlbCI6IkNvbmZpcm1hciBEaW1lbnNvZXMiLCJjb2xvciI6IiMwNmI2ZDQiLCJiZyI6InJnYmEoNiwxODIsMjEyLDAuMTIpIn0sIklORk9STUFSX0NFUCI6eyJsYWJlbCI6IkluZm9ybWFyIENFUCIsImNvbG9yIjoiIzY0NzQ4YiIsImJnIjoicmdiYSgxMDAsMTE2LDEzOSwwLjEyKSJ9LCJGUkVURV9FU0NPTEhJRE8iOnsibGFiZWwiOiJGcmV0ZSBFc2NvbGhpZG8iLCJjb2xvciI6IiMyMmM1NWUiLCJiZyI6InJnYmEoMzQsMTk3LDk0LDAuMTIpIn0sIkRVVklEQSI6eyJsYWJlbCI6IkR1dmlkYSBHZXJhbCIsImNvbG9yIjoiIzk0YTNiOCIsImJnIjoicmdiYSgxNDgsMTYzLDE4NCwwLjEyKSJ9LCJTQVVEQUNBTyI6eyJsYWJlbCI6IlNhdWRhY2FvIiwiY29sb3IiOiIjYTc4YmZhIiwiYmciOiJyZ2JhKDE2NywxMzksMjUwLDAuMTIpIn19</script>
 <script id="d-sl" type="text/plain">eyJyZXNvbHZpZG8iOnsibGFiZWwiOiJSZXNvbHZpZG8iLCJjb2xvciI6IiMxMGI5ODEifSwicGVkaWRvX2NvbmZpcm1hZG8iOnsibGFiZWwiOiJDb25maXJtYWRvIiwiY29sb3IiOiIjM2I4MmY2In0sImVzY2FsYWRvIjp7ImxhYmVsIjoiRXNjYWxhZG8iLCJjb2xvciI6IiNmNTllMGIifSwiZW1fYW5kYW1lbnRvIjp7ImxhYmVsIjoiQW5kYW1lbnRvIiwiY29sb3IiOiIjNjM2NmYxIn0sImluaWNpbyI6eyJsYWJlbCI6IkluaWNpbyIsImNvbG9yIjoiIzY0NzQ4YiJ9fQ==</script>
 <div id="login-screen"><div class="login-box" id="login-box"><div style="font-size:48px">&#129302;</div><h1>PedroBot</h1><p>Historico de Conversas &middot; 2BBOX</p><input type="password" id="pw-input" placeholder="Senha de acesso" /><div class="err-msg" id="err-msg">Senha incorreta</div><button onclick="doLogin()">Entrar</button><small>Acesso restrito ao administrador</small></div></div>
-<div id="app"><div class="topbar"><div class="topbar-left"><span style="font-size:24px">&#129302;</span><div><h1>PedroBot</h1><span class="sub">Historico de Conversas</span></div></div><div class="topbar-right"><span class="updated-at">atualizado 23/02/2026, 18:50:12</span><button class="btn-refresh" onclick="doRefresh()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Atualizar</button><span style="font-size:11px;color:#25D366;display:flex;align-items:center;gap:4px"><span class="online-dot"></span>Bot Online</span><span class="badge-2bbox">2BBOX</span></div></div>
+<div id="app"><div class="topbar"><div class="topbar-left"><span style="font-size:24px">&#129302;</span><div><h1>PedroBot</h1><span class="sub">Historico de Conversas</span></div></div><div class="topbar-right"><span class="updated-at">atualizado 23/02/2026, 18:52:03</span><button class="btn-refresh" onclick="doRefresh()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Atualizar</button><span style="font-size:11px;color:#25D366;display:flex;align-items:center;gap:4px"><span class="online-dot"></span>Bot Online</span><span class="badge-2bbox">2BBOX</span></div></div>
 <div class="stats-bar" id="stats-bar"></div>
 <div class="main"><div class="sidebar"><div class="filters"><input type="text" id="search-input" placeholder="Buscar por nome, telefone ou produto..." oninput="applyFilters()" /><div class="filters-row"><select id="filter-action" onchange="applyFilters()"><option value="">Todas acoes</option><option value="BUSCAR_PRODUTO">Buscar Produto</option><option value="PRODUTO_ENCONTRADO">Produto Encontrado</option><option value="MODELO_ESCOLHIDO">Modelo Escolhido</option><option value="ORCAMENTO_CUSTOMIZADO">Orcamento Custom</option><option value="DJ_FORA_CATALOGO">Fora do Catalogo</option><option value="ESCALAR_HUMANO">Escalado</option><option value="CONFIRMAR_PEDIDO">Confirmar Pedido</option><option value="INFORMAR_CEP">Informar CEP</option><option value="DUVIDA">Duvida Geral</option><option value="SAUDACAO">Saudacao</option></select><select id="filter-status" onchange="applyFilters()"><option value="">Todos status</option><option value="resolvido">Resolvido</option><option value="pedido_confirmado">Confirmado</option><option value="escalado">Escalado</option><option value="em_andamento">Andamento</option><option value="inicio">Inicio</option></select></div></div><div class="conv-list" id="conv-list"></div><div class="sidebar-footer" id="sidebar-footer"></div></div>
 <div class="chat-area" id="chat-area"><div class="chat-empty"><span>&#128172;</span><p>Selecione uma conversa</p></div></div></div></div>
 <script>(function(){
-
-// === GLOBAL ERROR HANDLER ===
-function showError(title, detail) {
-  var existing = document.querySelector('.error-banner');
-  if (existing) existing.remove();
-  var b = document.createElement('div');
-  b.className = 'error-banner';
-  b.innerHTML = '<div><div class="err-title">' + title + '</div><div class="err-detail">' + detail + '</div></div><button onclick="location.reload()">Recarregar</button>';
-  document.body.insertBefore(b, document.body.firstChild);
-}
-
-window.onerror = function(msg, src, line, col, err) {
-  showError('Erro inesperado', (err ? err.message : msg) + ' (linha ' + line + ')');
-  return false;
-};
-
-// === LOAD DATA ===
-var AL = {}, SL = {}, AC = [];
-try {
-  AL = JSON.parse(atob(document.getElementById('d-al').textContent));
-  SL = JSON.parse(atob(document.getElementById('d-sl').textContent));
-  AC = JSON.parse(atob(document.getElementById('d-conv').textContent));
-} catch(e) {
-  showError('Erro ao carregar dados', 'Falha ao decodificar conversas: ' + (e.message || e));
-}
-
-var filtered = [], selId = null;
-
-// === LOGIN ===
-function doLogin() {
-  try {
-    var pw = document.getElementById('pw-input').value;
-    if (pw === '2bbox2026') {
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'flex';
-      try { applyFilters(); } catch(e2) { showError('Erro ao carregar conversas', e2.message || e2); }
-    } else {
-      document.getElementById('pw-input').classList.add('error');
-      document.getElementById('err-msg').style.display = 'block';
-      var box = document.getElementById('login-box');
-      box.style.animation = 'shake 0.5s ease-in-out';
-      setTimeout(function(){ box.style.animation = ''; }, 500);
-    }
-  } catch(e) {
-    showError('Erro no login', e.message || 'Erro desconhecido ao processar login');
-  }
-}
-window.doLogin = doLogin;
-
-try {
-  document.getElementById('pw-input').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
-  document.getElementById('pw-input').addEventListener('input', function(){
-    document.getElementById('pw-input').classList.remove('error');
-    document.getElementById('err-msg').style.display = 'none';
-  });
-} catch(e) {
-  showError('Erro ao inicializar login', e.message || e);
-}
-
-window.doRefresh = function() {
-  try { document.querySelector('.btn-refresh').classList.add('spinning'); } catch(e) {}
-  setTimeout(function(){ location.reload(); }, 300);
-};
-
-// === UTILS ===
-function fmtDate(s) {
-  if (!s) return '';
-  try {
-    var d = new Date(s), t = new Date(), y = new Date(t);
-    y.setDate(y.getDate() - 1);
-    if (d.toDateString() === t.toDateString()) return 'Hoje';
-    if (d.toDateString() === y.toDateString()) return 'Ontem';
-    return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
-  } catch(e) { return s; }
-}
-
-function fmtFull(s) {
-  if (!s) return '';
-  try { return new Date(s).toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit'}); }
-  catch(e) { return s; }
-}
-
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-// === FILTERS ===
-function applyFilters() {
-  try {
-    var q = document.getElementById('search-input').value.toLowerCase();
-    var fa = document.getElementById('filter-action').value;
-    var fs = document.getElementById('filter-status').value;
-    filtered = AC.filter(function(c) {
-      var m = q==='' || (c.customerName||'').toLowerCase().includes(q) || (c.phone||'').includes(q) || (c.product||'').toLowerCase().includes(q) || (c.messages||[]).some(function(x){ return (x.text||'').toLowerCase().includes(q); });
-      return m && (!fa || c.action===fa) && (!fs || c.status===fs);
-    });
-    renderStats();
-    renderList();
-  } catch(e) {
-    showError('Erro ao filtrar', e.message || e);
-  }
-}
-window.applyFilters = applyFilters;
-
-// === STATS ===
-function renderStats() {
-  try {
-    var t=filtered.length, r=filtered.filter(function(c){return c.status==='resolvido'||c.status==='pedido_confirmado';}).length, e=filtered.filter(function(c){return c.status==='escalado';}).length, m=filtered.reduce(function(a,c){return a+(c.messages||[]).length;},0);
-    document.getElementById('stats-bar').innerHTML=[{l:'Conversas',v:t},{l:'Resolvidas',v:r},{l:'Escaladas',v:e},{l:'Mensagens',v:m}].map(function(s){return'<div class="stat-card"><div class="label">'+s.l+'</div><div class="value">'+s.v+'</div></div>';}).join('');
-  } catch(e) { console.error('renderStats:', e); }
-}
-
-// === LIST ===
-function renderList() {
-  try {
-    var el=document.getElementById('conv-list');
-    if(filtered.length===0){el.innerHTML='<div class="empty-state">'+(AC.length===0?'Nenhuma conversa na planilha':'Nenhuma conversa corresponde ao filtro')+'</div>';document.getElementById('sidebar-footer').textContent='';return;}
-    el.innerHTML=filtered.map(function(c){
-      var al=AL[c.action]||{label:c.action||'-',color:'#94a3b8',bg:'rgba(148,163,184,0.12)'};
-      var sl=SL[c.status]||{label:c.status||'-',color:'#94a3b8'};
-      var msgs=c.messages||[],last=msgs[msgs.length-1];
-      var prev=last?(last.from==='bot'?'Bot: ':'Cliente: ')+esc((last.text||'').slice(0,55)):'Sem msgs';
-      var sid=c.id.replace(/'/g,"\'");
-      return'<div class="conv-item'+(c.id===selId?' active':'')+'" onclick="selectConv(''+sid+'')"><div style="display:flex;justify-content:space-between"><span class="name">'+esc(c.customerName||'Cliente')+'</span><span style="font-size:11px;color:#64748b">'+fmtDate(c.startedAt)+'</span></div><div class="phone">'+(c.phone||'')+'</div><div class="preview">'+prev+'</div><div class="tags"><span class="action-badge" style="color:'+al.color+';background:'+al.bg+'">'+al.label+'</span>'+(c.status?'<span class="status-dot" style="color:'+sl.color+'">&bull; '+sl.label+'</span>':'')+(c.via_shortcut==='SIM'?'<span class="shortcut-badge">&#9889; atalho</span>':'')+'</div></div>';
-    }).join('');
-    document.getElementById('sidebar-footer').textContent=filtered.length+' de '+AC.length+' conversas';
-  } catch(e) { showError('Erro ao listar conversas', e.message || e); }
-}
-
-// === SELECT CONVERSATION ===
-window.selectConv = function(id) {
-  try {
-    selId=id; renderList();
-    var c=AC.find(function(x){return x.id===id;});
-    if(!c) return;
-    var al=AL[c.action]||{label:c.action||'-',color:'#94a3b8',bg:'rgba(148,163,184,0.12)'};
-    var sl=SL[c.status]||{label:c.status||'-',color:'#94a3b8'};
-    var msgs=c.messages||[];
-    var dur;
-    try{var s=new Date(c.startedAt),e2=new Date(c.lastMessageAt),d=Math.round((e2-s)/60000);dur=isNaN(d)?'-':d+' min';}catch(ex){dur='-';}
-    document.getElementById('chat-area').innerHTML='<div class="chat-header"><div style="display:flex;align-items:center"><div class="avatar">&#128100;</div><div class="chat-header-info"><div class="cname">'+esc(c.customerName||'Cliente')+'</div><div class="cphone">'+(c.phone||'')+'</div></div></div><div class="chat-header-badges"><span class="hbadge" style="color:'+al.color+';background:'+al.bg+'">'+al.label+'</span><span class="hbadge" style="color:'+sl.color+';background:rgba(0,0,0,0.2);border:1px solid '+sl.color+'40">&bull; '+sl.label+'</span></div></div><div class="chat-date">'+fmtFull(c.startedAt)+(c.product?'<span style="margin-left:8px;font-size:10px;background:rgba(255,255,255,0.06);border-radius:6px;padding:2px 8px;color:#94a3b8">'+esc(c.product)+(c.modelo?' ('+esc(c.modelo)+')':'')+'</span>':'')+'</div><div class="chat-messages" id="chat-msgs">'+(msgs.length===0?'<div style="text-align:center;color:#475569;padding:24px;font-size:13px">Nenhuma mensagem registrada</div>':msgs.map(function(m){var isBot=m.from==='bot';return'<div class="bubble-wrap '+(isBot?'bot':'customer')+'">'+( isBot?'<div class="bubble-avatar bot-av">&#129302;</div>':'')+'<div class="bubble '+(isBot?'bot':'customer')+'"><p>'+esc(m.text)+'</p><div class="btime">'+(m.time||'')+'</div></div>'+(!isBot?'<div class="bubble-avatar cust-av">&#128100;</div>':'')+'</div>';}).join(''))+'</div><div class="chat-footer"><span>'+msgs.length+' msgs</span><span>'+dur+'</span><span>'+msgs.filter(function(m){return m.from==="bot";}).length+' respostas bot</span>'+(c.via_shortcut==='SIM'?'<span>&#9889; Atalho</span>':'')+'</div>';
-    setTimeout(function(){var m2=document.getElementById('chat-msgs');if(m2)m2.scrollTop=m2.scrollHeight;},50);
-  } catch(e) {
-    showError('Erro ao abrir conversa', e.message || e);
-  }
-};
-
+window.onerror=function(msg,src,line,col,err){var b=document.createElement('div');b.className='error-banner';b.innerHTML='<div><div class="err-title">Erro ao carregar</div><div class="err-detail">'+(err?err.message:msg)+'</div></div><button onclick="location.reload()">Recarregar</button>';document.body.insertBefore(b,document.body.firstChild);return false;};
+var AL,SL,AC;
+try{AL=JSON.parse(atob(document.getElementById('d-al').textContent));SL=JSON.parse(atob(document.getElementById('d-sl').textContent));AC=JSON.parse(atob(document.getElementById('d-conv').textContent));}catch(e){window.onerror('Parse error','',0,0,e);AL={};SL={};AC=[];}
+var filtered=[],selId=null;
+function doLogin(){var pw=document.getElementById('pw-input').value;if(pw==='2bbox2026'){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';applyFilters();}else{document.getElementById('pw-input').classList.add('error');document.getElementById('err-msg').style.display='block';var box=document.getElementById('login-box');box.style.animation='shake 0.5s ease-in-out';setTimeout(function(){box.style.animation='';},500);}}
+window.doLogin=doLogin;
+document.getElementById('pw-input').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+document.getElementById('pw-input').addEventListener('input',function(){document.getElementById('pw-input').classList.remove('error');document.getElementById('err-msg').style.display='none';});
+window.doRefresh=function(){document.querySelector('.btn-refresh').classList.add('spinning');setTimeout(function(){location.reload();},300);};
+function fmtDate(s){if(!s)return'';try{var d=new Date(s),t=new Date(),y=new Date(t);y.setDate(y.getDate()-1);if(d.toDateString()===t.toDateString())return'Hoje';if(d.toDateString()===y.toDateString())return'Ontem';return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}catch(e){return s;}}
+function fmtFull(s){if(!s)return'';try{return new Date(s).toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch(e){return s;}}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function applyFilters(){var q=document.getElementById('search-input').value.toLowerCase(),fa=document.getElementById('filter-action').value,fs=document.getElementById('filter-status').value;filtered=AC.filter(function(c){var m=q===''||(c.customerName||'').toLowerCase().includes(q)||(c.phone||'').includes(q)||(c.product||'').toLowerCase().includes(q)||(c.messages||[]).some(function(x){return(x.text||'').toLowerCase().includes(q);});return m&&(!fa||c.action===fa)&&(!fs||c.status===fs);});renderStats();renderList();}
+window.applyFilters=applyFilters;
+function renderStats(){var t=filtered.length,r=filtered.filter(function(c){return c.status==='resolvido'||c.status==='pedido_confirmado';}).length,e=filtered.filter(function(c){return c.status==='escalado';}).length,m=filtered.reduce(function(a,c){return a+(c.messages||[]).length;},0);document.getElementById('stats-bar').innerHTML=[{l:'Conversas',v:t},{l:'Resolvidas',v:r},{l:'Escaladas',v:e},{l:'Mensagens',v:m}].map(function(s){return'<div class="stat-card"><div class="label">'+s.l+'</div><div class="value">'+s.v+'</div></div>';}).join('');}
+function renderList(){var el=document.getElementById('conv-list');if(filtered.length===0){el.innerHTML='<div class="empty-state">'+(AC.length===0?'Nenhuma conversa na planilha':'Nenhuma conversa corresponde ao filtro')+'</div>';document.getElementById('sidebar-footer').textContent='';return;}el.innerHTML=filtered.map(function(c){var al=AL[c.action]||{label:c.action||'-',color:'#94a3b8',bg:'rgba(148,163,184,0.12)'};var sl=SL[c.status]||{label:c.status||'-',color:'#94a3b8'};var msgs=c.messages||[],last=msgs[msgs.length-1];var prev=last?(last.from==='bot'?'Bot: ':'Cliente: ')+esc((last.text||'').slice(0,55)):'Sem msgs';var sid=c.id.replace(/'/g,"\'");return'<div class="conv-item'+(c.id===selId?' active':'')+'" onclick="selectConv(''+sid+'')"><div style="display:flex;justify-content:space-between"><span class="name">'+esc(c.customerName||'Cliente')+'</span><span style="font-size:11px;color:#64748b">'+fmtDate(c.startedAt)+'</span></div><div class="phone">'+(c.phone||'')+'</div><div class="preview">'+prev+'</div><div class="tags"><span class="action-badge" style="color:'+al.color+';background:'+al.bg+'">'+al.label+'</span>'+(c.status?'<span class="status-dot" style="color:'+sl.color+'">&bull; '+sl.label+'</span>':'')+(c.via_shortcut==='SIM'?'<span class="shortcut-badge">&#9889; atalho</span>':'')+'</div></div>';}).join('');document.getElementById('sidebar-footer').textContent=filtered.length+' de '+AC.length+' conversas';}
+window.selectConv=function(id){selId=id;renderList();var c=AC.find(function(x){return x.id===id;});if(!c)return;var al=AL[c.action]||{label:c.action||'-',color:'#94a3b8',bg:'rgba(148,163,184,0.12)'};var sl=SL[c.status]||{label:c.status||'-',color:'#94a3b8'};var msgs=c.messages||[];var dur;try{var s=new Date(c.startedAt),e2=new Date(c.lastMessageAt),d=Math.round((e2-s)/60000);dur=isNaN(d)?'-':d+' min';}catch(ex){dur='-';}document.getElementById('chat-area').innerHTML='<div class="chat-header"><div style="display:flex;align-items:center"><div class="avatar">&#128100;</div><div class="chat-header-info"><div class="cname">'+esc(c.customerName||'Cliente')+'</div><div class="cphone">'+(c.phone||'')+'</div></div></div><div class="chat-header-badges"><span class="hbadge" style="color:'+al.color+';background:'+al.bg+'">'+al.label+'</span><span class="hbadge" style="color:'+sl.color+';background:rgba(0,0,0,0.2);border:1px solid '+sl.color+'40">&bull; '+sl.label+'</span></div></div><div class="chat-date">'+fmtFull(c.startedAt)+(c.product?'<span style="margin-left:8px;font-size:10px;background:rgba(255,255,255,0.06);border-radius:6px;padding:2px 8px;color:#94a3b8">'+esc(c.product)+(c.modelo?' ('+esc(c.modelo)+')':'')+'</span>':'')+'</div><div class="chat-messages" id="chat-msgs">'+(msgs.length===0?'<div style="text-align:center;color:#475569;padding:24px;font-size:13px">Nenhuma mensagem registrada</div>':msgs.map(function(m){var isBot=m.from==='bot';return'<div class="bubble-wrap '+(isBot?'bot':'customer')+'">'+( isBot?'<div class="bubble-avatar bot-av">&#129302;</div>':'')+'<div class="bubble '+(isBot?'bot':'customer')+'"><p>'+esc(m.text)+'</p><div class="btime">'+(m.time||'')+'</div></div>'+(!isBot?'<div class="bubble-avatar cust-av">&#128100;</div>':'')+'</div>';}).join(''))+'</div><div class="chat-footer"><span>'+msgs.length+' msgs</span><span>'+dur+'</span><span>'+msgs.filter(function(m){return m.from==="bot";}).length+' respostas bot</span>'+(c.via_shortcut==='SIM'?'<span>&#9889; Atalho</span>':'')+'</div>';setTimeout(function(){var m2=document.getElementById('chat-msgs');if(m2)m2.scrollTop=m2.scrollHeight;},50);};
 })();</script>
 </body>
 </html>
