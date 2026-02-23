@@ -31,7 +31,6 @@ table { width: 100%; border-collapse: collapse; }
 th { background: rgba(0, 212, 255, 0.2); padding: 14px 10px; text-align: left; font-weight: 600; color: #00d4ff; font-size: 0.8em; text-transform: uppercase; white-space: nowrap; }
 td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9em; }
 tr:hover { background: rgba(255,255,255,0.05); }
-tr.hidden { display: none; }
 .status { padding: 6px 12px; border-radius: 12px; font-size: 0.75em; font-weight: 600; white-space: nowrap; }
 .status.enviado { background: rgba(0, 212, 255, 0.2); color: #00d4ff; }
 .status.aguardando { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
@@ -47,10 +46,7 @@ tr.hidden { display: none; }
 </style>
 </head>
 <body>
-<div class="header">
-<h1>2BBOX - Pedidos ML</h1>
-<p>Atualizado: 23/02/2026, 16:50:41</p>
-</div>
+<div class="header"><h1>2BBOX - Pedidos ML</h1><p>Atualizado: 23/02/2026, 17:01:03</p></div>
 <div class="filters">
 <button class="filter-btn" id="btn-today">Hoje</button>
 <button class="filter-btn" id="btn-week">Semana</button>
@@ -77,45 +73,42 @@ tr.hidden { display: none; }
 </div>
 <div class="footer"><p>Dados via API Mercado Livre · n8n Automation · 2BBOX</p></div>
 <script>
-var cPeriod = 'all', cStatus = 'all';
-// Data de hoje no formato YYYY-MM-DD em horário local (Brasília)
-var TODAY_STR = new Date().toLocaleDateString('pt-BR', {timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');
-var TODAY = new Date();
-function fmtMoney(v) { return 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
-function update() {
-  var rows = document.querySelectorAll('#orders-body tr');
-  var n=0, t=0, env=0, agu=0;
-  rows.forEach(function(r) {
-    var showP = true, showS = true;
-    var rDate = r.dataset.date; // YYYY-MM-DD já em horário Brasília
-    if (cPeriod === 'today') {
-      showP = rDate === TODAY_STR;
-    } else if (cPeriod === 'week') {
-      var w = new Date(); w.setDate(w.getDate()-7);
-      var wStr = w.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');
-      showP = rDate >= wStr;
-    } else if (cPeriod === 'month') {
-      var mStr = TODAY_STR.substring(0, 7); // YYYY-MM
-      showP = rDate.substring(0, 7) === mStr;
-    }
-    if (cStatus !== 'all') showS = r.dataset.status === cStatus;
-    var show = showP && showS;
-    r.style.display = show ? '' : 'none';
-    if (show) { n++; t += parseFloat(r.dataset.value)||0; if(r.dataset.status==='enviado')env++; else agu++; }
+var cPeriod='all',cStatus='all';
+var TODAY_STR=new Date().toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');
+function fmtMoney(v){return 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function update(){
+  var rows=document.querySelectorAll('#orders-body tr');
+  var n=0,t=0,env=0,agu=0;
+  rows.forEach(function(r){
+    var showP=true,showS=true,rDate=r.dataset.date;
+    if(cPeriod==='today')showP=rDate===TODAY_STR;
+    else if(cPeriod==='week'){var w=new Date();w.setDate(w.getDate()-7);var wStr=w.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');showP=rDate>=wStr;}
+    else if(cPeriod==='month')showP=rDate.substring(0,7)===TODAY_STR.substring(0,7);
+    if(cStatus!=='all')showS=r.dataset.status===cStatus;
+    var show=showP&&showS;
+    r.style.display=show?'':'none';
+    if(show){n++;t+=parseFloat(r.dataset.value)||0;if(r.dataset.status==='enviado')env++;else agu++;}
   });
-  document.getElementById('stat-pedidos').textContent = n;
-  document.getElementById('stat-faturamento').textContent = fmtMoney(t);
-  document.getElementById('stat-enviados').textContent = env;
-  document.getElementById('stat-aguardando').textContent = agu;
-  document.getElementById('no-results').style.display = n === 0 ? 'block' : 'none';
+  document.getElementById('stat-pedidos').textContent=n;
+  document.getElementById('stat-faturamento').textContent=fmtMoney(t);
+  document.getElementById('stat-enviados').textContent=env;
+  document.getElementById('stat-aguardando').textContent=agu;
+  document.getElementById('no-results').style.display=n===0?'block':'none';
 }
-document.getElementById('btn-today').onclick = function() { cPeriod='today'; document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');}); this.classList.add('active'); update(); };
-document.getElementById('btn-week').onclick = function() { cPeriod='week'; document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');}); this.classList.add('active'); update(); };
-document.getElementById('btn-month').onclick = function() { cPeriod='month'; document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');}); this.classList.add('active'); update(); };
-document.getElementById('btn-all').onclick = function() { cPeriod='all'; document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');}); this.classList.add('active'); update(); };
-document.getElementById('st-all').onclick = function() { cStatus='all'; document.querySelectorAll('.status-btn').forEach(function(b){b.classList.remove('active');}); this.classList.add('active'); update(); };
-document.getElementById('st-enviado').onclick = function() { cStatus='enviado'; document.querySelectorAll('.status-btn').forEach(function(b){b.classList.remove('active');}); this.classList.add('active'); update(); };
-document.getElementById('st-aguardando').onclick = function() { cStatus='aguardando'; document.querySelectorAll('.status-btn').forEach(function(b){b.classList.remove('active');}); this.classList.add('active'); update(); };
+['btn-today','btn-week','btn-month','btn-all'].forEach(function(id){
+  document.getElementById(id).onclick=function(){
+    cPeriod=id.replace('btn-','');
+    document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+    this.classList.add('active');update();
+  };
+});
+['st-all','st-enviado','st-aguardando'].forEach(function(id){
+  document.getElementById(id).onclick=function(){
+    cStatus=id.replace('st-','');
+    document.querySelectorAll('.status-btn').forEach(function(b){b.classList.remove('active');});
+    this.classList.add('active');update();
+  };
+});
 </script>
 </body>
 </html>
