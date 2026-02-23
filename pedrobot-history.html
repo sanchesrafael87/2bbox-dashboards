@@ -83,6 +83,12 @@ body { background: #0f172a; font-family: 'DM Sans', sans-serif; color: #e2e8f0; 
 </style>
 </head>
 <body>
+
+<!-- Dados injetados de forma segura -->
+<script id="conv-data" type="application/json">[{"id":"conv_session_554195000864","phone":"","customerName":"Cliente","startedAt":"2026-02-23T13:31:39.729Z","lastMessageAt":"2026-02-23T17:27:58.034Z","action":"","status":"em_andamento","product":"","via_shortcut":"NAO","messages":[]}]</script>
+<script id="action-labels" type="application/json">{"BUSCAR_PRODUTO":{"label":"Buscar Produto","color":"#10b981","bg":"rgba(16,185,129,0.12)"},"ORCAMENTO_CUSTOMIZADO":{"label":"Orçamento Custom","color":"#8b5cf6","bg":"rgba(139,92,246,0.12)"},"DJ_FORA_CATALOGO":{"label":"Fora do Catálogo","color":"#f59e0b","bg":"rgba(245,158,11,0.12)"},"ESCALAR_HUMANO":{"label":"Escalado","color":"#ef4444","bg":"rgba(239,68,68,0.12)"},"CONFIRMAR_PEDIDO":{"label":"Confirmar Pedido","color":"#3b82f6","bg":"rgba(59,130,246,0.12)"},"CONFIRMAR_DIMENSOES":{"label":"Confirmar Dimensões","color":"#06b6d4","bg":"rgba(6,182,212,0.12)"},"INFORMAR_CEP":{"label":"Informar CEP","color":"#64748b","bg":"rgba(100,116,139,0.12)"},"FRETE_ESCOLHIDO":{"label":"Frete Escolhido","color":"#22c55e","bg":"rgba(34,197,94,0.12)"},"DUVIDA":{"label":"Dúvida Geral","color":"#94a3b8","bg":"rgba(148,163,184,0.12)"}}</script>
+<script id="status-labels" type="application/json">{"resolvido":{"label":"Resolvido","color":"#10b981"},"pedido_confirmado":{"label":"Confirmado","color":"#3b82f6"},"escalado":{"label":"Escalado","color":"#f59e0b"},"em_andamento":{"label":"Andamento","color":"#6366f1"},"inicio":{"label":"Início","color":"#64748b"}}</script>
+
 <div id="login-screen">
   <div class="login-box" id="login-box">
     <div style="font-size:48px">🤖</div>
@@ -105,7 +111,7 @@ body { background: #0f172a; font-family: 'DM Sans', sans-serif; color: #e2e8f0; 
       </div>
     </div>
     <div class="topbar-right">
-      <span class="updated-at">atualizado 23/02/2026, 15:32:00</span>
+      <span class="updated-at">atualizado 23/02/2026, 15:40:50</span>
       <button class="btn-refresh" onclick="doRefresh()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         Atualizar
@@ -114,9 +120,7 @@ body { background: #0f172a; font-family: 'DM Sans', sans-serif; color: #e2e8f0; 
       <span class="badge-2bbox">2BBOX</span>
     </div>
   </div>
-
   <div class="stats-bar" id="stats-bar"></div>
-
   <div class="main">
     <div class="sidebar">
       <div class="filters">
@@ -154,65 +158,61 @@ body { background: #0f172a; font-family: 'DM Sans', sans-serif; color: #e2e8f0; 
 </div>
 
 <script>
-const ACTION_LABELS = {"BUSCAR_PRODUTO":{"label":"Buscar Produto","color":"#10b981","bg":"rgba(16,185,129,0.12)"},"ORCAMENTO_CUSTOMIZADO":{"label":"Orçamento Custom","color":"#8b5cf6","bg":"rgba(139,92,246,0.12)"},"DJ_FORA_CATALOGO":{"label":"Fora do Catálogo","color":"#f59e0b","bg":"rgba(245,158,11,0.12)"},"ESCALAR_HUMANO":{"label":"Escalado","color":"#ef4444","bg":"rgba(239,68,68,0.12)"},"CONFIRMAR_PEDIDO":{"label":"Confirmar Pedido","color":"#3b82f6","bg":"rgba(59,130,246,0.12)"},"CONFIRMAR_DIMENSOES":{"label":"Confirmar Dimensões","color":"#06b6d4","bg":"rgba(6,182,212,0.12)"},"INFORMAR_CEP":{"label":"Informar CEP","color":"#64748b","bg":"rgba(100,116,139,0.12)"},"FRETE_ESCOLHIDO":{"label":"Frete Escolhido","color":"#22c55e","bg":"rgba(34,197,94,0.12)"},"DUVIDA":{"label":"Dúvida Geral","color":"#94a3b8","bg":"rgba(148,163,184,0.12)"}};
-const STATUS_LABELS = {"resolvido":{"label":"Resolvido","color":"#10b981"},"pedido_confirmado":{"label":"Confirmado","color":"#3b82f6"},"escalado":{"label":"Escalado","color":"#f59e0b"},"em_andamento":{"label":"Andamento","color":"#6366f1"},"inicio":{"label":"Início","color":"#64748b"}};
-const ALL_CONVERSATIONS = [{"id":"conv_session_554195000864","phone":"","customerName":"Cliente","startedAt":"2026-02-23T13:31:39.729Z","lastMessageAt":"2026-02-23T17:27:58.034Z","action":"","status":"em_andamento","product":"","via_shortcut":"NAO","messages":[]}];
+var ACTION_LABELS = JSON.parse(document.getElementById('action-labels').textContent);
+var STATUS_LABELS = JSON.parse(document.getElementById('status-labels').textContent);
+var ALL_CONVERSATIONS = JSON.parse(document.getElementById('conv-data').textContent);
 
-let filtered = [];
-let selectedId = null;
+var filtered = [];
+var selectedId = null;
 
 function doLogin() {
-  const pw = document.getElementById('pw-input').value;
+  var pw = document.getElementById('pw-input').value;
   if (pw === '2bbox2026') {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
-    init();
+    applyFilters();
   } else {
     document.getElementById('pw-input').classList.add('error');
     document.getElementById('err-msg').style.display = 'block';
-    const box = document.getElementById('login-box');
+    var box = document.getElementById('login-box');
     box.style.animation = 'shake 0.5s ease-in-out';
-    setTimeout(() => box.style.animation = '', 500);
+    setTimeout(function(){ box.style.animation = ''; }, 500);
   }
 }
-document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('pw-input').addEventListener('input', () => {
+document.getElementById('pw-input').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+document.getElementById('pw-input').addEventListener('input', function(){
   document.getElementById('pw-input').classList.remove('error');
   document.getElementById('err-msg').style.display = 'none';
 });
 
 function doRefresh() {
-  const btn = document.querySelector('.btn-refresh');
+  var btn = document.querySelector('.btn-refresh');
   btn.classList.add('spinning');
-  setTimeout(() => location.reload(), 300);
+  setTimeout(function(){ location.reload(); }, 300);
 }
 
 function formatDate(s) {
   if (!s) return '';
-  const d = new Date(s);
-  const today = new Date(); const yest = new Date(today); yest.setDate(yest.getDate()-1);
-  if (d.toDateString() === today.toDateString()) return 'Hoje';
-  if (d.toDateString() === yest.toDateString()) return 'Ontem';
-  return d.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit'});
+  var d = new Date(s);
+  var today = new Date(); var yest = new Date(today); yest.setDate(yest.getDate()-1);
+  if (d.toDateString()===today.toDateString()) return 'Hoje';
+  if (d.toDateString()===yest.toDateString()) return 'Ontem';
+  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
 }
 
 function formatFullDate(s) {
   if (!s) return '';
-  return new Date(s).toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
-}
-
-function init() {
-  applyFilters();
+  return new Date(s).toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
 }
 
 function applyFilters() {
-  const search = document.getElementById('search-input').value.toLowerCase();
-  const action = document.getElementById('filter-action').value;
-  const status = document.getElementById('filter-status').value;
-  filtered = ALL_CONVERSATIONS.filter(c => {
-    const ms = search === '' || (c.customerName||'').toLowerCase().includes(search) || (c.phone||'').includes(search) || (c.product||'').toLowerCase().includes(search) || (c.messages||[]).some(m => m.text.toLowerCase().includes(search));
-    const ma = !action || c.action === action;
-    const ms2 = !status || c.status === status;
+  var search = document.getElementById('search-input').value.toLowerCase();
+  var action = document.getElementById('filter-action').value;
+  var status = document.getElementById('filter-status').value;
+  filtered = ALL_CONVERSATIONS.filter(function(c) {
+    var ms = search==='' || (c.customerName||'').toLowerCase().includes(search) || (c.phone||'').includes(search) || (c.product||'').toLowerCase().includes(search) || (c.messages||[]).some(function(m){ return m.text.toLowerCase().includes(search); });
+    var ma = !action || c.action===action;
+    var ms2 = !status || c.status===status;
     return ms && ma && ms2;
   });
   renderStats();
@@ -220,79 +220,53 @@ function applyFilters() {
 }
 
 function renderStats() {
-  const total = filtered.length;
-  const resolved = filtered.filter(c => c.status === 'resolvido' || c.status === 'pedido_confirmado').length;
-  const escalated = filtered.filter(c => c.status === 'escalado').length;
-  const msgs = filtered.reduce((a,c) => a + (c.messages||[]).length, 0);
-  document.getElementById('stats-bar').innerHTML = [
-    {label:'💬 Conversas', val:total}, {label:'✅ Resolvidas', val:resolved},
-    {label:'⚠️ Escaladas', val:escalated}, {label:'📨 Mensagens', val:msgs}
-  ].map(s => '<div class="stat-card"><div class="label">'+s.label+'</div><div class="value">'+s.val+'</div></div>').join('');
+  var total=filtered.length;
+  var resolved=filtered.filter(function(c){ return c.status==='resolvido'||c.status==='pedido_confirmado'; }).length;
+  var escalated=filtered.filter(function(c){ return c.status==='escalado'; }).length;
+  var msgs=filtered.reduce(function(a,c){ return a+(c.messages||[]).length; },0);
+  document.getElementById('stats-bar').innerHTML=[
+    {label:'💬 Conversas',val:total},{label:'✅ Resolvidas',val:resolved},
+    {label:'⚠️ Escaladas',val:escalated},{label:'📨 Mensagens',val:msgs}
+  ].map(function(s){ return '<div class="stat-card"><div class="label">'+s.label+'</div><div class="value">'+s.val+'</div></div>'; }).join('');
 }
 
 function renderList() {
-  const el = document.getElementById('conv-list');
-  if (filtered.length === 0) {
-    el.innerHTML = '<div class="empty-state">' + (ALL_CONVERSATIONS.length === 0 ? 'Nenhuma conversa na planilha' : 'Nenhuma conversa corresponde ao filtro') + '</div>';
-    document.getElementById('sidebar-footer').textContent = '';
+  var el=document.getElementById('conv-list');
+  if(filtered.length===0){
+    el.innerHTML='<div class="empty-state">'+(ALL_CONVERSATIONS.length===0?'Nenhuma conversa na planilha':'Nenhuma conversa corresponde ao filtro')+'</div>';
+    document.getElementById('sidebar-footer').textContent='';
     return;
   }
-  el.innerHTML = filtered.map(c => {
-    const al = ACTION_LABELS[c.action] || {label: c.action||'—', color:'#94a3b8', bg:'rgba(148,163,184,0.12)'};
-    const sl = STATUS_LABELS[c.status] || {label: c.status||'—', color:'#94a3b8'};
-    const msgs = c.messages || [];
-    const last = msgs[msgs.length-1];
-    const preview = last ? (last.from==='bot'?'🤖 ':'👤 ') + last.text.slice(0,60) + (last.text.length>60?'…':'') : 'Sem mensagens';
-    return '<div class="conv-item'+(c.id===selectedId?' active':'')+'" onclick="selectConv(''+c.id+'')">'+
-      '<div style="display:flex;justify-content:space-between"><span class="name">'+c.customerName+'</span><span style="font-size:11px;color:#64748b">'+formatDate(c.startedAt)+'</span></div>'+
-      '<div class="phone">'+c.phone+'</div>'+
-      '<div class="preview">'+preview+'</div>'+
-      '<div class="tags">'+
-        '<span class="action-badge" style="color:'+al.color+';background:'+al.bg+'">'+al.label+'</span>'+
-        (c.status ? '<span class="status-dot" style="color:'+sl.color+'">● '+sl.label+'</span>' : '')+
-        (c.via_shortcut==='SIM' ? '<span class="shortcut-badge">⚡ atalho</span>' : '')+
-      '</div></div>';
+  el.innerHTML=filtered.map(function(c){
+    var al=ACTION_LABELS[c.action]||{label:c.action||'—',color:'#94a3b8',bg:'rgba(148,163,184,0.12)'};
+    var sl=STATUS_LABELS[c.status]||{label:c.status||'—',color:'#94a3b8'};
+    var msgs=c.messages||[];
+    var last=msgs[msgs.length-1];
+    var preview=last?(last.from==='bot'?'🤖 ':'👤 ')+last.text.slice(0,60)+(last.text.length>60?'…':''):'Sem mensagens';
+    return '<div class="conv-item'+(c.id===selectedId?' active':'')+'" onclick="selectConv(''+c.id+'')">'+'<div style="display:flex;justify-content:space-between"><span class="name">'+c.customerName+'</span><span style="font-size:11px;color:#64748b">'+formatDate(c.startedAt)+'</span></div>'+'<div class="phone">'+c.phone+'</div>'+'<div class="preview">'+preview+'</div>'+'<div class="tags">'+'<span class="action-badge" style="color:'+al.color+';background:'+al.bg+'">'+al.label+'</span>'+(c.status?'<span class="status-dot" style="color:'+sl.color+'">● '+sl.label+'</span>':'')+(c.via_shortcut==='SIM'?'<span class="shortcut-badge">⚡ atalho</span>':'')+'</div></div>';
   }).join('');
-  document.getElementById('sidebar-footer').textContent = '📊 '+filtered.length+' de '+ALL_CONVERSATIONS.length+' conversas · atualiza a cada 10min';
+  document.getElementById('sidebar-footer').textContent='📊 '+filtered.length+' de '+ALL_CONVERSATIONS.length+' conversas · atualiza a cada 10min';
 }
 
 function selectConv(id) {
-  selectedId = id;
+  selectedId=id;
   renderList();
-  const conv = ALL_CONVERSATIONS.find(c => c.id === id);
-  if (!conv) return;
-  const al = ACTION_LABELS[conv.action] || {label:conv.action||'—', color:'#94a3b8', bg:'rgba(148,163,184,0.12)'};
-  const sl = STATUS_LABELS[conv.status] || {label:conv.status||'—', color:'#94a3b8'};
-  const msgs = conv.messages || [];
-  const duration = (() => { const s=new Date(conv.startedAt),e=new Date(conv.lastMessageAt),d=Math.round((e-s)/60000); return isNaN(d)?'—':d+' min'; })();
-  document.getElementById('chat-area').innerHTML =
-    '<div class="chat-header">'+
-      '<div style="display:flex;align-items:center"><div class="avatar">👤</div><div class="chat-header-info"><div class="cname">'+conv.customerName+'</div><div class="cphone">'+conv.phone+'</div></div></div>'+
-      '<div class="chat-header-badges">'+
-        '<span class="hbadge" style="color:'+al.color+';background:'+al.bg+'">'+al.label+'</span>'+
-        '<span class="hbadge" style="color:'+sl.color+';background:rgba(0,0,0,0.2);border:1px solid '+sl.color+'40">● '+sl.label+'</span>'+
-      '</div>'+
-    '</div>'+
+  var conv=ALL_CONVERSATIONS.find(function(c){ return c.id===id; });
+  if(!conv) return;
+  var al=ACTION_LABELS[conv.action]||{label:conv.action||'—',color:'#94a3b8',bg:'rgba(148,163,184,0.12)'};
+  var sl=STATUS_LABELS[conv.status]||{label:conv.status||'—',color:'#94a3b8'};
+  var msgs=conv.messages||[];
+  var duration=(function(){ var s=new Date(conv.startedAt),e=new Date(conv.lastMessageAt),d=Math.round((e-s)/60000); return isNaN(d)?'—':d+' min'; })();
+  document.getElementById('chat-area').innerHTML=
+    '<div class="chat-header">'+'<div style="display:flex;align-items:center"><div class="avatar">👤</div><div class="chat-header-info"><div class="cname">'+conv.customerName+'</div><div class="cphone">'+conv.phone+'</div></div></div>'+'<div class="chat-header-badges">'+'<span class="hbadge" style="color:'+al.color+';background:'+al.bg+'">'+al.label+'</span>'+'<span class="hbadge" style="color:'+sl.color+';background:rgba(0,0,0,0.2);border:1px solid '+sl.color+'40">● '+sl.label+'</span>'+'</div>'+'</div>'+
     '<div class="chat-date">'+formatFullDate(conv.startedAt)+(conv.product?'<span style="margin-left:8px;font-size:10px;background:rgba(255,255,255,0.06);border-radius:6px;padding:2px 8px;color:#94a3b8">📦 '+conv.product+'</span>':'')+'</div>'+
-    '<div class="chat-messages" id="chat-msgs">'+
-      (msgs.length===0 ? '<div style="text-align:center;color:#475569;padding:24px;font-size:13px">Nenhuma mensagem registrada</div>' :
-        msgs.map(m => {
-          const isBot = m.from==='bot';
-          return '<div class="bubble-wrap '+(isBot?'bot':'customer')+'">'+
-            (isBot?'<div class="bubble-avatar bot-av">🤖</div>':'')+
-            '<div class="bubble '+(isBot?'bot':'customer')+'"><p>'+m.text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</p><div class="btime">'+m.time+'</div></div>'+
-            (!isBot?'<div class="bubble-avatar cust-av">👤</div>':'')+
-          '</div>';
-        }).join('')
-      )+
-    '</div>'+
-    '<div class="chat-footer">'+
-      '<span>📊 '+msgs.length+' mensagens</span>'+
-      '<span>⏱️ '+duration+' de conversa</span>'+
-      '<span>🤖 '+msgs.filter(m=>m.from==='bot').length+' respostas do bot</span>'+
-      (conv.via_shortcut==='SIM'?'<span>⚡ Via atalho</span>':'')+
-    '</div>';
-  setTimeout(() => { const m=document.getElementById('chat-msgs'); if(m) m.scrollTop=m.scrollHeight; }, 50);
+    '<div class="chat-messages" id="chat-msgs">'+(msgs.length===0?'<div style="text-align:center;color:#475569;padding:24px;font-size:13px">Nenhuma mensagem registrada</div>':msgs.map(function(m){
+      var isBot=m.from==='bot';
+      var txt=m.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return '<div class="bubble-wrap '+(isBot?'bot':'customer')+'">'+(isBot?'<div class="bubble-avatar bot-av">🤖</div>':'')+'<div class="bubble '+(isBot?'bot':'customer')+'"><p>'+txt+'</p><div class="btime">'+m.time+'</div></div>'+(!isBot?'<div class="bubble-avatar cust-av">👤</div>':'')+'</div>';
+    }).join(''))+'</div>'+
+    '<div class="chat-footer">'+'<span>📊 '+msgs.length+' mensagens</span>'+'<span>⏱️ '+duration+' de conversa</span>'+'<span>🤖 '+msgs.filter(function(m){ return m.from==='bot'; }).length+' respostas do bot</span>'+(conv.via_shortcut==='SIM'?'<span>⚡ Via atalho</span>':'')+'</div>';
+  setTimeout(function(){ var m=document.getElementById('chat-msgs'); if(m) m.scrollTop=m.scrollHeight; },50);
 }
 </script>
 </body>
