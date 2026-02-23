@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2BBOX · Central de Dashboards</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #060810;
+      --surface:  #0d1117;
+      --border:   rgba(255,255,255,0.07);
+      --accent:   #00e5ff;
+      --green:    #25D366;
+      --yellow:   #f5a623;
+      --muted:    #3a4156;
+      --text:     #e8eaf0;
+      --sub:      #5a6480;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,229,255,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .wrap {
+      position: relative; z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 36px 0 0;
+      margin-bottom: 64px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo img { height: 48px; width: auto; display: block; }
+    .logo-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--sub);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .header-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--sub);
+    }
+    .header-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .hero { margin-bottom: 56px; }
+    .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .hero-label::before { content: ''; width: 24px; height: 1px; background: var(--accent); opacity: 0.6; }
+    .hero h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .hero h2 em { font-style: normal; color: transparent; -webkit-text-stroke: 1px rgba(0,229,255,0.5); }
+    .hero p { font-size: 16px; color: var(--sub); max-width: 480px; line-height: 1.6; }
+    .section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 48px; }
+    .card {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .card::before {
+      content: ''; position: absolute; inset: 0; border-radius: 16px;
+      opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+    }
+    .card:hover { transform: translateY(-3px); }
+    .card:hover::before { opacity: 1; }
+    .card[data-color="cyan"]:hover   { border-color: rgba(0,229,255,0.4); box-shadow: 0 8px 32px rgba(0,229,255,0.1); }
+    .card[data-color="cyan"]::before { background: radial-gradient(circle at top left, rgba(0,229,255,0.06), transparent 60%); }
+    .card[data-color="green"]:hover  { border-color: rgba(37,211,102,0.4); box-shadow: 0 8px 32px rgba(37,211,102,0.1); }
+    .card[data-color="green"]::before { background: radial-gradient(circle at top left, rgba(37,211,102,0.06), transparent 60%); }
+    .card[data-color="orange"]:hover { border-color: rgba(245,166,35,0.4); box-shadow: 0 8px 32px rgba(245,166,35,0.1); }
+    .card[data-color="orange"]::before { background: radial-gradient(circle at top left, rgba(245,166,35,0.06), transparent 60%); }
+    .card[data-color="purple"]:hover { border-color: rgba(139,92,246,0.4); box-shadow: 0 8px 32px rgba(139,92,246,0.1); }
+    .card[data-color="purple"]::before { background: radial-gradient(circle at top left, rgba(139,92,246,0.06), transparent 60%); }
+    .card[data-color="pink"]:hover   { border-color: rgba(236,72,153,0.4); box-shadow: 0 8px 32px rgba(236,72,153,0.1); }
+    .card[data-color="pink"]::before { background: radial-gradient(circle at top left, rgba(236,72,153,0.06), transparent 60%); }
+    .card[data-color="blue"]:hover   { border-color: rgba(59,130,246,0.4); box-shadow: 0 8px 32px rgba(59,130,246,0.1); }
+    .card[data-color="blue"]::before { background: radial-gradient(circle at top left, rgba(59,130,246,0.06), transparent 60%); }
+    .card.disabled { cursor: default; pointer-events: none; opacity: 0.5; }
+    .card.disabled:hover { transform: none; box-shadow: none; }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; }
+    .card-icon {
+      width: 46px; height: 46px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .icon-cyan   { background: rgba(0,229,255,0.1);   border: 1px solid rgba(0,229,255,0.2);   }
+    .icon-green  { background: rgba(37,211,102,0.1);  border: 1px solid rgba(37,211,102,0.2);  }
+    .icon-orange { background: rgba(245,166,35,0.1);  border: 1px solid rgba(245,166,35,0.2);  }
+    .icon-purple { background: rgba(139,92,246,0.1);  border: 1px solid rgba(139,92,246,0.2);  }
+    .icon-pink   { background: rgba(236,72,153,0.1);  border: 1px solid rgba(236,72,153,0.2);  }
+    .icon-blue   { background: rgba(59,130,246,0.1);  border: 1px solid rgba(59,130,246,0.2);  }
+    .card-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 500;
+      padding: 4px 10px; border-radius: 6px;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .badge-active { background: rgba(37,211,102,0.12); color: #25D366; border: 1px solid rgba(37,211,102,0.25); }
+    .badge-wip    { background: rgba(245,166,35,0.1);  color: #f5a623; border: 1px solid rgba(245,166,35,0.2);  }
+    .card-body h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 17px; letter-spacing: -0.3px;
+      color: #fff; margin-bottom: 6px; line-height: 1.2;
+    }
+    .card-body p { font-size: 13px; color: var(--sub); line-height: 1.5; }
+    .card-number {
+      position: absolute; bottom: 20px; right: 24px;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 52px;
+      color: rgba(255,255,255,0.03); line-height: 1;
+      pointer-events: none; user-select: none;
+    }
+    .card-arrow { font-size: 16px; color: var(--muted); transition: transform 0.2s, color 0.2s; margin-top: 2px; }
+    .card:hover .card-arrow { transform: translate(3px, -3px); color: var(--accent); }
+    footer {
+      border-top: 1px solid var(--border); padding-top: 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    footer p { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+    footer .powered span { color: var(--sub); }
+    .card { animation: fadeUp 0.5s ease both; }
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.10s; }
+    .card:nth-child(3) { animation-delay: 0.15s; }
+    .card:nth-child(4) { animation-delay: 0.20s; }
+    .card:nth-child(5) { animation-delay: 0.25s; }
+    .card:nth-child(6) { animation-delay: 0.30s; }
+    .hero  { animation: fadeUp 0.5s ease both; }
+    header { animation: fadeUp 0.4s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 600px) {
+      header { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 40px; }
+      .grid  { grid-template-columns: 1fr; }
+      .hero h2 { font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">
+      <img src="data:image/png;base64,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" alt="2BBOX" />
+      <span class="logo-sub">Central de Dashboards</span>
+    </div>
+    <div class="header-badge">
+      <span class="dot"></span>
+      Sistemas Operacionais
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-label">Hub de acesso</div>
+    <h2>Seus <em>dados</em><br>em um só lugar.</h2>
+    <p>Painel central de acesso a todos os sistemas de gestão, automação e inteligência operacional da 2BBOX.</p>
+  </section>
+
+  <div class="section-title">Dashboards Ativos</div>
+
+  <div class="grid">
+    <a href="pedrobot-history.html" class="card" data-color="green">
+      <div class="card-top">
+        <div class="card-icon icon-green">🤖</div>
+        <span class="card-badge badge-active">● Ativo</span>
+      </div>
+      <div class="card-body">
+        <h3>Histórico PedroBot</h3>
+        <p>Conversas do WhatsApp Bot. Visualize interações, ações e status de cada atendimento em tempo real.</p>
+      </div>
+      <div class="card-arrow">↗</div>
+      <div class="card-number">01</div>
+    </a>
+
+    <a href="index.html" class="card" data-color="cyan">
+      <div class="card-top">
+        <div class="card-icon icon-cyan">🛒</div>
+        <span class="card-badge badge-active">● Ativo</span>
+      </div>
+      <div class="card-body">
+        <h3>Pedidos Mercado Livre</h3>
+        <p>Controle de pedidos com prazos de entrega, status de envio e alertas de atrasos em tempo real.</p>
+      </div>
+      <div class="card-arrow">↗</div>
+      <div class="card-number">02</div>
+    </a>
+  </div>
+
+  <div class="section-title">Em Construção</div>
+
+  <div class="grid">
+    <div class="card disabled" data-color="orange">
+      <div class="card-top">
+        <div class="card-icon icon-orange">🏭</div>
+        <span class="card-badge badge-wip">Em Construção</span>
+      </div>
+      <div class="card-body">
+        <h3>Dashboard de Produção</h3>
+        <p>Controle de fila de produção, tempo por pedido e capacidade diária de fabricação.</p>
+      </div>
+      <div class="card-number">03</div>
+    </div>
+
+    <div class="card disabled" data-color="purple">
+      <div class="card-top">
+        <div class="card-icon icon-purple">🛍️</div>
+        <span class="card-badge badge-wip">Em Construção</span>
+      </div>
+      <div class="card-body">
+        <h3>Pedidos E-commerce Tray</h3>
+        <p>Gestão de pedidos da loja própria. Integração direta com a plataforma Tray Commerce.</p>
+      </div>
+      <div class="card-number">04</div>
+    </div>
+
+    <div class="card disabled" data-color="blue">
+      <div class="card-top">
+        <div class="card-icon icon-blue">📊</div>
+        <span class="card-badge badge-wip">Em Construção</span>
+      </div>
+      <div class="card-body">
+        <h3>Dashboards Administrativos</h3>
+        <p>Indicadores financeiros, fluxo de caixa, custos operacionais e relatórios gerenciais.</p>
+      </div>
+      <div class="card-number">05</div>
+    </div>
+
+    <div class="card disabled" data-color="pink">
+      <div class="card-top">
+        <div class="card-icon icon-pink">📈</div>
+        <span class="card-badge badge-wip">Em Construção</span>
+      </div>
+      <div class="card-body">
+        <h3>Dashboards Comerciais</h3>
+        <p>Métricas de vendas, desempenho por canal, conversão do PedroBot e análise de produtos.</p>
+      </div>
+      <div class="card-number">06</div>
+    </div>
+  </div>
+
+  <footer>
+    <p>2BBOX · Gestão Inteligente · 2026</p>
+    <p class="powered">Automação via <span>n8n + Claude</span></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PedroBot · Histórico de Conversas · 2BBOX</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f172a; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60%  { transform: translateX(-8px); }
+      40%, 80%  { transform: translateX(8px); }
+    }
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo, useCallback, useEffect, useRef } = React;
+
+    const API_URL = "https://cases2bbox.app.n8n.cloud/webhook/pedrobot-history";
+    const REFRESH_INTERVAL_MS = 60 * 1000;
+
+    const ACTION_LABELS = {
+      BUSCAR_PRODUTO:        { label: "Buscar Produto",       color: "#10b981", bg: "rgba(16,185,129,0.12)" },
+      ORCAMENTO_CUSTOMIZADO: { label: "Orçamento Custom",     color: "#8b5cf6", bg: "rgba(139,92,246,0.12)" },
+      DJ_FORA_CATALOGO:      { label: "Fora do Catálogo",     color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
+      ESCALAR_HUMANO:        { label: "Escalado",             color: "#ef4444", bg: "rgba(239,68,68,0.12)"  },
+      CONFIRMAR_PEDIDO:      { label: "Confirmar Pedido",     color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
+      CONFIRMAR_DIMENSOES:   { label: "Confirmar Dimensões",  color: "#06b6d4", bg: "rgba(6,182,212,0.12)"  },
+      INFORMAR_CEP:          { label: "Informar CEP",         color: "#64748b", bg: "rgba(100,116,139,0.12)" },
+      FRETE_ESCOLHIDO:       { label: "Frete Escolhido",      color: "#22c55e", bg: "rgba(34,197,94,0.12)"  },
+      DUVIDA:                { label: "Dúvida Geral",         color: "#94a3b8", bg: "rgba(148,163,184,0.12)" },
+    };
+
+    const STATUS_LABELS = {
+      resolvido:         { label: "Resolvido",  color: "#10b981" },
+      pedido_confirmado: { label: "Confirmado", color: "#3b82f6" },
+      escalado:          { label: "Escalado",   color: "#f59e0b" },
+      em_andamento:      { label: "Andamento",  color: "#6366f1" },
+      inicio:            { label: "Início",     color: "#64748b" },
+    };
+
+    function useConversations() {
+      const [conversations, setConversations] = useState([]);
+      const [loading, setLoading]             = useState(true);
+      const [error, setError]                 = useState(null);
+      const [lastUpdated, setLastUpdated]     = useState(null);
+      const intervalRef                       = useRef(null);
+
+      const fetchData = useCallback(async (silent = false) => {
+        if (!silent) setLoading(true);
+        setError(null);
+        try {
+          const res = await fetch(API_URL);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          if (!data.success) throw new Error("API retornou erro");
+          setConversations(data.conversations || []);
+          setLastUpdated(new Date());
+        } catch (err) {
+          setError(err.message || "Erro ao carregar conversas");
+        } finally {
+          setLoading(false);
+        }
+      }, []);
+
+      useEffect(() => {
+        fetchData();
+        intervalRef.current = setInterval(() => fetchData(true), REFRESH_INTERVAL_MS);
+        return () => clearInterval(intervalRef.current);
+      }, [fetchData]);
+
+      return { conversations, loading, error, lastUpdated, refresh: () => fetchData() };
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      const today     = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      if (d.toDateString() === today.toDateString())     return "Hoje";
+      if (d.toDateString() === yesterday.toDateString()) return "Ontem";
+      return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+    }
+
+    function formatFullDate(dateStr) {
+      if (!dateStr) return "";
+      return new Date(dateStr).toLocaleDateString("pt-BR", {
+        day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
+      });
+    }
+
+    function LoginScreen({ onLogin }) {
+      const [pw,    setPw]    = useState("");
+      const [error, setError] = useState(false);
+      const [shake, setShake] = useState(false);
+
+      const handleSubmit = () => {
+        if (pw === "2bbox2026") {
+          onLogin();
+        } else {
+          setError(true);
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
+        }
+      };
+
+      return (
+        <div style={{
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontFamily: "'DM Sans', sans-serif",
+        }}>
+          <div style={{
+            background: "rgba(30,41,59,0.8)",
+            backdropFilter: "blur(20px)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 20,
+            padding: "48px 40px",
+            width: 380,
+            textAlign: "center",
+            animation: shake ? "shake 0.5s ease-in-out" : undefined,
+          }}>
+            <div style={{ fontSize: 48, marginBottom: 8 }}>🤖</div>
+            <h1 style={{
+              color: "#f8fafc", fontSize: 22, fontWeight: 700, margin: "0 0 4px 0",
+              fontFamily: "'Space Mono', monospace", letterSpacing: "-0.5px",
+            }}>PedroBot</h1>
+            <p style={{ color: "#94a3b8", fontSize: 13, margin: "0 0 32px 0" }}>
+              Histórico de Conversas · 2BBOX
+            </p>
+
+            <input
+              type="password"
+              placeholder="Senha de acesso"
+              value={pw}
+              onChange={e => { setPw(e.target.value); setError(false); }}
+              onKeyDown={e => e.key === "Enter" && handleSubmit()}
+              style={{
+                width: "100%", padding: "14px 16px", borderRadius: 12,
+                border: error ? "2px solid #ef4444" : "2px solid rgba(255,255,255,0.1)",
+                background: "rgba(15,23,42,0.6)", color: "#f8fafc", fontSize: 15,
+                outline: "none", boxSizing: "border-box", transition: "border-color 0.2s",
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+            />
+            {error && <p style={{ color: "#ef4444", fontSize: 12, margin: "8px 0 0" }}>Senha incorreta</p>}
+
+            <button
+              onClick={handleSubmit}
+              style={{
+                width: "100%", padding: "14px", borderRadius: 12, border: "none",
+                background: "linear-gradient(135deg, #25D366, #128C7E)",
+                color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer",
+                marginTop: 16, fontFamily: "'DM Sans', sans-serif",
+                transition: "transform 0.15s, box-shadow 0.15s",
+              }}
+              onMouseEnter={e => { e.target.style.transform = "translateY(-1px)"; e.target.style.boxShadow = "0 4px 20px rgba(37,211,102,0.3)"; }}
+              onMouseLeave={e => { e.target.style.transform = ""; e.target.style.boxShadow = ""; }}
+            >
+              Entrar
+            </button>
+
+            <p style={{ color: "#475569", fontSize: 11, marginTop: 24 }}>
+              ⓘ Acesso restrito ao administrador
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    function SkeletonItem() {
+      return (
+        <div style={{ padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+            <div style={{ width: 120, height: 13, borderRadius: 6, background: "rgba(255,255,255,0.07)", animation: "pulse 1.5s infinite" }} />
+            <div style={{ width: 40,  height: 11, borderRadius: 6, background: "rgba(255,255,255,0.05)", animation: "pulse 1.5s infinite" }} />
+          </div>
+          <div style={{ width: 100, height: 11, borderRadius: 6, background: "rgba(255,255,255,0.05)", marginBottom: 6, animation: "pulse 1.5s infinite" }} />
+          <div style={{ width: "80%", height: 11, borderRadius: 6, background: "rgba(255,255,255,0.05)", animation: "pulse 1.5s infinite" }} />
+        </div>
+      );
+    }
+
+    function StatsBar({ conversations }) {
+      const total     = conversations.length;
+      const resolved  = conversations.filter(c => c.status === "resolvido" || c.status === "pedido_confirmado").length;
+      const escalated = conversations.filter(c => c.status === "escalado").length;
+      const totalMsgs = conversations.reduce((acc, c) => acc + (c.messages?.length || 0), 0);
+
+      const stats = [
+        { label: "Conversas", value: total,     icon: "💬" },
+        { label: "Resolvidas", value: resolved,  icon: "✅" },
+        { label: "Escaladas",  value: escalated, icon: "⚠️" },
+        { label: "Mensagens",  value: totalMsgs, icon: "📨" },
+      ];
+
+      return (
+        <div style={{
+          display: "flex", gap: 12, padding: "16px 20px",
+          borderBottom: "1px solid rgba(255,255,255,0.06)", overflowX: "auto",
+        }}>
+          {stats.map(s => (
+            <div key={s.label} style={{
+              background: "rgba(255,255,255,0.04)", borderRadius: 12,
+              padding: "10px 16px", minWidth: 100, flex: 1,
+            }}>
+              <div style={{ fontSize: 11, color: "#64748b", marginBottom: 2 }}>{s.icon} {s.label}</div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: "#f1f5f9", fontFamily: "'Space Mono', monospace" }}>
+                {s.value}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    function ConvListItem({ conv, isActive, onClick }) {
+      const action  = ACTION_LABELS[conv.action]  || { label: conv.action || "—", color: "#94a3b8", bg: "rgba(148,163,184,0.12)" };
+      const messages = conv.messages || [];
+      const lastMsg  = messages[messages.length - 1];
+
+      return (
+        <div
+          onClick={onClick}
+          style={{
+            padding: "14px 20px", cursor: "pointer",
+            borderLeft: isActive ? "3px solid #25D366" : "3px solid transparent",
+            background: isActive ? "rgba(37,211,102,0.06)" : "transparent",
+            borderBottom: "1px solid rgba(255,255,255,0.04)",
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+          onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+            <span style={{ color: "#f1f5f9", fontWeight: 600, fontSize: 14 }}>{conv.customerName || "Cliente"}</span>
+            <span style={{ color: "#64748b", fontSize: 11, whiteSpace: "nowrap" }}>{formatDate(conv.startedAt)}</span>
+          </div>
+          <div style={{ color: "#64748b", fontSize: 12, marginBottom: 6 }}>{conv.phone}</div>
+          <div style={{
+            color: "#94a3b8", fontSize: 12,
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            marginBottom: 8,
+          }}>
+            {lastMsg
+              ? <>{lastMsg.from === "bot" ? "🤖 " : "👤 "}{lastMsg.text.slice(0, 60)}{lastMsg.text.length > 60 ? "…" : ""}</>
+              : <span style={{ color: "#475569" }}>Sem mensagens registradas</span>
+            }
+          </div>
+          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+            <span style={{
+              fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 6,
+              color: action.color, background: action.bg, letterSpacing: "0.3px",
+            }}>{action.label}</span>
+            {conv.status && (
+              <span style={{ fontSize: 10, color: STATUS_LABELS[conv.status]?.color || "#94a3b8" }}>
+                ● {STATUS_LABELS[conv.status]?.label || conv.status}
+              </span>
+            )}
+            {conv.via_shortcut === "SIM" && (
+              <span style={{ fontSize: 10, color: "#475569" }}>⚡ atalho</span>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function ChatBubble({ msg }) {
+      const isBot = msg.from === "bot";
+      return (
+        <div style={{
+          display: "flex",
+          justifyContent: isBot ? "flex-start" : "flex-end",
+          marginBottom: 12, padding: "0 20px",
+        }}>
+          {isBot && (
+            <div style={{
+              width: 28, height: 28, borderRadius: "50%",
+              background: "linear-gradient(135deg, #25D366, #128C7E)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 14, marginRight: 8, flexShrink: 0, alignSelf: "flex-end",
+            }}>🤖</div>
+          )}
+          <div style={{
+            maxWidth: "72%",
+            background: isBot ? "rgba(255,255,255,0.06)" : "rgba(37,211,102,0.15)",
+            borderRadius: isBot ? "4px 16px 16px 16px" : "16px 4px 16px 16px",
+            padding: "10px 14px",
+            border: isBot ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(37,211,102,0.2)",
+          }}>
+            <p style={{
+              color: "#e2e8f0", fontSize: 13.5, lineHeight: 1.5,
+              margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word",
+            }}>{msg.text}</p>
+            <span style={{ fontSize: 10, color: "#475569", display: "block", textAlign: "right", marginTop: 4 }}>
+              {msg.time}
+            </span>
+          </div>
+          {!isBot && (
+            <div style={{
+              width: 28, height: 28, borderRadius: "50%",
+              background: "rgba(255,255,255,0.08)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 14, marginLeft: 8, flexShrink: 0, alignSelf: "flex-end",
+            }}>👤</div>
+          )}
+        </div>
+      );
+    }
+
+    function ChatView({ conv }) {
+      const msgEndRef = useRef(null);
+      useEffect(() => { msgEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [conv]);
+
+      if (!conv) {
+        return (
+          <div style={{
+            flex: 1, display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            color: "#334155", gap: 12,
+          }}>
+            <span style={{ fontSize: 48 }}>💬</span>
+            <p style={{ fontSize: 14 }}>Selecione uma conversa</p>
+          </div>
+        );
+      }
+
+      const action    = ACTION_LABELS[conv.action]  || { label: conv.action || "—", color: "#94a3b8", bg: "rgba(148,163,184,0.12)" };
+      const statusCfg = STATUS_LABELS[conv.status]  || { label: conv.status || "—", color: "#94a3b8" };
+      const messages  = conv.messages || [];
+
+      return (
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          <div style={{
+            padding: "14px 24px",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            flexShrink: 0,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: "50%",
+                background: "linear-gradient(135deg, #1e293b, #334155)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 18,
+              }}>👤</div>
+              <div>
+                <div style={{ color: "#f1f5f9", fontWeight: 600, fontSize: 15 }}>{conv.customerName || "Cliente"}</div>
+                <div style={{ color: "#64748b", fontSize: 12 }}>{conv.phone}</div>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <span style={{
+                fontSize: 11, fontWeight: 600, padding: "4px 12px", borderRadius: 8,
+                color: action.color, background: action.bg,
+              }}>{action.label}</span>
+              <span style={{
+                fontSize: 11, padding: "4px 12px", borderRadius: 8,
+                color: statusCfg.color, background: "rgba(0,0,0,0.2)",
+                border: `1px solid ${statusCfg.color}40`,
+              }}>● {statusCfg.label}</span>
+            </div>
+          </div>
+
+          <div style={{ textAlign: "center", padding: "12px", fontSize: 11, color: "#475569" }}>
+            {new Date(conv.startedAt).toLocaleDateString("pt-BR", {
+              day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
+            })}
+            {conv.product && (
+              <span style={{
+                marginLeft: 8, fontSize: 10,
+                background: "rgba(255,255,255,0.06)", borderRadius: 6, padding: "2px 8px",
+                color: "#94a3b8",
+              }}>📦 {conv.product}</span>
+            )}
+          </div>
+
+          <div style={{ flex: 1, overflowY: "auto", paddingTop: 8, paddingBottom: 16 }}>
+            {messages.length === 0 ? (
+              <div style={{ textAlign: "center", color: "#475569", padding: 24, fontSize: 13 }}>
+                Nenhuma mensagem registrada para esta sessão
+              </div>
+            ) : (
+              messages.map(msg => <ChatBubble key={msg.id} msg={msg} />)
+            )}
+            <div ref={msgEndRef} />
+          </div>
+
+          <div style={{
+            padding: "10px 24px",
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+            display: "flex", gap: 20, color: "#475569", fontSize: 11, flexShrink: 0,
+          }}>
+            <span>📊 {messages.length} mensagens</span>
+            <span>⏱️ {(() => {
+              const start = new Date(conv.startedAt);
+              const end   = new Date(conv.lastMessageAt);
+              const diff  = Math.round((end - start) / 60000);
+              return isNaN(diff) ? "—" : `${diff} min`;
+            })()} de conversa</span>
+            <span>🤖 {messages.filter(m => m.from === "bot").length} respostas do bot</span>
+            {conv.via_shortcut === "SIM" && <span>⚡ Via atalho</span>}
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [authenticated, setAuthenticated] = useState(false);
+      const [selectedId,    setSelectedId]    = useState(null);
+      const [searchTerm,    setSearchTerm]    = useState("");
+      const [filterAction,  setFilterAction]  = useState("all");
+      const [filterStatus,  setFilterStatus]  = useState("all");
+
+      const { conversations, loading, error, lastUpdated, refresh } = useConversations();
+
+      const filtered = useMemo(() => {
+        return conversations.filter(c => {
+          const matchSearch = searchTerm === "" ||
+            (c.customerName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (c.phone || "").includes(searchTerm) ||
+            (c.product || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (c.messages || []).some(m => m.text.toLowerCase().includes(searchTerm.toLowerCase()));
+          const matchAction = filterAction === "all" || c.action === filterAction;
+          const matchStatus = filterStatus === "all" || c.status === filterStatus;
+          return matchSearch && matchAction && matchStatus;
+        });
+      }, [conversations, searchTerm, filterAction, filterStatus]);
+
+      const selectedConv = conversations.find(c => c.id === selectedId);
+
+      if (!authenticated) return <LoginScreen onLogin={() => setAuthenticated(true)} />;
+
+      return (
+        <div style={{
+          height: "100vh",
+          background: "#0f172a",
+          fontFamily: "'DM Sans', sans-serif",
+          display: "flex", flexDirection: "column",
+          color: "#e2e8f0",
+        }}>
+          {/* Top bar */}
+          <div style={{
+            padding: "12px 24px",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            flexShrink: 0,
+            background: "rgba(15,23,42,0.95)",
+            backdropFilter: "blur(10px)",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 24 }}>🤖</span>
+              <div>
+                <h1 style={{
+                  fontSize: 17, fontWeight: 700, letterSpacing: "-0.5px",
+                  fontFamily: "'Space Mono', monospace", color: "#f8fafc", lineHeight: 1.2,
+                }}>PedroBot</h1>
+                <span style={{ fontSize: 11, color: "#64748b" }}>Histórico de Conversas</span>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              {lastUpdated && !loading && (
+                <span style={{ fontSize: 10, color: "#334155" }}>
+                  atualizado {lastUpdated.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              )}
+              <button
+                onClick={refresh}
+                disabled={loading}
+                title="Atualizar dados"
+                style={{
+                  background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 8, padding: "6px 10px", cursor: loading ? "not-allowed" : "pointer",
+                  color: "#94a3b8", fontSize: 14,
+                  animation: loading ? "spin 1s linear infinite" : "none",
+                  display: "inline-block",
+                }}
+              >↻</button>
+              <div style={{ fontSize: 11, color: "#25D366", display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#25D366", display: "inline-block" }}></span>
+                Bot Online
+              </div>
+              <span style={{
+                background: "rgba(255,255,255,0.06)", borderRadius: 8,
+                padding: "4px 12px", fontSize: 11, color: "#94a3b8", fontWeight: 500,
+              }}>2BBOX</span>
+            </div>
+          </div>
+
+          {/* Error banner */}
+          {error && (
+            <div style={{
+              background: "rgba(239,68,68,0.1)", borderBottom: "1px solid rgba(239,68,68,0.2)",
+              padding: "10px 24px", fontSize: 12, color: "#f87171",
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+            }}>
+              <span>⚠️ Erro ao carregar conversas: {error}</span>
+              <button
+                onClick={refresh}
+                style={{
+                  background: "rgba(239,68,68,0.2)", border: "none", borderRadius: 6,
+                  color: "#f87171", fontSize: 11, padding: "4px 10px", cursor: "pointer",
+                }}
+              >Tentar novamente</button>
+            </div>
+          )}
+
+          {/* Stats */}
+          <StatsBar conversations={filtered} />
+
+          {/* Main content */}
+          <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+            {/* Sidebar */}
+            <div style={{
+              width: 360, borderRight: "1px solid rgba(255,255,255,0.06)",
+              display: "flex", flexDirection: "column", flexShrink: 0,
+            }}>
+              <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                <input
+                  type="text"
+                  placeholder="🔍 Buscar por nome, telefone ou produto..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  style={{
+                    width: "100%", padding: "10px 14px", borderRadius: 10,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.04)", color: "#e2e8f0", fontSize: 13,
+                    outline: "none", fontFamily: "'DM Sans', sans-serif", marginBottom: 10,
+                  }}
+                />
+                <div style={{ display: "flex", gap: 8 }}>
+                  <select
+                    value={filterAction}
+                    onChange={e => setFilterAction(e.target.value)}
+                    style={{
+                      flex: 1, padding: "8px 10px", borderRadius: 8,
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      background: "rgba(15,23,42,0.8)", color: "#94a3b8",
+                      fontSize: 12, outline: "none", cursor: "pointer",
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  >
+                    <option value="all">Todas ações</option>
+                    {Object.entries(ACTION_LABELS).map(([key, val]) => (
+                      <option key={key} value={key}>{val.label}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={filterStatus}
+                    onChange={e => setFilterStatus(e.target.value)}
+                    style={{
+                      flex: 1, padding: "8px 10px", borderRadius: 8,
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      background: "rgba(15,23,42,0.8)", color: "#94a3b8",
+                      fontSize: 12, outline: "none", cursor: "pointer",
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  >
+                    <option value="all">Todos status</option>
+                    {Object.entries(STATUS_LABELS).map(([key, val]) => (
+                      <option key={key} value={key}>{val.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ flex: 1, overflowY: "auto" }}>
+                {loading && conversations.length === 0 ? (
+                  Array.from({ length: 6 }).map((_, i) => <SkeletonItem key={i} />)
+                ) : filtered.length === 0 ? (
+                  <div style={{ padding: 32, textAlign: "center", color: "#475569", fontSize: 13 }}>
+                    {conversations.length === 0
+                      ? "Nenhuma conversa encontrada na planilha"
+                      : "Nenhuma conversa corresponde ao filtro"}
+                  </div>
+                ) : (
+                  filtered.map(conv => (
+                    <ConvListItem
+                      key={conv.id}
+                      conv={conv}
+                      isActive={conv.id === selectedId}
+                      onClick={() => setSelectedId(conv.id)}
+                    />
+                  ))
+                )}
+              </div>
+
+              <div style={{
+                padding: "10px 16px",
+                borderTop: "1px solid rgba(255,255,255,0.04)",
+                fontSize: 10, color: "#334155", textAlign: "center",
+              }}>
+                {loading
+                  ? "⏳ Carregando dados do Google Sheets…"
+                  : `📊 ${filtered.length} de ${conversations.length} conversas · atualiza a cada 60s`
+                }
+              </div>
+            </div>
+
+            {/* Chat view */}
+            <ChatView conv={selectedConv} />
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
