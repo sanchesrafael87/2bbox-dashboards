@@ -83,36 +83,8 @@ body { background: #0f172a; font-family: 'DM Sans', sans-serif; color: #e2e8f0; 
       <div class="filters">
         <input type="text" id="search-input" placeholder="Buscar por nome, telefone ou produto..." />
         <div class="filters-row">
-          <select id="filter-action">
-            <option value="">Todas acoes</option>
-            <option value="BUSCAR_PRODUTO">Buscar Produto</option>
-            <option value="PRODUTO_ENCONTRADO">Produto Encontrado</option>
-            <option value="MODELO_ESCOLHIDO">Modelo Escolhido</option>
-            <option value="ORCAMENTO_CUSTOMIZADO">Orcamento Custom</option>
-            <option value="DJ_FORA_CATALOGO">Fora do Catalogo</option>
-            <option value="ESCALAR_HUMANO">Escalado</option>
-            <option value="CONFIRMAR_PEDIDO">Confirmar Pedido</option>
-            <option value="CONFIRMAR_DIMENSOES">Confirmar Dimensoes</option>
-            <option value="INFORMAR_CEP">Informar CEP</option>
-            <option value="FRETE_ESCOLHIDO">Frete Escolhido</option>
-            <option value="DUVIDA">Duvida Geral</option>
-            <option value="SAUDACAO">Saudacao</option>
-            <option value="AGUARDANDO_CONFIRMACAO">Aguard. Confirm.</option>
-            <option value="ESCOLHER_OPCIONAIS">Escolher Opcionais</option>
-            <option value="DUVIDA_PAGAMENTO">Duvida Pagamento</option>
-            <option value="AGRADECIMENTO">Agradecimento</option>
-            <option value="GPT">GPT</option>
-          </select>
-          <select id="filter-status">
-            <option value="">Todos status</option>
-            <option value="resolvido">Resolvido</option>
-            <option value="pedido_confirmado">Confirmado</option>
-            <option value="AGUARDANDO_CONFIRMACAO">Aguard. Confirm.</option>
-            <option value="escalado">Escalado</option>
-            <option value="em_andamento">Andamento</option>
-            <option value="inicio">Inicio</option>
-            <option value="aguardando_comercial">Aguard. Comercial</option>
-          </select>
+          <select id="filter-action"><option value="">Todas acoes</option></select>
+          <select id="filter-status"><option value="">Todos status</option></select>
         </div>
       </div>
       <div class="conv-list" id="conv-list"></div>
@@ -376,6 +348,7 @@ function loadData() {
     var dismissals = results[1];
     var dSet = new Set(dismissals.map(function(d) { return d.dismiss_key; }));
     processData(rows, dSet);
+    populateFilters();
     applyFilters();
     renderEscalacoes();
     renderPedidos();
@@ -440,6 +413,29 @@ function renderStats() {
   ].map(function(s) {
     return '<div class=stat-card><div class=label>' + s.l + '</div><div class=value>' + s.v + '</div></div>';
   }).join('');
+}
+
+// ===== POPULATE FILTERS FROM DATA =====
+function populateFilters() {
+  var actionSel = document.getElementById('filter-action');
+  var statusSel = document.getElementById('filter-status');
+  var curA = actionSel.value, curS = statusSel.value;
+  var actions = {}, statuses = {};
+  AC.forEach(function(c) {
+    if (c.action) actions[c.action.toUpperCase()] = (actions[c.action.toUpperCase()] || 0) + 1;
+    if (c.status) statuses[c.status] = (statuses[c.status] || 0) + 1;
+  });
+  var aLabels = { GPT:'GPT', PRODUTO_ENCONTRADO:'Produto Encontrado', MODELO_ESCOLHIDO:'Modelo Escolhido', AGUARDANDO_CONFIRMACAO:'Aguard. Confirmacao', FRETE_COTADO:'Frete Cotado', PEDIDO_CONFIRMADO:'Pedido Confirmado', ESCALADO:'Escalado', NOTIFICACAO_COMERCIAL_ESCALACAO:'Notif. Escalacao', NOTIFICACAO_COMERCIAL_PEDIDO:'Notif. Pedido', FOLLOWUP:'Follow-up' };
+  var sLabels = { QUALIFICACAO:'Qualificacao', CONFIRMAR_VERSAO:'Confirmar Versao', CONFIRMAR_FAMILIA:'Confirmar Familia', CONFIRMACAO_PEDIDO:'Confirmacao Pedido', ESCOLHER_FRETE:'Escolher Frete', MAIS_ITENS_OU_PEDIDO:'Mais Itens/Pedido', PEDIDO_CONFIRMADO:'Pedido Confirmado', ESCALADO_COMERCIAL:'Escalado Comercial', pedido_confirmado:'Pedido Confirmado', escalado:'Escalado' };
+  actionSel.innerHTML = '<option value="">Todas acoes</option>';
+  Object.keys(actions).sort(function(a,b){ return actions[b]-actions[a]; }).forEach(function(k) {
+    actionSel.innerHTML += '<option value="' + k + '">' + (aLabels[k] || k) + ' (' + actions[k] + ')</option>';
+  });
+  statusSel.innerHTML = '<option value="">Todos status</option>';
+  Object.keys(statuses).sort(function(a,b){ return statuses[b]-statuses[a]; }).forEach(function(k) {
+    statusSel.innerHTML += '<option value="' + k + '">' + (sLabels[k] || k) + ' (' + statuses[k] + ')</option>';
+  });
+  actionSel.value = curA; statusSel.value = curS;
 }
 
 // ===== FILTERS =====
