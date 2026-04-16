@@ -131,7 +131,19 @@ var ACTION_LABELS = {
   AGRADECIMENTO:         { label: 'Agradecimento',       color: '#84cc16', bg: 'rgba(132,204,22,0.12)' },
   GPT:                   { label: 'GPT',                 color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
   NOTIFICACAO_COMERCIAL_ESCALACAO: { label: 'Escalado', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
-  NOTIFICACAO_COMERCIAL_PEDIDO:    { label: 'Pedido Confirmado', color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' }
+  NOTIFICACAO_COMERCIAL_PEDIDO:    { label: 'Pedido Confirmado', color: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
+  FRETE_COTADO:              { label: 'Frete Cotado',       color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)' },
+  FRETE_BLOQUEADO_SEM_DADOS: { label: 'Frete Manual',       color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+  POS_ATENDIMENTO:           { label: 'Pos-Atendimento',    color: '#64748b', bg: 'rgba(100,116,139,0.12)' },
+  PEDIDO_CONFIRMADO:         { label: 'Pedido Confirmado',  color: '#22c55e', bg: 'rgba(34,197,94,0.12)' },
+  ESCALADO:                  { label: 'Escalado',           color: '#a855f7', bg: 'rgba(168,85,247,0.12)' },
+  MEDIA_ESCALADA:            { label: 'Media Escalada',     color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
+  MEDIA_PEDIDO_TEXTO:        { label: 'Pediu Texto',        color: '#f97316', bg: 'rgba(249,115,22,0.12)' },
+  PEDIDO_HUMANO_ESCALADO:    { label: 'Pediu Humano',       color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
+  FOLLOWUP_ESCALADO:         { label: 'Follow-up Escalado', color: '#dc2626', bg: 'rgba(220,38,38,0.12)' },
+  POS_COMPRA_ESCALADO:       { label: 'Pos-Compra',         color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+  CATALOGO_MULTIPLOS:        { label: 'Catalogo Multiplos', color: '#64748b', bg: 'rgba(100,116,139,0.12)' },
+  CATALOGO_LOOP_BLOQUEADO:   { label: 'Catalogo Loop',      color: '#dc2626', bg: 'rgba(220,38,38,0.12)' }
 };
 
 var STATUS_LABELS = {
@@ -285,7 +297,7 @@ function processData(rows, dismissSet) {
     if (r.resposta_bot) conv.messages.push({ from: 'bot', text: r.resposta_bot, time: tm });
 
     // Detect escalacoes (dedup by session_id)
-    var isEsc = ac.indexOf('NOTIFICACAO_COMERCIAL_ESCALACAO') >= 0 || ac === 'ESCALAR_HUMANO' || st === 'escalado' || st === 'escalado_timeout';
+    var isEsc = ac.indexOf('NOTIFICACAO_COMERCIAL_ESCALACAO') >= 0 || ac === 'ESCALAR_HUMANO' || ac === 'ESCALADO' || ac === 'MEDIA_ESCALADA' || ac === 'PEDIDO_HUMANO_ESCALADO' || ac === 'FOLLOWUP_ESCALADO' || ac === 'POS_COMPRA_ESCALADO' || st === 'escalado' || st === 'escalado_timeout' || st === 'escalado_comercial';
     if (isEsc && !escSeen[sid]) {
       escSeen[sid] = true;
       // Check dismiss: any dismiss_key starting with session_id|escalacao|
@@ -310,7 +322,7 @@ function processData(rows, dismissSet) {
     }
 
     // Detect pedidos (dedup by session_id)
-    var isPed = ac.indexOf('NOTIFICACAO_COMERCIAL_PEDIDO') >= 0 || st === 'pedido_confirmado' || st === 'aguardando_comercial';
+    var isPed = ac.indexOf('NOTIFICACAO_COMERCIAL_PEDIDO') >= 0 || ac === 'PEDIDO_CONFIRMADO' || st === 'pedido_confirmado' || st === 'aguardando_comercial';
     if (isPed && !pedSeen[sid]) {
       pedSeen[sid] = true;
       var dismissed2 = false;
