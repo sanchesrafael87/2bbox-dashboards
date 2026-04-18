@@ -147,7 +147,8 @@ var ACTION_LABELS = {
   CATALOGO_PRECO_VIOLADO:    { label: 'Preco Violado',      color: '#dc2626', bg: 'rgba(220,38,38,0.12)' },
   ESCALACAO_FANTASMA_BLOQUEADA: { label: 'Escalacao Fantasma', color: '#dc2626', bg: 'rgba(220,38,38,0.12)' },
   ESCALACAO_SEM_RESUMO_BLOQUEADA: { label: 'Esc. Sem Resumo', color: '#dc2626', bg: 'rgba(220,38,38,0.12)' },
-  CUSTOMIZADO_SEM_TRIGGER_BLOQUEADO: { label: 'Custom. Bloqueado', color: '#dc2626', bg: 'rgba(220,38,38,0.12)' }
+  CUSTOMIZADO_SEM_TRIGGER_BLOQUEADO: { label: 'Custom. Bloqueado', color: '#dc2626', bg: 'rgba(220,38,38,0.12)' },
+  PEDIDO_CUSTOM_CONFIRMADO:  { label: 'Pedido Custom.',    color: '#22c55e', bg: 'rgba(34,197,94,0.12)' }
 };
 
 var STATUS_LABELS = {
@@ -326,7 +327,7 @@ function processData(rows, dismissSet) {
     }
 
     // Detect pedidos (dedup by session_id)
-    var isPed = ac.indexOf('NOTIFICACAO_COMERCIAL_PEDIDO') >= 0 || ac === 'PEDIDO_CONFIRMADO' || st === 'pedido_confirmado' || st === 'aguardando_comercial';
+    var isPed = ac.indexOf('NOTIFICACAO_COMERCIAL_PEDIDO') >= 0 || ac === 'PEDIDO_CONFIRMADO' || ac === 'PEDIDO_CUSTOM_CONFIRMADO' || st === 'pedido_confirmado' || st === 'aguardando_comercial';
     if (isPed && !pedSeen[sid]) {
       pedSeen[sid] = true;
       var dismissed2 = false;
