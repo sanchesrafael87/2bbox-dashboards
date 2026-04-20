@@ -142,6 +142,7 @@ var ACTION_LABELS = {
   PEDIDO_HUMANO_ESCALADO:    { label: 'Pediu Humano',       color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
   FOLLOWUP_ESCALADO:         { label: 'Follow-up Escalado', color: '#dc2626', bg: 'rgba(220,38,38,0.12)' },
   POS_COMPRA_ESCALADO:       { label: 'Pos-Compra',         color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+  ESCALADO_MANUAL_RETROATIVO:{ label: 'Retroativo Manual',  color: '#eab308', bg: 'rgba(234,179,8,0.18)' },
   CATALOGO_MULTIPLOS:        { label: 'Catalogo Multiplos', color: '#64748b', bg: 'rgba(100,116,139,0.12)' },
   CATALOGO_LOOP_BLOQUEADO:   { label: 'Catalogo Loop',      color: '#dc2626', bg: 'rgba(220,38,38,0.12)' },
   CATALOGO_PRECO_VIOLADO:    { label: 'Preco Violado',      color: '#dc2626', bg: 'rgba(220,38,38,0.12)' },
@@ -302,7 +303,7 @@ function processData(rows, dismissSet) {
     if (r.resposta_bot) conv.messages.push({ from: 'bot', text: r.resposta_bot, time: tm });
 
     // Detect escalacoes (dedup by session_id)
-    var isEsc = ac.indexOf('NOTIFICACAO_COMERCIAL_ESCALACAO') >= 0 || ac === 'ESCALAR_HUMANO' || ac === 'ESCALADO' || ac === 'MEDIA_ESCALADA' || ac === 'PEDIDO_HUMANO_ESCALADO' || ac === 'FOLLOWUP_ESCALADO' || ac === 'POS_COMPRA_ESCALADO' || st === 'escalado' || st === 'escalado_timeout' || st === 'escalado_comercial';
+    var isEsc = ac.indexOf('NOTIFICACAO_COMERCIAL_ESCALACAO') >= 0 || ac === 'ESCALAR_HUMANO' || ac === 'ESCALADO' || ac === 'MEDIA_ESCALADA' || ac === 'PEDIDO_HUMANO_ESCALADO' || ac === 'FOLLOWUP_ESCALADO' || ac === 'POS_COMPRA_ESCALADO' || ac === 'ESCALADO_MANUAL_RETROATIVO' || st === 'escalado' || st === 'escalado_timeout' || st === 'escalado_comercial';
     if (isEsc && !escSeen[sid]) {
       escSeen[sid] = true;
       // Check dismiss: any dismiss_key starting with session_id|escalacao|
