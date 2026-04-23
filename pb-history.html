@@ -259,6 +259,55 @@ function supaGet(table, params) {
   });
 }
 
+// ===== SUPABASE PAGINADO (Range header pra fugir do cap de 1000 do PostgREST) =====
+function supaGetPage(table, params, rangeHeader) {
+  return fetch(SUPA_URL + '/rest/v1/' + table + '?' + params, {
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY,
+      'Range': rangeHeader,
+      'Prefer': 'count=exact'
+    }
+  }).then(function(r) {
+    // PostgREST devolve 200 (full) ou 206 (partial) quando Range é honrado
+    if (!r.ok && r.status !== 206) throw new Error('HTTP ' + r.status);
+    var contentRange = r.headers.get('Content-Range') || '';
+    return r.json().then(function(data) { return { rows: data, contentRange: contentRange }; });
+  });
+}
+
+function dedupeById(rows) {
+  var seen = {};
+  var out = [];
+  for (var i = 0; i < rows.length; i++) {
+    var id = rows[i].id;
+    if (id == null) { out.push(rows[i]); continue; }
+    if (!seen[id]) { seen[id] = 1; out.push(rows[i]); }
+  }
+  return out;
+}
+
+function supaGetPaged(table, params, pageSize) {
+  pageSize = pageSize || 1000;
+  return supaGetPage(table, params, '0-' + (pageSize - 1)).then(function(first) {
+    var rows = first.rows || [];
+    var m = /\/(\d+|\*)$/.exec(first.contentRange);
+    var total = m && m[1] !== '*' ? parseInt(m[1], 10) : rows.length;
+    if (total <= pageSize) return dedupeById(rows);
+
+    var promises = [];
+    for (var start = pageSize; start < total; start += pageSize) {
+      var end = Math.min(start + pageSize - 1, total - 1);
+      promises.push(supaGetPage(table, params, start + '-' + end).then(function(r) { return r.rows; }));
+    }
+    return Promise.all(promises).then(function(pages) {
+      var all = rows.slice();
+      for (var i = 0; i < pages.length; i++) all = all.concat(pages[i]);
+      return dedupeById(all);
+    });
+  });
+}
+
 // ===== DATA PROCESSING =====
 function processData(rows, dismissSet) {
   // Rows vêm do Supabase em desc (mais recentes primeiro) pra fugir do cap de 1000.
@@ -374,12 +423,12 @@ function processData(rows, dismissSet) {
 
 // ===== LOAD DATA =====
 function loadData() {
-  var since = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString();
+  var since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   var btnRef = document.getElementById('btn-refresh');
   if (btnRef) btnRef.classList.add('spinning');
 
   Promise.all([
-    supaGet('historico_bot', 'select=*&order=evento_at.desc&evento_at=gte.' + since + '&limit=10000'),
+    supaGetPaged('historico_bot', 'select=*&order=evento_at.desc&evento_at=gte.' + since),
     supaGet('historico_atendimentos', 'select=*')
   ]).then(function(results) {
     var rows = results[0];
