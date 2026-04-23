@@ -267,13 +267,18 @@ function processData(rows, dismissSet) {
   var escList = [];
   var pedList = [];
 
+  // Acoes de auditoria do workflow de follow-up — nao criam bolha/conversa
+  var AUDITORIA_IGNORE = { 'FOLLOWUP_TENTADO':1, 'FOLLOWUP_FALHOU':1, 'FOLLOWUP_NAO_ELEGIVEL':1, 'FOLLOWUP_FORA_JANELA_24H':1 };
+
   for (var i = 0; i < rows.length; i++) {
     var r = rows[i];
+    var ac = (r.acao || '').toUpperCase();
+    if (AUDITORIA_IGNORE[ac]) continue;  // pula registros de auditoria
+
     var sid = r.session_id || '?';
     var ts = r.evento_at || r.timestamp_raw || '';
     var rawTel = String(r.telefone || '');
     var tel = resolvePhone(rawTel, r.session_id);
-    var ac = (r.acao || '').toUpperCase();
     var st = (r.status_conversa || '').toLowerCase();
 
     // Build conversation map
