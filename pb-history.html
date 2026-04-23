@@ -415,7 +415,7 @@ function processData(rows, dismissSet) {
   }
 
   AC = Object.values(sessMap).sort(function(a, b) {
-    return new Date(b.lastMessageAt) - new Date(a.lastMessageAt);
+    return new Date(b.startedAt || b.lastMessageAt) - new Date(a.startedAt || a.lastMessageAt);
   });
   escalacoes = escList.sort(function(a, b) { return new Date(b.timestamp) - new Date(a.timestamp); });
   pedidos = pedList.sort(function(a, b) { return new Date(b.timestamp) - new Date(a.timestamp); });
