@@ -507,7 +507,10 @@ function applyFilters() {
       if (fa && (c.action || '').toUpperCase() !== fa) return false;
       if (fs && c.status !== fs) return false;
       if (range.from || range.to) {
-        var cDate = new Date(c.lastMessageAt || c.startedAt);
+        // Filtro de data usa startedAt (primeira msg) em vez de lastMessageAt
+        // Motivo: conversa iniciada ontem + follow-up hoje deve continuar em "Ontem".
+        // Atividade recente permanece visivel via paineis de Escalacoes/Pedidos (real-time).
+        var cDate = new Date(c.startedAt || c.lastMessageAt);
         if (range.from && cDate < range.from) return false;
         if (range.to && cDate > range.to) return false;
       }
