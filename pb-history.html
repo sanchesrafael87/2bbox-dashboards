@@ -369,7 +369,7 @@ function loadData() {
   if (btnRef) btnRef.classList.add('spinning');
 
   Promise.all([
-    supaGet('historico_bot', 'select=*&order=evento_at.asc&evento_at=gte.' + since),
+    supaGet('historico_bot', 'select=*&order=evento_at.asc&evento_at=gte.' + since + '&limit=10000'),
     supaGet('historico_atendimentos', 'select=*')
   ]).then(function(results) {
     var rows = results[0];
