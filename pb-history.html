@@ -261,6 +261,10 @@ function supaGet(table, params) {
 
 // ===== DATA PROCESSING =====
 function processData(rows, dismissSet) {
+  // Rows vêm do Supabase em desc (mais recentes primeiro) pra fugir do cap de 1000.
+  // Mas processData precisa iterar asc pra push de mensagens sair cronológica (antiga→recente).
+  rows = rows.slice().reverse();
+
   var sessMap = {};
   var escSeen = {};
   var pedSeen = {};
@@ -370,7 +374,7 @@ function processData(rows, dismissSet) {
 
 // ===== LOAD DATA =====
 function loadData() {
-  var since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  var since = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString();
   var btnRef = document.getElementById('btn-refresh');
   if (btnRef) btnRef.classList.add('spinning');
 
