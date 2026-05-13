@@ -176,6 +176,8 @@ var selId = null;
 var escalacoes = [];
 var pedidos = [];
 var refreshTimer = null;
+var totalRowsLoaded = 0; // count exato de rows carregadas do DB (== msgs no Supabase)
+var DAYS_BACK = 30;
 
 // ===== UTILS =====
 function esc(s) {
@@ -287,25 +289,31 @@ function dedupeById(rows) {
   return out;
 }
 
+// Paginação iterativa sequencial: não depende de Content-Range (proxy/Cloudflare pode strip).
+// Para quando recebe página com rows.length < pageSize (última página).
+// Mais lento que paralelo mas robusto: nenhuma falha silenciosa.
 function supaGetPaged(table, params, pageSize) {
   pageSize = pageSize || 1000;
-  return supaGetPage(table, params, '0-' + (pageSize - 1)).then(function(first) {
-    var rows = first.rows || [];
-    var m = /\/(\d+|\*)$/.exec(first.contentRange);
-    var total = m && m[1] !== '*' ? parseInt(m[1], 10) : rows.length;
-    if (total <= pageSize) return dedupeById(rows);
-
-    var promises = [];
-    for (var start = pageSize; start < total; start += pageSize) {
-      var end = Math.min(start + pageSize - 1, total - 1);
-      promises.push(supaGetPage(table, params, start + '-' + end).then(function(r) { return r.rows; }));
+  var maxPages = 50; // safety net: 50k rows
+  var all = [];
+  function fetchFrom(start, pageIdx) {
+    if (pageIdx >= maxPages) {
+      console.warn('[supaGetPaged] maxPages atingido em ' + start + '; retornando ' + all.length + ' rows.');
+      return dedupeById(all);
     }
-    return Promise.all(promises).then(function(pages) {
-      var all = rows.slice();
-      for (var i = 0; i < pages.length; i++) all = all.concat(pages[i]);
+    var end = start + pageSize - 1;
+    return supaGetPage(table, params, start + '-' + end).then(function(page) {
+      var rows = page.rows || [];
+      all = all.concat(rows);
+      console.log('[supaGetPaged] page ' + (pageIdx + 1) + ' (' + start + '-' + end + '): +' + rows.length + ' (total ' + all.length + ') Content-Range=' + page.contentRange);
+      if (rows.length < pageSize) return dedupeById(all);
+      return fetchFrom(start + pageSize, pageIdx + 1);
+    }).catch(function(err) {
+      console.error('[supaGetPaged] erro em página ' + (pageIdx + 1) + ' (' + start + '-' + end + '): ' + (err.message || err) + '; retornando ' + all.length + ' rows até aqui.');
       return dedupeById(all);
     });
-  });
+  }
+  return fetchFrom(0, 0);
 }
 
 // ===== DATA PROCESSING =====
@@ -423,7 +431,7 @@ function processData(rows, dismissSet) {
 
 // ===== LOAD DATA =====
 function loadData() {
-  var since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  var since = new Date(Date.now() - DAYS_BACK * 24 * 60 * 60 * 1000).toISOString();
   var btnRef = document.getElementById('btn-refresh');
   if (btnRef) btnRef.classList.add('spinning');
 
@@ -433,6 +441,8 @@ function loadData() {
   ]).then(function(results) {
     var rows = results[0];
     var dismissals = results[1];
+    totalRowsLoaded = rows.length;
+    console.log('[loadData] total rows carregadas (últimos ' + DAYS_BACK + 'd): ' + totalRowsLoaded);
     var dSet = new Set(dismissals.map(function(d) { return d.dismiss_key; }));
     processData(rows, dSet);
     populateFilters();
@@ -441,7 +451,7 @@ function loadData() {
     renderPedidos();
     renderStats();
     var now = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-    document.getElementById('updated-at').textContent = 'atualizado ' + now;
+    document.getElementById('updated-at').textContent = 'janela: últimos ' + DAYS_BACK + ' dias · atualizado ' + now;
     if (btnRef) btnRef.classList.remove('spinning');
   }).catch(function(e) {
     showError('Erro ao carregar dados', e.message || e);
@@ -489,12 +499,22 @@ try { if (sessionStorage.getItem('pb_auth') === '1') enterApp(); } catch(e) {}
 document.getElementById('btn-refresh').addEventListener('click', function() { loadData(); });
 
 // ===== STATS =====
+// Conta:
+//  - Conversas: sessões distintas dentro do filtro atual
+//  - Mensagens: rows do Supabase (== COUNT(*) historico_bot últimos N dias), NÃO bubbles UI
+//  - Escalacoes: sessões com escalação detectada (não-dispensadas)
+//  - Pedidos: sessões com pedido detectado (não-dispensados)
 function renderStats() {
   var t = filtered.length;
-  var m = filtered.reduce(function(a, c) { return a + (c.messages || []).length; }, 0);
+  // Quando há filtro (data, ação, status, busca), conta msgs dentro do recorte;
+  // sem filtro, mostra total exato de rows carregadas do DB.
+  var noFilter = (filtered.length === AC.length);
+  var m = noFilter
+    ? totalRowsLoaded
+    : filtered.reduce(function(a, c) { return a + (c.messages || []).length; }, 0);
   document.getElementById('stats-bar').innerHTML = [
     { l: 'Conversas', v: t },
-    { l: 'Mensagens', v: m },
+    { l: noFilter ? 'Mensagens (DB, ' + DAYS_BACK + 'd)' : 'Mensagens (filtro)', v: m },
     { l: 'Escalacoes', v: escalacoes.length },
     { l: 'Pedidos', v: pedidos.length }
   ].map(function(s) {
