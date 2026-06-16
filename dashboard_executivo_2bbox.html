@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2BBOX - Dashboard Executivo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        :root {
+            --verde-2bbox: #4CD964;
+            --verde-escuro: #2D8C3C;
+            --verde-brilho: #6EFF85;
+            --preto: #0A0A0A;
+            --preto-card: #141414;
+            --preto-borda: #1E1E1E;
+            --branco: #FFFFFF;
+            --cinza: #888888;
+            --amarelo: #FFD93D;
+            --azul: #4DA6FF;
+            --roxo: #9B59B6;
+            --vermelho: #FF4757;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--preto);
+            color: var(--branco);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse at top left, rgba(76, 217, 100, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(76, 217, 100, 0.02) 0%, transparent 50%);
+        }
+
+        /* ===== CONFIG OVERLAY ===== */
+        .config-overlay {
+            position: fixed; inset: 0;
+            background: rgba(10, 10, 10, 0.97);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        .config-overlay.hidden { display: none; }
+        .config-box {
+            background: var(--preto-card);
+            border: 1px solid var(--preto-borda);
+            border-top: 3px solid var(--verde-2bbox);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 560px; width: 92%;
+            text-align: center;
+        }
+        .config-box h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem; letter-spacing: 3px;
+            color: var(--verde-2bbox); margin: 16px 0;
+        }
+        .config-box p { color: var(--cinza); margin-bottom: 16px; }
+        .config-box ol { text-align: left; color: #aaa; margin-bottom: 20px; padding-left: 20px; line-height: 1.7; }
+        .config-box ol strong { color: var(--verde-2bbox); }
+        .config-input {
+            width: 100%; padding: 14px 16px;
+            background: var(--preto);
+            border: 1px solid var(--preto-borda); border-radius: 8px;
+            color: var(--branco);
+            font-family: 'Rajdhani', sans-serif; font-size: 1rem;
+            margin-bottom: 14px; outline: none;
+        }
+        .config-input:focus { border-color: var(--verde-2bbox); }
+        .config-btn {
+            width: 100%; padding: 14px;
+            background: var(--verde-2bbox);
+            border: none; border-radius: 8px;
+            color: var(--preto);
+            font-family: 'Orbitron', sans-serif; font-weight: 700;
+            font-size: 0.95rem; letter-spacing: 2px;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .config-btn:hover { background: var(--verde-brilho); }
+        .config-btn.secondary {
+            background: transparent;
+            border: 1px solid var(--preto-borda);
+            color: var(--cinza); margin-top: 10px;
+        }
+        .config-btn.secondary:hover { border-color: var(--verde-2bbox); color: var(--verde-2bbox); }
+        .config-note { color: var(--cinza); font-size: 0.85rem; margin-top: 12px; }
+        .config-link {
+            display: inline-block;
+            margin-top: 18px;
+            color: var(--verde-2bbox);
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            border-bottom: 1px dashed var(--verde-escuro);
+            padding-bottom: 2px;
+        }
+        .config-link:hover { color: var(--verde-brilho); }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900; font-size: 1.8rem; letter-spacing: 2px;
+            color: var(--branco);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .logo-text .box { color: var(--verde-2bbox); text-shadow: 0 0 18px rgba(76, 217, 100, 0.5); }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 40px;
+            background: linear-gradient(180deg, rgba(20,20,20,1) 0%, rgba(10,10,10,0) 100%);
+            border-bottom: 1px solid var(--preto-borda);
+        }
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem; font-weight: 700;
+            letter-spacing: 4px; color: var(--verde-2bbox);
+            text-transform: uppercase;
+        }
+        .header-right { text-align: right; }
+        .clock { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; font-weight: 700; }
+        .last-update { font-size: 0.85rem; color: var(--cinza); }
+        .last-update .dot {
+            display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+            background: var(--verde-2bbox); margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* ===== FILTRO PERÍODO ===== */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 40px 0;
+        }
+        .filter-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--cinza);
+            text-transform: uppercase;
+        }
+        .filter-select {
+            background: var(--preto-card);
+            border: 1px solid var(--preto-borda);
+            color: var(--branco);
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+        .filter-select:focus, .filter-select:hover { border-color: var(--verde-2bbox); }
+
+        .section-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--verde-2bbox);
+            border-left: 3px solid var(--verde-2bbox);
+            padding: 6px 12px;
+            margin: 20px 40px 0;
+        }
+        .kpi-grid.valores { grid-template-columns: repeat(4, 1fr); padding-top: 16px; }
+        .kpi-grid.tempos { grid-template-columns: repeat(3, 1fr); padding-top: 16px; }
+
+        /* ===== KPIs ===== */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+            padding: 24px 40px 8px;
+        }
+        .kpi {
+            background: var(--preto-card);
+            border: 1px solid var(--preto-borda);
+            border-radius: 12px;
+            padding: 18px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px; background: var(--accent, var(--verde-2bbox));
+        }
+        .kpi .label {
+            font-size: 0.8rem; font-weight: 600;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--cinza); margin-bottom: 8px;
+        }
+        .kpi .value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem; font-weight: 700;
+            color: var(--accent, var(--verde-2bbox));
+        }
+        .kpi .sub { font-size: 0.8rem; color: var(--cinza); margin-top: 4px; }
+
+        /* ===== GRÁFICOS ===== */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            padding: 16px 40px;
+        }
+        .charts-grid.second { grid-template-columns: 1fr 1fr; padding-top: 0; }
+        .chart-card {
+            background: var(--preto-card);
+            border: 1px solid var(--preto-borda);
+            border-radius: 12px;
+            padding: 20px 24px;
+        }
+        .chart-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--verde-2bbox);
+            margin-bottom: 16px;
+            border-left: 3px solid var(--verde-2bbox);
+            padding-left: 10px;
+        }
+        .chart-wrap { position: relative; height: 260px; }
+
+        /* ===== TABELA ATRASADOS ===== */
+        .table-section { padding: 0 40px 50px; }
+        .table-card {
+            background: var(--preto-card);
+            border: 1px solid var(--preto-borda);
+            border-radius: 12px;
+            padding: 20px 24px;
+        }
+        .table-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--vermelho);
+            margin-bottom: 16px;
+            border-left: 3px solid var(--vermelho);
+            padding-left: 10px;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-align: left; font-size: 0.78rem;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--cinza);
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--preto-borda);
+        }
+        td {
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--preto-borda);
+        }
+        tr:last-child td { border-bottom: none; }
+        .dias-atraso {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700; color: var(--vermelho);
+        }
+        .ok-msg { color: var(--verde-2bbox); padding: 12px; }
+
+        .controls {
+            position: fixed; bottom: 20px; right: 20px;
+            display: flex; gap: 10px; z-index: 200;
+        }
+        .ctrl-btn {
+            background: var(--preto-card);
+            border: 1px solid var(--preto-borda);
+            color: var(--cinza);
+            border-radius: 8px; padding: 10px 16px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700; font-size: 0.85rem; letter-spacing: 1px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .ctrl-btn:hover { border-color: var(--verde-2bbox); color: var(--verde-2bbox); }
+        .ctrl-btn.active { border-color: var(--verde-2bbox); color: var(--verde-2bbox); }
+
+        @media (max-width: 1100px) {
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+            .charts-grid, .charts-grid.second { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 700px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); padding: 16px 20px 8px; }
+            .charts-grid, .charts-grid.second { padding: 12px 20px; }
+            .table-section { padding: 0 20px 50px; }
+            .header { padding: 16px 20px; }
+            .header-title { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Tela de configuração -->
+    <div class="config-overlay" id="configOverlay">
+        <div class="config-box">
+            <div class="logo-text">2B<span class="box">BOX</span></div>
+            <h2>DASHBOARD EXECUTIVO</h2>
+            
+            <button class="config-btn" onclick="saveConfig()">CONECTAR À PLANILHA</button>
+            <button class="config-btn secondary" onclick="loadDemo()">VER MODO DEMO</button>
+            <a class="config-link" href="https://docs.google.com/spreadsheets/d/1wmyU-mvObHDjShwHOECrIeeyuo8tBtMY7Z_buJYNVrc/edit" target="_blank" rel="noopener">📄 Abrir planilha PRODUCAO_2BBOX_v2 →</a>
+            <p class="config-note">O dashboard atualiza automaticamente a cada 2 minutos</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-text">2B<span class="box">BOX</span></div>
+        <div class="header-title">Dashboard Executivo · Produção</div>
+        <div class="header-right">
+            <div class="clock" id="clock">--:--</div>
+            <div class="last-update"><span class="dot"></span><span id="lastUpdate">aguardando dados</span></div>
+        </div>
+    </header>
+
+    <!-- Filtro de período -->
+    <div class="filter-bar">
+        <span class="filter-label">Período:</span>
+        <select id="selMes" class="filter-select" onchange="applyFilters()">
+            <option value="">Todos os meses</option>
+            <option value="0">Janeiro</option><option value="1">Fevereiro</option>
+            <option value="2">Março</option><option value="3">Abril</option>
+            <option value="4">Maio</option><option value="5">Junho</option>
+            <option value="6">Julho</option><option value="7">Agosto</option>
+            <option value="8">Setembro</option><option value="9">Outubro</option>
+            <option value="10">Novembro</option><option value="11">Dezembro</option>
+        </select>
+        <select id="selAno" class="filter-select" onchange="applyFilters()">
+            <option value="">Todos os anos</option>
+        </select>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <!-- Valores -->
+    <div class="section-label">💰 Valores</div>
+    <div class="kpi-grid valores" id="kpiValores"></div>
+    <div class="charts-grid second">
+        <div class="chart-card">
+            <h3>Faturamento por dia</h3>
+            <div class="chart-wrap"><canvas id="chartFatDia"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <h3>Faturamento por origem</h3>
+            <div class="chart-wrap"><canvas id="chartFatOrigem"></canvas></div>
+        </div>
+    </div>
+
+    <div class="section-label">⏱ Tempo médio por fase de produção</div>
+    <div class="kpi-grid tempos" id="kpiTempoFase"></div>
+
+    <div class="section-label">📦 Pedidos</div>
+
+    <!-- Gráficos -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>Pedidos por dia (entrada)</h3>
+            <div class="chart-wrap"><canvas id="chartDia"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <h3>Top produtos</h3>
+            <div class="chart-wrap"><canvas id="chartProdutos"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Atrasados -->
+    <div class="table-section">
+        <div class="table-card">
+            <h3>⚠ Pedidos atrasados</h3>
+            <div id="atrasadosTable"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="ctrl-btn active" id="scrollBtn" onclick="toggleScroll()">⏸ SCROLL AUTO</button>
+        <button class="ctrl-btn" onclick="openConfig()">⚙ CONFIG</button>
+    </div>
+
+<script>
+/* ============================================================
+   2BBOX — Dashboard Executivo de Produção
+   KPIs, gráficos e atrasos a partir do CSV publicado.
+   ============================================================ */
+
+const REFRESH_MS = 2 * 60 * 1000;
+const SCROLL_STEP = 1;              // px por tick
+const SCROLL_TICK = 35;             // ms entre ticks
+const SCROLL_PAUSE_END = 4000;      // pausa no fim (ms)
+const SCROLL_PAUSE_TOP = 5000;      // pausa no topo (ms)
+let autoScroll = true;
+let scrollTimer = null;
+let csvUrl = localStorage.getItem('2bbox_csv_url') || '';
+let allPedidos = [];
+let demoMode = false;
+let primeiroLoad = true;
+let charts = {};
+if (window.ChartDataLabels) { Chart.register(ChartDataLabels); Chart.defaults.set('plugins.datalabels', { display: false }); }
+
+const C = {
+    verde: '#4CD964', amarelo: '#FFD93D', azul: '#4DA6FF',
+    roxo: '#9B59B6', vermelho: '#FF4757', cinza: '#888888',
+    borda: '#1E1E1E', branco: '#FFFFFF'
+};
+
+Chart.defaults.color = C.cinza;
+Chart.defaults.font.family = "'Rajdhani', sans-serif";
+Chart.defaults.font.size = 13;
+
+/* ---------- Relógio ---------- */
+function tickClock() {
+    document.getElementById('clock').textContent =
+        new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+setInterval(tickClock, 1000); tickClock();
+
+/* ---------- Config ---------- */
+function openConfig() {
+    document.getElementById('configOverlay').classList.remove('hidden');
+}
+const FONTE_DADOS = 'https://cases2bbox.app.n8n.cloud/webhook/dashboard-producao?token=2bx_dash_7kM9pQ';
+function saveConfig() {
+    csvUrl = FONTE_DADOS;
+    demoMode = false;
+    localStorage.setItem('2bbox_csv_url', csvUrl);
+    document.getElementById('configOverlay').classList.add('hidden');
+    fetchData();
+}
+function loadDemo() {
+    demoMode = true;
+    document.getElementById('configOverlay').classList.add('hidden');
+    render(parseRows(DEMO_DATA));
+    setUpdated('modo demo');
+}
+
+/* ---------- CSV (mesmo parser do painel de produção) ---------- */
+function parseCSV(text) {
+    const rows = [];
+    let row = [], cur = '', inQ = false;
+    for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQ) {
+            if (c === '"' && text[i+1] === '"') { cur += '"'; i++; }
+            else if (c === '"') inQ = false;
+            else cur += c;
+        } else {
+            if (c === '"') inQ = true;
+            else if (c === ',') { row.push(cur); cur = ''; }
+            else if (c === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+            else if (c !== '\r') cur += c;
+        }
+    }
+    if (cur || row.length) { row.push(cur); rows.push(row); }
+    return rows.filter(r => r.some(c => c.trim() !== ''));
+}
+
+/* Converte resposta JSON do webhook n8n em linhas (header + rows) */
+function rowsFromJSON(data) {
+    const arr = Array.isArray(data) ? data : [data];
+    const objs = arr.map(o => (o && o.json) ? o.json : o).filter(o => o && typeof o === 'object');
+    if (!objs.length) return [];
+    const header = Object.keys(objs[0]).filter(k => k !== 'row_number');
+    return [header, ...objs.map(o => header.map(k => (o[k] !== undefined && o[k] !== null) ? String(o[k]) : ''))];
+}
+
+function mapHeaders(header) {
+    const h = header.map(x => x.toLowerCase().trim());
+    const find = (...keys) => h.findIndex(col => keys.some(k => col.includes(k)));
+    return {
+        id: find('pedido','id','nº','numero','número'),
+        cliente: find('cliente','nome'),
+        produto: find('produto','item','descri'),
+        modelo: find('modelo'),
+        qtd: find('qtd','quant'),
+        origem: find('origem','canal','fonte'),
+        entrada: find('entrada'),
+        dtProducao: find('dt_producao','dt_produ','data_producao'),
+        dtFinalizado: find('dt_finalizado','dt_final','data_finalizado'),
+        dtFim: find('data_fim','dt_fim','data_envio'),
+        prazo: find('prazo','entrega','limite'),
+        valor: find('valor','preço','preco'),
+        status: find('status','situa')
+    };
+}
+function parseRows(rows) {
+    if (!rows.length) return [];
+    const m = mapHeaders(rows[0]);
+    const get = (r, idx) => (idx >= 0 && r[idx] !== undefined) ? r[idx].trim() : '';
+    return rows.slice(1).map(r => ({
+        id: get(r, m.id), cliente: get(r, m.cliente), produto: get(r, m.produto),
+        modelo: get(r, m.modelo),
+        qtd: parseInt(get(r, m.qtd)) || 1, origem: get(r, m.origem),
+        entrada: get(r, m.entrada), prazo: get(r, m.prazo),
+        dtProducao: get(r, m.dtProducao), dtFinalizado: get(r, m.dtFinalizado), dtFim: get(r, m.dtFim),
+        valor: parseValor(get(r, m.valor)),
+        status: normalizeStatus(get(r, m.status))
+    })).filter(p => (p.id || p.cliente || p.produto) && p.status !== null);
+}
+function parseValor(s) {
+    if (!s) return 0;
+    const t = s.replace(/[^\d.,-]/g, '').replace(/\.(?=\d{3})/g, '').replace(',', '.');
+    const v = parseFloat(t);
+    return isNaN(v) ? 0 : v;
+}
+function normalizeStatus(s) {
+    const t = (s || '').toLowerCase();
+    if (t.includes('cancel') || t.includes('entreg')) return null; // fora do dashboard
+    if (t.includes('aguard') || t.includes('pendente') || t.includes('fila') || t.includes('process')) return 'Aguardando';
+    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica')) return 'Em Produção';
+    if (t.includes('final') || t.includes('pronto') || t.includes('conclu')) return 'Finalizado';
+    if (t.includes('envi') || t.includes('despach') || t.includes('postado')) return 'Enviado';
+    return 'Aguardando';
+}
+function parseDate(s) {
+    if (!s) return null;
+    const br = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[ ,T]+(\d{1,2}):(\d{2}))?/);
+    if (br) {
+        let y = parseInt(br[3]); if (y < 100) y += 2000;
+        const hh = br[4] !== undefined ? parseInt(br[4]) : 0;
+        const mm = br[5] !== undefined ? parseInt(br[5]) : 0;
+        return new Date(y, parseInt(br[2])-1, parseInt(br[1]), hh, mm);
+    }
+    const d = new Date(s);
+    return isNaN(d) ? null : d;
+}
+/* Média de durações (ms) -> texto curto 'Xd Yh' / 'Yh Zm' */
+function fmtDuracaoMedia(ms) {
+    if (ms == null || isNaN(ms) || ms <= 0) return '—';
+    const totalMin = Math.round(ms / 60000);
+    const d = Math.floor(totalMin / 1440);
+    const h = Math.floor((totalMin % 1440) / 60);
+    const m = totalMin % 60;
+    if (d > 0) return d + 'd ' + h + 'h';
+    if (h > 0) return h + 'h ' + m + 'm';
+    return m + 'm';
+}
+/* Média das diferenças entre dois carimbos, só p/ pedidos que têm ambos */
+function mediaFase(pedidos, campoIni, campoFim) {
+    const difs = [];
+    pedidos.forEach(p => {
+        const a = parseDate(p[campoIni]);
+        const b = parseDate(p[campoFim]);
+        if (a && b && b > a) difs.push(b - a);
+    });
+    if (!difs.length) return { media: null, n: 0 };
+    return { media: difs.reduce((s, x) => s + x, 0) / difs.length, n: difs.length };
+}
+function normalizeOrigem(o) {
+    const t = (o || '').toLowerCase();
+    if (t.includes('whats') || t.includes('zap')) return 'WhatsApp';
+    if (t.includes('mercado') || t === 'ml') return 'Mercado Livre';
+    if (t.includes('tray') || t.includes('site')) return 'Site Tray';
+    return 'Outros';
+}
+function diasAtraso(p) {
+    if (p.status === 'Finalizado' || p.status === 'Enviado') return 0;
+    const d = parseDate(p.prazo);
+    if (!d) return 0;
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    return d < hoje ? Math.round((hoje - d) / 86400000) : 0;
+}
+
+/* ---------- Fetch ---------- */
+async function fetchData() {
+    if (demoMode || !csvUrl) return;
+    try {
+        const resp = await fetch(csvUrl + (csvUrl.includes('?') ? '&' : '?') + 't=' + Date.now());
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const text = await resp.text();
+        const trimmed = text.trim();
+        const rows = (trimmed.startsWith('[') || trimmed.startsWith('{'))
+            ? rowsFromJSON(JSON.parse(trimmed))
+            : parseCSV(text);
+        render(parseRows(rows));
+        setUpdated('atualizado ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}));
+    } catch (e) {
+        setUpdated('erro ao ler planilha — verifique o link publicado');
+        console.error(e);
+    }
+}
+function setUpdated(msg) { document.getElementById('lastUpdate').textContent = msg; }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ---------- Render ---------- */
+function render(pedidos) {
+    allPedidos = pedidos;
+    populateAnos(pedidos);
+    if (primeiroLoad) {
+        const hoje = new Date();
+        document.getElementById('selMes').value = String(hoje.getMonth());
+        const selAno = document.getElementById('selAno');
+        const anoAtual = String(hoje.getFullYear());
+        if ([...selAno.options].some(o => o.value === anoAtual)) selAno.value = anoAtual;
+        primeiroLoad = false;
+    }
+    applyFilters();
+}
+
+function populateAnos(pedidos) {
+    const sel = document.getElementById('selAno');
+    const atual = sel.value;
+    const anos = [...new Set(pedidos.map(p => { const d = parseDate(p.entrada); return d ? d.getFullYear() : null; }).filter(Boolean))].sort((a,b) => b - a);
+    sel.innerHTML = '<option value="">Todos os anos</option>' + anos.map(a => `<option value="${a}">${a}</option>`).join('');
+    if (anos.includes(parseInt(atual))) sel.value = atual;
+}
+
+function applyFilters() {
+    const mes = document.getElementById('selMes').value;
+    const ano = document.getElementById('selAno').value;
+    let filtrados = allPedidos;
+    if (mes !== '' || ano !== '') {
+        filtrados = allPedidos.filter(p => {
+            const d = parseDate(p.entrada);
+            if (!d) return false;
+            if (mes !== '' && d.getMonth() !== parseInt(mes)) return false;
+            if (ano !== '' && d.getFullYear() !== parseInt(ano)) return false;
+            return true;
+        });
+    }
+    drawDash(filtrados);
+}
+
+function drawDash(pedidos) {
+    const total = pedidos.length;
+    const byStatus = { 'Aguardando': 0, 'Em Produção': 0, 'Finalizado': 0, 'Enviado': 0 };
+    const byOrigem = {};
+    const byDia = {};
+    const byProduto = {};
+    const atrasados = [];
+
+    pedidos.forEach(p => {
+        byStatus[p.status] = (byStatus[p.status] || 0) + 1;
+        const o = normalizeOrigem(p.origem);
+        byOrigem[o] = (byOrigem[o] || 0) + 1;
+        const d = parseDate(p.entrada);
+        if (d) {
+            const k = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            byDia[k] = { date: d, count: (byDia[k]?.count || 0) + 1 };
+        }
+        const prod = (p.produto || 'Não informado').split('+')[0].trim().slice(0, 32);
+        byProduto[prod] = (byProduto[prod] || 0) + p.qtd;
+        const atraso = diasAtraso(p);
+        if (atraso > 0) atrasados.push({ ...p, atraso });
+    });
+
+    const valorTotal = pedidos.reduce((s, p) => s + (p.valor || 0), 0);
+    const fmtBRL = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+
+    const fatAberto = pedidos.filter(p => p.status === 'Aguardando' || p.status === 'Em Produção').reduce((s, p) => s + (p.valor || 0), 0);
+    const fatConcluido = valorTotal - fatAberto;
+    const ticketMedio = total ? valorTotal / total : 0;
+    const fatDia = {};
+    const fatOrigem = {};
+    pedidos.forEach(p => {
+        const d = parseDate(p.entrada);
+        if (d) {
+            const k = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            if (!fatDia[k]) fatDia[k] = { date: d, valor: 0 };
+            fatDia[k].valor += (p.valor || 0);
+        }
+        const o = normalizeOrigem(p.origem);
+        fatOrigem[o] = (fatOrigem[o] || 0) + (p.valor || 0);
+    });
+
+    document.getElementById('kpiValores').innerHTML = `
+        <div class="kpi" style="--accent:${C.verde}"><div class="label">Faturamento</div><div class="value">${fmtBRL(valorTotal)}</div><div class="sub">no período</div></div>
+        <div class="kpi" style="--accent:${C.azul}"><div class="label">Ticket Médio</div><div class="value">${fmtBRL(ticketMedio)}</div><div class="sub">por pedido</div></div>
+        <div class="kpi" style="--accent:${C.amarelo}"><div class="label">Em Aberto</div><div class="value">${fmtBRL(fatAberto)}</div><div class="sub">aguardando + produção</div></div>
+        <div class="kpi" style="--accent:${C.roxo}"><div class="label">Concluído</div><div class="value">${fmtBRL(fatConcluido)}</div><div class="sub">finalizado + enviado</div></div>`;
+
+    /* ===== Tempo médio por fase (carimbos write-once por fase) ===== */
+    const tAguard = mediaFase(pedidos, 'entrada', 'dtProducao');      // Aguardando -> entrou em Produção
+    const tProd   = mediaFase(pedidos, 'dtProducao', 'dtFinalizado'); // Em Produção -> Finalizado
+    const tFinal  = mediaFase(pedidos, 'dtFinalizado', 'dtFim');      // Finalizado -> Enviado
+    document.getElementById('kpiTempoFase').innerHTML = `
+        <div class="kpi" style="--accent:${C.amarelo}"><div class="label">Aguardando</div><div class="value">${fmtDuracaoMedia(tAguard.media)}</div><div class="sub">${tAguard.n} pedido(s) na média</div></div>
+        <div class="kpi" style="--accent:${C.azul}"><div class="label">Em Produção</div><div class="value">${fmtDuracaoMedia(tProd.media)}</div><div class="sub">${tProd.n} pedido(s) na média</div></div>
+        <div class="kpi" style="--accent:${C.verde}"><div class="label">Finalizado → Envio</div><div class="value">${fmtDuracaoMedia(tFinal.media)}</div><div class="sub">${tFinal.n} pedido(s) na média</div></div>`;
+
+    const fatDias = Object.entries(fatDia).sort((a,b) => a[1].date - b[1].date).slice(-14);
+    upsertChart('chartFatDia', {
+        type: 'bar',
+        data: {
+            labels: fatDias.map(d => d[0]),
+            datasets: [{ label: 'Faturamento', data: fatDias.map(d => Math.round(d[1].valor)), backgroundColor: 'rgba(76,217,100,0.45)', borderColor: C.verde, borderWidth: 1.5, borderRadius: 5 }]
+        },
+        options: baseOpts({ y: { beginAtZero: true } }, true, {
+            display: true, anchor: 'end', align: 'top', clamp: true,
+            color: C.verde, font: { weight: 'bold', size: 11 },
+            formatter: v => v >= 1000 ? 'R$ ' + (v/1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + 'k' : 'R$ ' + v
+        })
+    });
+
+    const fatOrigens = Object.entries(fatOrigem);
+    const _origemColors = { 'WhatsApp': C.verde, 'Mercado Livre': C.amarelo, 'Site Tray': C.azul, 'Outros': C.cinza };
+    upsertChart('chartFatOrigem', {
+        type: 'doughnut',
+        data: {
+            labels: fatOrigens.map(o => o[0]),
+            datasets: [{ data: fatOrigens.map(o => Math.round(o[1])), backgroundColor: fatOrigens.map(o => _origemColors[o[0]] || C.cinza), borderColor: '#141414', borderWidth: 3 }]
+        },
+        options: { maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { padding: 14, usePointStyle: true } }, datalabels: {
+            display: true, color: '#0c0c0c', font: { weight: 'bold', size: 12 }, textAlign: 'center',
+            formatter: (v, ctx) => {
+                const tot = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                const pct = tot ? Math.round(v / tot * 100) : 0;
+                const val = v >= 1000 ? 'R$ ' + (v/1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + 'k' : 'R$ ' + v;
+                return val + '\n' + pct + '%';
+            }
+        } } }
+    });
+
+    const emAndamento = byStatus['Aguardando'] + byStatus['Em Produção'];
+    const concluidos = byStatus['Finalizado'] + byStatus['Enviado'];
+    const pctConcluido = total ? Math.round(concluidos / total * 100) : 0;
+
+    /* KPIs */
+    document.getElementById('kpiGrid').innerHTML = `
+        <div class="kpi" style="--accent:${C.verde}"><div class="label">Total de Pedidos</div><div class="value">${total}</div><div class="sub">${valorTotal > 0 ? fmtBRL(valorTotal) + ' em pedidos' : 'na planilha'}</div></div>
+        <div class="kpi" style="--accent:${C.amarelo}"><div class="label">Aguardando</div><div class="value">${byStatus['Aguardando']}</div><div class="sub">fila de produção</div></div>
+        <div class="kpi" style="--accent:${C.azul}"><div class="label">Em Produção</div><div class="value">${byStatus['Em Produção']}</div><div class="sub">sendo fabricados</div></div>
+        <div class="kpi" style="--accent:${C.verde}"><div class="label">Finalizados</div><div class="value">${byStatus['Finalizado']}</div><div class="sub">prontos p/ envio</div></div>
+        <div class="kpi" style="--accent:${C.roxo}"><div class="label">Enviados</div><div class="value">${byStatus['Enviado']}</div><div class="sub">${pctConcluido}% concluído</div></div>
+        <div class="kpi" style="--accent:${C.vermelho}"><div class="label">Atrasados</div><div class="value">${atrasados.length}</div><div class="sub">${emAndamento} em andamento</div></div>`;
+
+    /* Gráfico: pedidos por dia */
+    const dias = Object.entries(byDia).sort((a,b) => a[1].date - b[1].date).slice(-14);
+    upsertChart('chartDia', {
+        type: 'bar',
+        data: {
+            labels: dias.map(d => d[0]),
+            datasets: [{
+                label: 'Pedidos',
+                data: dias.map(d => d[1].count),
+                backgroundColor: 'rgba(76, 217, 100, 0.45)',
+                borderColor: C.verde,
+                borderWidth: 1.5,
+                borderRadius: 5
+            }]
+        },
+        options: baseOpts({ y: { beginAtZero: true, ticks: { stepSize: 1 } } }, false, {
+            display: true, anchor: 'end', align: 'top', clamp: true,
+            color: '#e8eaed', font: { weight: 'bold', size: 12 }, formatter: v => v
+        })
+    });
+
+    /* Gráfico: top produtos */
+    const topProd = Object.entries(byProduto).sort((a,b) => b[1] - a[1]).slice(0, 6);
+    upsertChart('chartProdutos', {
+        type: 'bar',
+        data: {
+            labels: topProd.map(p => p[0]),
+            datasets: [{
+                data: topProd.map(p => p[1]),
+                backgroundColor: 'rgba(76, 217, 100, 0.45)',
+                borderColor: C.verde,
+                borderWidth: 1.5,
+                borderRadius: 5
+            }]
+        },
+        options: { ...baseOpts({ x: { beginAtZero: true, ticks: { stepSize: 1 } } }, true, {
+            display: true, anchor: 'end', align: 'right', clamp: true,
+            color: '#e8eaed', font: { weight: 'bold', size: 12 }, formatter: v => v
+        }), indexAxis: 'y' }
+    });
+
+    /* Tabela atrasados */
+    const tbl = document.getElementById('atrasadosTable');
+    if (!atrasados.length) {
+        tbl.innerHTML = '<div class="ok-msg">✅ Nenhum pedido atrasado. Produção em dia!</div>';
+    } else {
+        atrasados.sort((a,b) => b.atraso - a.atraso);
+        tbl.innerHTML = `
+            <table>
+                <thead><tr><th>Pedido</th><th>Cliente</th><th>Produto</th><th>Prazo</th><th>Status</th><th>Atraso</th></tr></thead>
+                <tbody>
+                    ${atrasados.map(p => `
+                        <tr>
+                            <td>#${esc(p.id)}</td>
+                            <td>${esc(p.cliente)}</td>
+                            <td>${esc(p.produto)}</td>
+                            <td>${esc(p.prazo)}</td>
+                            <td>${esc(p.status)}</td>
+                            <td class="dias-atraso">${p.atraso}d</td>
+                        </tr>`).join('')}
+                </tbody>
+            </table>`;
+    }
+}
+
+function baseOpts(scales, hideLegend, datalabels) {
+    return {
+        maintainAspectRatio: false,
+        plugins: { legend: { display: !hideLegend }, datalabels: datalabels || { display: false } },
+        scales: Object.fromEntries(Object.entries({ x: {}, y: {}, ...scales }).map(([k, v]) => [
+            k, { grid: { color: C.borda }, ...v }
+        ]))
+    };
+}
+
+function upsertChart(id, config) {
+    if (charts[id]) charts[id].destroy();
+    charts[id] = new Chart(document.getElementById(id), config);
+}
+
+/* ---------- Dados demo ---------- */
+const DEMO_DATA = [
+    ['ID_PEDIDO','DATA_ENTRADA','ORIGEM','SKU','PRODUTO','MODELO','QTD','CLIENTE','VALOR','STATUS','PRAZO','DATA_FIM','DT_PRODUCAO','DT_FINALIZADO','OBS'],
+    ['P-2026-042','13/06/2026 09:40','WhatsApp','CDJ3000-DUO','Case CDJ-3000 + DJM-900 NXS2','BVC','1','DJ Marcola','2890,00','Aguardando','20/06/2026','','','',''],
+    ['P-2026-043','13/06/2026 08:15','MercadoLivre','MAL-PQ80','Maleta PQ vinil 80 discos','BSC','2','Studio Mix BH','780,00','Aguardando','22/06/2026','','','',''],
+    ['P-2026-044','12/06/2026 17:30','Site','REV7-STD','Case DDJ-REV7','BVB','1','Carla Eventos','1450,00','Aguardando','25/06/2026','','','','Com rodinhas'],
+    ['P-2026-045','13/06/2026 07:05','WhatsApp','XDJRX3-RB','Case XDJ-RX3','BSB','1','DJ FiiL','1980,00','Aguardando','26/06/2026','','','','Linha Robust'],
+    ['P-2026-036','09/06/2026 10:00','WhatsApp','FLX10-NB','Case DDJ-FLX10 + notebook','BVC','1','DJ Alemao','1690,00','Em Produção','19/06/2026','','11/06/2026 10:00','','Pintura preta fosca + espuma extra'],
+    ['P-2026-037','09/06/2026 14:20','Site','MG16-STD','Case mesa Yamaha MG16','BSB','1','Eventos Prime SP','980,00','Em Produção','21/06/2026','','12/06/2026 08:30','',''],
+    ['P-2026-038','10/06/2026 09:10','MercadoLivre','MAL-PQ60','Maleta PQ 60 discos','BSC','3','Lucas Beats','650,00','Em Produção','23/06/2026','','12/06/2026 13:10','','Logo do cliente na tampa'],
+    ['P-2026-039','10/06/2026 16:45','WhatsApp','MIXSTR-PP','Case Numark Mixstream Pro+','BVB','1','DJ Nanda','1280,00','Em Produção','24/06/2026','','13/06/2026 07:45','',''],
+    ['P-2026-031','05/06/2026 08:00','WhatsApp','DDJ1K-SRT','Case DDJ-1000 SRT','BSC','1','DJ Ratinho','1390,00','Finalizado','13/06/2026','','08/06/2026 09:00','13/06/2026 08:00','Cliente retira na fabrica'],
+    ['P-2026-032','05/06/2026 11:30','MercadoLivre','PLX1K-PAR','Case toca-discos PLX-1000 (par)','BVC','1','Mega Som Eventos','1860,00','Finalizado','14/06/2026','','09/06/2026 10:00','12/06/2026 16:40',''],
+    ['P-2026-033','06/06/2026 09:15','Site','MAL-RB100','Maleta Robust 100 discos','BSB','1','Fernanda Prod.','920,00','Finalizado','15/06/2026','','10/06/2026 08:00','13/06/2026 06:20',''],
+    ['P-2026-027','30/05/2026 10:00','MercadoLivre','REV1-STD','Case DDJ-REV1','BSC','1','Pedro Henrique','740,00','Enviado','10/06/2026','12/06/2026 09:30','04/06/2026 09:00','09/06/2026 09:00',''],
+    ['P-2026-028','31/05/2026 14:00','WhatsApp','CDJ2K-PAR','Case CDJ-2000 NXS (par)','BVC','1','Balada Mix Floripa','2480,00','Enviado','11/06/2026','11/06/2026 14:00','05/06/2026 09:00','10/06/2026 09:00',''],
+    ['P-2026-029','01/06/2026 09:30','Site','MAL-PQ40','Maleta PQ 40 discos','BSC','2','DJ Tati','520,00','Enviado','12/06/2026','13/06/2026 05:10','06/06/2026 09:00','11/06/2026 09:00','']
+];
+
+/* ---------- Init ---------- */
+window.addEventListener('load', () => {
+    if (csvUrl) {
+        document.getElementById('configOverlay').classList.add('hidden');
+        fetchData();
+    }
+    setInterval(fetchData, REFRESH_MS);
+    startScroll();
+});
+
+/* ---------- Auto-scroll (mesmos moldes do painel TV) ---------- */
+function startScroll() {
+    stopScroll();
+    topPauseThenScroll();
+    scrollTimer = setInterval(() => {
+        if (!autoScroll) return;
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        if (max <= 0) return;                 // cabe tudo na tela: sem scroll
+        window.scrollBy(0, SCROLL_STEP);
+        if (window.scrollY >= max - 2) {
+            autoScroll = false;
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setTimeout(topPauseThenScroll, 900);
+            }, SCROLL_PAUSE_END);
+        }
+    }, SCROLL_TICK);
+}
+/* Pausa no topo e atualiza os dados antes de descer (preserva mês/ano selecionado) */
+function topPauseThenScroll() {
+    autoScroll = false;
+    if (!demoMode && csvUrl) fetchData();
+    setTimeout(() => { autoScroll = btnActive(); }, SCROLL_PAUSE_TOP);
+}
+function btnActive() { return document.getElementById('scrollBtn').classList.contains('active'); }
+function toggleScroll() {
+    const btn = document.getElementById('scrollBtn');
+    btn.classList.toggle('active');
+    autoScroll = btn.classList.contains('active');
+    btn.textContent = autoScroll ? '⏸ SCROLL AUTO' : '▶ SCROLL AUTO';
+}
+function stopScroll() { if (scrollTimer) clearInterval(scrollTimer); }
+</script>
+</body>
+</html>
