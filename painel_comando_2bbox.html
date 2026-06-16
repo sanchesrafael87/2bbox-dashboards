@@ -107,6 +107,9 @@
     .btn-avancar:active { transform: scale(0.98); }
     .btn-avancar .arrow { font-size: 1.2rem; }
     .btn-avancar.final { background: var(--roxo); color: #160a26; }
+    .btn-avancar.fase-aguardando { background: var(--amarelo); color: #2a1c00; }
+    .btn-avancar.fase-producao   { background: var(--azul);    color: #04203a; }
+    .btn-avancar.fase-finalizado { background: var(--verde);   color: #06210d; }
 
     /* Corrigir */
     .corrigir-toggle {
@@ -353,9 +356,9 @@ function card(p) {
             <span>Prazo: <strong>${esc(p.prazo) || '—'}</strong></span>
             ${atraso > 0 ? `<span class="atraso">⚠ ${atraso}d atrasado</span>` : ''}
         </div>
-        <button class="btn-avancar ${ehFinal ? 'final' : ''}" onclick="avancar('${p.id}','${p.status}','${esc(p.cliente)}')">
+        ${ehFinal ? '' : `<button class="btn-avancar fase-${CLS[p.status]}" onclick="avancar('${p.id}','${p.status}','${esc(p.cliente)}')">
             ${ACAO_LABEL[p.status]} <span class="arrow">→</span>
-        </button>
+        </button>`}
         <div class="corrigir-toggle" onclick="toggleCorrigir('${p.id}')">corrigir fase ⌄</div>
         <div class="corrigir-box" id="corr-${p.id}">
             <div class="corrigir-label">Mudar para qualquer fase</div>
