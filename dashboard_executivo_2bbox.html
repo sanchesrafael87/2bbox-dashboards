@@ -390,7 +390,9 @@
    KPIs, gráficos e atrasos a partir do CSV publicado.
    ============================================================ */
 
-const REFRESH_MS = 2 * 60 * 1000;
+const REFRESH_MS = 5 * 60 * 1000;   // 5 minutos
+const HORA_INI = 7, HORA_FIM = 19;
+function dentroDoHorario() { const h = new Date().getHours(); return h >= HORA_INI && h < HORA_FIM; }
 const SCROLL_STEP = 1;              // px por tick
 const SCROLL_TICK = 35;             // ms entre ticks
 const SCROLL_PAUSE_END = 4000;      // pausa no fim (ms)
@@ -569,14 +571,8 @@ function diasAtraso(p) {
 
 /* ---------- Fetch ---------- */
 async function fetchData() {
-    // DESATIVADO temporariamente para poupar execuções do n8n.
-    // Para reativar: remova o bloco abaixo.
-    setUpdated && setUpdated('painel desativado');
-    const c = document.getElementById('kpiGrid');
-    if (c) c.innerHTML = '<div style="padding:60px;text-align:center;color:#8a8f98;font-size:1.4rem;grid-column:1/-1;">Painel Executivo desativado temporariamente<br><span style="font-size:1rem;">(para poupar execuções — reative quando quiser)</span></div>';
-    return;
-    /* eslint-disable no-unreachable */
     if (demoMode || !csvUrl) return;
+    if (!dentroDoHorario()) { setUpdated('fora do horário (7h–19h) — atualização pausada'); return; }
     try {
         const resp = await fetch(csvUrl + (csvUrl.includes('?') ? '&' : '?') + 't=' + Date.now());
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
@@ -783,16 +779,25 @@ function drawDash(pedidos) {
     if (!atrasados.length) {
         tbl.innerHTML = '<div class="ok-msg">✅ Nenhum pedido atrasado. Produção em dia!</div>';
     } else {
-        atrasados.sort((a,b) => b.atraso - a.atraso);
+        // ordena por data de entrada — mais antigo no topo (desempate por ID)
+        const numId = p => { const n = parseInt(String(p.id).replace(/\D/g, ''), 10); return isNaN(n) ? Infinity : n; };
+        atrasados.sort((a, b) => {
+            const da = parseDate(a.entrada), db = parseDate(b.entrada);
+            if (da && db) { const d = da - db; if (d !== 0) return d; }
+            else if (da && !db) return -1;
+            else if (!da && db) return 1;
+            return numId(a) - numId(b);
+        });
         tbl.innerHTML = `
             <table>
-                <thead><tr><th>Pedido</th><th>Cliente</th><th>Produto</th><th>Prazo</th><th>Status</th><th>Atraso</th></tr></thead>
+                <thead><tr><th>Pedido</th><th>Cliente</th><th>Produto</th><th>Entrada</th><th>Prazo</th><th>Status</th><th>Atraso</th></tr></thead>
                 <tbody>
                     ${atrasados.map(p => `
                         <tr>
                             <td>#${esc(p.id)}</td>
                             <td>${esc(p.cliente)}</td>
                             <td>${esc(p.produto)}</td>
+                            <td>${esc(p.entrada)}</td>
                             <td>${esc(p.prazo)}</td>
                             <td>${esc(p.status)}</td>
                             <td class="dias-atraso">${p.atraso}d</td>
