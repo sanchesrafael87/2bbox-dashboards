@@ -206,7 +206,7 @@
         }
         .summary-item.aguardando .value { color: var(--amarelo); }
         .summary-item.producao1 .value { color: var(--azul); }
-        .summary-item.producao2 .value { color: #7aa7ff; }
+        .summary-item.producao2 .value { color: var(--roxo); }
 
         /* ===== BOARD KANBAN (3 colunas, sem scroll horizontal) ===== */
         .content { padding: 0 32px 60px; }
@@ -233,7 +233,7 @@
         }
         .col-head.aguardando { background: var(--amarelo); }
         .col-head.producao1  { background: var(--azul); }
-        .col-head.producao2  { background: #7aa7ff; }
+        .col-head.producao2  { background: var(--roxo); color: #fff; }
         .col-count {
             font-size: 1.1rem;
             background: rgba(0,0,0,0.30);
@@ -258,7 +258,7 @@
         /* Cor da fase BEM forte (borda esquerda grossa + leve glow) */
         .card.aguardando { border-left-color: var(--amarelo); box-shadow: -4px 0 14px rgba(255,217,61,0.10); }
         .card.producao1  { border-left-color: var(--azul);    box-shadow: -4px 0 14px rgba(77,166,255,0.12); }
-        .card.producao2  { border-left-color: #7aa7ff;        box-shadow: -4px 0 14px rgba(122,167,255,0.12); }
+        .card.producao2  { border-left-color: var(--roxo);   box-shadow: -4px 0 14px rgba(157,108,232,0.16); }
         .card.atrasado {
             border-color: var(--vermelho);
             border-left-color: var(--vermelho);
@@ -498,7 +498,7 @@
 
 const REFRESH_MS = 2 * 60 * 1000;   // 2 minutos
 const SCROLL_STEP = 1;              // px por tick
-const SCROLL_TICK = 35;             // ms entre ticks
+const SCROLL_TICK = 28;            // ms entre ticks
 const SCROLL_PAUSE_END = 4000;      // pausa no fim (ms)
 const SCROLL_PAUSE_TOP = 5000;      // pausa no topo (ms) — TV tem mais info no topo
 
@@ -708,7 +708,7 @@ function origemClass(o) {
 function createCard(p, cls) {
     const atrasado = isAtrasado(p);
     const [oCls, oLabel] = origemClass(p.origem);
-    const obsTexto = (p.obs && p.obs.trim()) ? esc(p.obs) : '';
+    const obsTexto = (p.obs && p.obs.trim()) ? esc(p.obs) : '<span class="obs-vazia">—</span>';
 
     const titulo = esc(p.nomecard) || esc(p.sku) || '—';
     const skuTxt = esc(p.sku) || '—';
@@ -742,7 +742,7 @@ function createCard(p, cls) {
                 <span class="mat">${matTxt || '—'}</span>
                 ${qtdTxt ? '<span class="qtd">' + qtdTxt + '</span>' : ''}
             </div>
-            ${obsTexto ? '<div class="card-obs"><span class="obs-label">OBS:</span> ' + obsTexto + '</div>' : ''}
+            <div class="card-obs"><span class="obs-label">OBS:</span> ${obsTexto}</div>
             <div class="card-cliente">👤 ${esc(p.cliente) || 'Cliente não informado'}</div>
             <div class="card-footer">
                 <span>Entrada: <strong>${esc(p.entrada) || '—'}</strong></span>
