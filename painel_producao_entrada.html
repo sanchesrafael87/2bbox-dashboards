@@ -296,6 +296,8 @@
         .entrada-main { flex: 1; min-width: 0; }
         .entrada-estoque { flex: 0 0 420px; }
         .col-head.estoque { background: var(--vermelho); color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.15rem; letter-spacing: 2px; text-transform: uppercase; padding: 9px 14px; border-radius: 9px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; position: sticky; top: 86px; z-index: 40; }
+        .col-head.pedidos { background: var(--amarelo); color: #2a1c00; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.15rem; letter-spacing: 2px; text-transform: uppercase; padding: 9px 14px; border-radius: 9px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; position: sticky; top: 86px; z-index: 40; }
+        .col-head.pedidos .col-count { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 700; background: rgba(0,0,0,0.28); color: #fff; border-radius: 9px; min-width: 34px; text-align: center; padding: 2px 8px; }
         .col-head.estoque .col-count { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 700; background: rgba(0,0,0,0.28); color: #fff; border-radius: 9px; min-width: 34px; text-align: center; padding: 2px 8px; }
         .row.estoque { border-left-color: var(--vermelho); background: #1c1414; }
         .col-empty { color:#555; font-size:1rem; padding: 8px 4px; }
@@ -946,7 +948,10 @@ function render(pedidos) {
 
     document.getElementById('content').innerHTML =
         '<div class="entrada-wrap">' +
-            '<div class="entrada-main"><div class="entrada-grid">' + rowsNorm + '</div></div>' +
+            '<div class="entrada-main">' +
+                '<div class="col-head pedidos"><span class="col-count">' + normais.length + '</span> Pedidos</div>' +
+                '<div class="entrada-grid">' + rowsNorm + '</div>' +
+            '</div>' +
             '<div class="entrada-estoque">' +
                 '<div class="col-head estoque"><span class="col-count">' + estoque.length + '</span> Estoque</div>' +
                 '<div class="col-list">' + rowsEstoque + '</div>' +
