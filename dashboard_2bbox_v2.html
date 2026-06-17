@@ -530,9 +530,9 @@
 
 const REFRESH_MS = 2 * 60 * 1000;   // 2 minutos
 const SCROLL_STEP = 1;              // px por tick
-const SCROLL_TICK = 28;            // ms entre ticks
-const SCROLL_PAUSE_END = 4000;      // pausa no fim (ms)
-const SCROLL_PAUSE_TOP = 5000;      // pausa no topo (ms) — TV tem mais info no topo
+const SCROLL_TICK = 22;            // ms entre ticks
+const SCROLL_PAUSE_END = 1500;      // pausa curta no fim (ms)
+const SCROLL_PAUSE_TOP = 800;       // respiro curto no topo (totais já ficam no header fixo)
 
 let csvUrl = localStorage.getItem('2bbox_csv_url') || '';
 let demoMode = false;
