@@ -170,7 +170,7 @@
             margin: 20px 40px 0;
         }
         .kpi-grid.valores { grid-template-columns: repeat(4, 1fr); padding-top: 16px; }
-        .kpi-grid.tempos { grid-template-columns: repeat(3, 1fr); padding-top: 16px; }
+        .kpi-grid.tempos { grid-template-columns: repeat(4, 1fr); padding-top: 16px; }
 
         /* ===== KPIs ===== */
         .kpi-grid {
@@ -484,6 +484,7 @@ function mapHeaders(header) {
         origem: find('origem','canal','fonte'),
         entrada: find('entrada'),
         dtProducao: find('dt_producao','dt_produ','data_producao'),
+        dtProducao2: find('dt_producao_2','dt_producao2','dt_produ_2'),
         dtFinalizado: find('dt_finalizado','dt_final','data_finalizado'),
         dtFim: find('data_fim','dt_fim','data_envio'),
         prazo: find('prazo','entrega','limite'),
@@ -501,6 +502,7 @@ function parseRows(rows) {
         qtd: parseInt(get(r, m.qtd)) || 1, origem: get(r, m.origem),
         entrada: get(r, m.entrada), prazo: get(r, m.prazo),
         dtProducao: get(r, m.dtProducao), dtFinalizado: get(r, m.dtFinalizado), dtFim: get(r, m.dtFim),
+        dtProducao2: get(r, m.dtProducao2),
         valor: parseValor(get(r, m.valor)),
         status: normalizeStatus(get(r, m.status))
     })).filter(p => (p.id || p.cliente || p.produto) && p.status !== null);
@@ -515,7 +517,7 @@ function normalizeStatus(s) {
     const t = (s || '').toLowerCase();
     if (t.includes('cancel') || t.includes('entreg')) return null; // fora do dashboard
     if (t.includes('aguard') || t.includes('pendente') || t.includes('fila') || t.includes('process')) return 'Aguardando';
-    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica')) return 'Em Produção';
+    if (t.includes('montag') || t.includes('colag') || t.includes('produ') || t.includes('andamento') || t.includes('fabrica')) return 'Em Produção';
     if (t.includes('final') || t.includes('pronto') || t.includes('conclu')) return 'Finalizado';
     if (t.includes('envi') || t.includes('despach') || t.includes('postado')) return 'Enviado';
     return 'Aguardando';
@@ -679,13 +681,15 @@ function drawDash(pedidos) {
         <div class="kpi" style="--accent:${C.roxo}"><div class="label">Concluído</div><div class="value">${fmtBRL(fatConcluido)}</div><div class="sub">finalizado + enviado</div></div>`;
 
     /* ===== Tempo médio por fase (carimbos write-once por fase) ===== */
-    const tAguard = mediaFase(pedidos, 'entrada', 'dtProducao');      // Aguardando -> entrou em Produção
-    const tProd   = mediaFase(pedidos, 'dtProducao', 'dtFinalizado'); // Em Produção -> Finalizado
-    const tFinal  = mediaFase(pedidos, 'dtFinalizado', 'dtFim');      // Finalizado -> Enviado
+    const tMont  = mediaFase(pedidos, 'entrada', 'dtProducao');         // Aguardando -> início da Montagem
+    const tCol   = mediaFase(pedidos, 'dtProducao', 'dtProducao2');     // Montagem -> início da Colagem
+    const tFinal = mediaFase(pedidos, 'dtProducao2', 'dtFinalizado');   // Colagem -> Finalizado
+    const tEnvio = mediaFase(pedidos, 'dtFinalizado', 'dtFim');         // Finalizado -> Enviado
     document.getElementById('kpiTempoFase').innerHTML = `
-        <div class="kpi" style="--accent:${C.amarelo}"><div class="label">Aguardando</div><div class="value">${fmtDuracaoMedia(tAguard.media)}</div><div class="sub">${tAguard.n} pedido(s) na média</div></div>
-        <div class="kpi" style="--accent:${C.azul}"><div class="label">Em Produção</div><div class="value">${fmtDuracaoMedia(tProd.media)}</div><div class="sub">${tProd.n} pedido(s) na média</div></div>
-        <div class="kpi" style="--accent:${C.verde}"><div class="label">Finalizado → Envio</div><div class="value">${fmtDuracaoMedia(tFinal.media)}</div><div class="sub">${tFinal.n} pedido(s) na média</div></div>`;
+        <div class="kpi" style="--accent:${C.amarelo}"><div class="label">Aguardando → Montagem</div><div class="value">${fmtDuracaoMedia(tMont.media)}</div><div class="sub">${tMont.n} pedido(s) na média</div></div>
+        <div class="kpi" style="--accent:${C.azul}"><div class="label">Montagem → Colagem</div><div class="value">${fmtDuracaoMedia(tCol.media)}</div><div class="sub">${tCol.n} pedido(s) na média</div></div>
+        <div class="kpi" style="--accent:${C.roxo}"><div class="label">Colagem → Finalizado</div><div class="value">${fmtDuracaoMedia(tFinal.media)}</div><div class="sub">${tFinal.n} pedido(s) na média</div></div>
+        <div class="kpi" style="--accent:${C.verde}"><div class="label">Finalizado → Envio</div><div class="value">${fmtDuracaoMedia(tEnvio.media)}</div><div class="sub">${tEnvio.n} pedido(s) na média</div></div>`;
 
     const fatDias = Object.entries(fatDia).sort((a,b) => a[1].date - b[1].date).slice(-14);
     upsertChart('chartFatDia', {
