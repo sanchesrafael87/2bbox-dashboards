@@ -193,6 +193,10 @@
         .htot.aguardando { color: var(--amarelo); border-color: rgba(255,217,61,0.40); background: rgba(255,217,61,0.08); }
         .htot.producao1  { color: var(--azul);    border-color: rgba(77,166,255,0.40); background: rgba(77,166,255,0.08); }
         .htot.producao2  { color: var(--roxo);    border-color: rgba(155,89,182,0.45); background: rgba(155,89,182,0.10); }
+        .htot.finalizado { color: var(--verde-2bbox); border-color: rgba(76,217,100,0.40); background: rgba(76,217,100,0.08); }
+        .htot.finalizado .n { background: rgba(76,217,100,0.18); }
+        .htot.ref { opacity: 0.55; transform: scale(0.9); }
+        .htot-sep { align-self: center; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; color: #5a5f68; font-weight: 700; padding: 0 2px; }
         .htot.aguardando .n { background: rgba(255,217,61,0.18); }
         .htot.producao1  .n { background: rgba(77,166,255,0.18); }
         .htot.producao2  .n { background: rgba(155,89,182,0.22); }
@@ -736,6 +740,17 @@ function mapHeaders(header) {
     };
 }
 
+function classifyFull(s) {
+    const t = (s || '').toLowerCase();
+    if (t.includes('cancel')) return 'Cancelado';
+    if (t.includes('entreg')) return 'Entregue';
+    if (t.includes('envi') || t.includes('despach') || t.includes('postado')) return 'Enviado';
+    if (t.includes('final') || t.includes('pronto') || t.includes('conclu')) return 'Finalizado';
+    if (t.includes('aguard') || t.includes('pendente') || t.includes('fila')) return 'Aguardando';
+    if (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois'))) return 'Produção 2';
+    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Produção 1';
+    return 'Aguardando';
+}
 function parseRows(rows) {
     if (!rows.length) return [];
     const m = mapHeaders(rows[0]);
@@ -756,8 +771,9 @@ function parseRows(rows) {
         dtFinalizado:get(r, m.dtFinalizado),
         dtFim:       get(r, m.dtFim),
         dtEntregue:  get(r, m.dtEntregue),
-        status:  normalizeStatus(get(r, m.status))
-    })).filter(p => (p.id || p.cliente || p.nomecard) && p.status !== null);
+        status:  normalizeStatus(get(r, m.status)),
+        statusFull: classifyFull(get(r, m.status))
+    })).filter(p => (p.id || p.cliente || p.nomecard));
 }
 
 function normalizeStatus(s) {
@@ -898,9 +914,17 @@ function render(pedidos) {
     };
     byStatus['Aguardando'].sort(ordena);
 
-    // Total fixo no header
+    // Contagem completa (para referência das outras fases)
+    const ref = { 'Produção 1':0, 'Produção 2':0, 'Finalizado':0 };
+    pedidos.forEach(p => { if (ref[p.statusFull] !== undefined) ref[p.statusFull]++; });
+
+    // Total fixo no header: Aguardando (sua) + referência das fases seguintes
     document.getElementById('headerTotals').innerHTML = `
-        <div class="htot aguardando"><span class="n">${byStatus['Aguardando'].length}</span><span>Aguardando</span></div>`;
+        <div class="htot aguardando"><span class="n">${byStatus['Aguardando'].length}</span><span>Aguardando</span></div>
+        <span class="htot-sep">ref</span>
+        <div class="htot producao1 ref"><span class="n">${ref['Produção 1']}</span><span>Produção 1</span></div>
+        <div class="htot producao2 ref"><span class="n">${ref['Produção 2']}</span><span>Produção 2</span></div>
+        <div class="htot finalizado ref"><span class="n">${ref['Finalizado']}</span><span>Finalizado</span></div>`;
 
     // Grade única que enche a tela (vários cards por linha)
     const rows = byStatus['Aguardando'].map(p => createRow(p, 'aguardando')).join('')
