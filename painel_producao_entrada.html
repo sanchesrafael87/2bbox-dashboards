@@ -839,8 +839,15 @@ function diasAtraso(p) {
 }
 
 /* ---------- Fetch ---------- */
+// Regra de horário comercial: só busca dados entre 7h e 19h (poupa execuções do n8n)
+const HORA_INI = 7, HORA_FIM = 19;
+function dentroDoHorario() {
+    const h = new Date().getHours();
+    return h >= HORA_INI && h < HORA_FIM;
+}
 async function fetchData() {
     if (demoMode || !csvUrl) return;
+    if (!dentroDoHorario()) { setUpdated('fora do horário (7h–19h) — atualização pausada'); return; }
     try {
         const resp = await fetch(csvUrl + (csvUrl.includes('?') ? '&' : '?') + 't=' + Date.now());
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
