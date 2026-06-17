@@ -413,11 +413,34 @@
         }
         .card.atrasado .card-timer .tval { color: #ff8a4d; }
         .card-timer.sem-dado .tval { color:#555; }
-        .card-cliente {
+        .card-idcli {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .card-idcli .ped {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--verde-2bbox);
+            white-space: nowrap;
+        }
+        .card-idcli .ped-label {
+            font-size: 0.72em;
+            color: #6a6f78;
+            letter-spacing: 1px;
+        }
+        .card-idcli .cli {
             font-size: 1.1rem;
             font-weight: 600;
             color: #cfcfcf;
-            margin-bottom: 14px;
+            text-align: right;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .card-footer {
             display: flex;
@@ -776,7 +799,10 @@ function createCard(p, cls) {
                 ${qtdTxt ? '<span class="qtd">' + qtdTxt + '</span>' : ''}
             </div>
             <div class="card-obs"><span class="obs-label">OBS:</span> ${obsTexto}</div>
-            <div class="card-cliente">👤 ${esc(p.cliente) || 'Cliente não informado'}</div>
+            <div class="card-idcli">
+                <span class="ped"><span class="ped-label">PED:</span> ${esc(p.id) || '—'}</span>
+                <span class="cli">👤 ${esc(p.cliente) || 'Cliente não informado'}</span>
+            </div>
             <div class="card-footer">
                 <span>Entrada: <strong>${esc(p.entrada) || '—'}</strong></span>
                 <span>Prazo: <strong>${esc(p.prazo) || '—'}</strong></span>
