@@ -176,15 +176,26 @@
             font-size: 0.95rem;
             letter-spacing: 1px;
             text-transform: uppercase;
-            padding: 5px 16px;
+            padding: 4px 16px 4px 5px;
             border-radius: 22px;
             border: 1px solid;
             white-space: nowrap;
         }
-        .htot .n { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; line-height: 1; }
+        .htot .n {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.05rem;
+            line-height: 1;
+            border-radius: 18px;
+            min-width: 30px;
+            text-align: center;
+            padding: 4px 0;
+        }
         .htot.aguardando { color: var(--amarelo); border-color: rgba(255,217,61,0.40); background: rgba(255,217,61,0.08); }
         .htot.producao1  { color: var(--azul);    border-color: rgba(77,166,255,0.40); background: rgba(77,166,255,0.08); }
         .htot.producao2  { color: var(--roxo);    border-color: rgba(155,89,182,0.45); background: rgba(155,89,182,0.10); }
+        .htot.aguardando .n { background: rgba(255,217,61,0.18); }
+        .htot.producao1  .n { background: rgba(77,166,255,0.18); }
+        .htot.producao2  .n { background: rgba(155,89,182,0.22); }
         .header-right { text-align: right; }
         .clock {
             font-family: 'Orbitron', sans-serif;
@@ -235,40 +246,90 @@
         .summary-item.producao1 .value { color: var(--azul); }
         .summary-item.producao2 .value { color: var(--roxo); }
 
-        /* ===== FASES EMPILHADAS, cards em grade de 3 colunas ===== */
-        .content { padding: 24px 32px 60px; }
-        .fase { margin-bottom: 34px; }
-        .fase-head {
+        /* ===== 3 COLUNAS LADO A LADO, LISTAS DENSAS ===== */
+        .content { padding: 20px 26px 70px; }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+        .col { min-width: 0; }
+        .col-head {
+            position: sticky;
+            top: 86px;
+            z-index: 40;
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
-            padding: 10px 18px;
-            margin-bottom: 18px;
-            border-radius: 10px;
-            display: inline-flex;
+            padding: 9px 14px;
+            border-radius: 9px;
+            display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             color: #0d0d0d;
+            margin-bottom: 12px;
         }
-        .fase-head.aguardando { background: var(--amarelo); }
-        .fase-head.producao1  { background: var(--azul); }
-        .fase-head.producao2  { background: var(--roxo); color: #fff; }
-        .fase-count {
-            font-size: 1.05rem;
-            background: rgba(0,0,0,0.30);
+        .col-head.aguardando { background: var(--amarelo); }
+        .col-head.producao1  { background: var(--azul); }
+        .col-head.producao2  { background: var(--roxo); color: #fff; }
+        .col-count {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: rgba(0,0,0,0.28);
             color: #fff;
-            border-radius: 20px;
-            padding: 1px 13px;
+            border-radius: 9px;
+            min-width: 34px;
+            text-align: center;
+            padding: 2px 8px;
         }
-        .fase-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            align-items: stretch;
+        .col-list { display: flex; flex-direction: column; gap: 7px; }
+        .col-empty { color:#555; font-size:1rem; padding: 8px 4px; }
+
+        /* ===== LINHA COMPACTA ===== */
+        .row {
+            background: var(--preto-card);
+            border-left: 5px solid var(--preto-borda);
+            border-radius: 0 8px 8px 0;
+            padding: 9px 13px;
         }
-        .col-empty { color:#555; font-size:1rem; padding: 6px 4px; grid-column: 1 / -1; }
+        .row.aguardando { border-left-color: var(--amarelo); }
+        .row.producao1  { border-left-color: var(--azul); }
+        .row.producao2  { border-left-color: var(--roxo); }
+        .row.atrasado   { border-left-color: var(--vermelho); background: #1c1414; animation: pulseRow 1.6s infinite; }
+        @keyframes pulseRow { 0%,100% { box-shadow: 0 0 0 0 rgba(255,90,90,0); } 50% { box-shadow: 0 0 0 2px rgba(255,90,90,0.45); } }
+
+        .row-l1 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+        .r-nome {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.12rem;
+            color: var(--branco);
+            line-height: 1.15;
+            min-width: 0;
+            flex: 1;
+        }
+        .r-cli { font-size: 1.02rem; font-weight: 600; color: #cfcfcf; white-space: nowrap; max-width: 42%; overflow: hidden; text-overflow: ellipsis; flex: 0 0 auto; }
+        .r-atraso { color: var(--vermelho); font-weight: 700; font-size: 0.82rem; margin-left: 6px; }
+
+        .row-l2 { margin-top: 5px; font-size: 0.95rem; color: #8a8f98; display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 7px; line-height: 1.3; }
+        .row-l2 .r-dot { color: #3a3d44; }
+        .r-sku { font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--verde-2bbox); font-size: 1rem; }
+        .r-mat { color: #cfcfcf; }
+        .r-qtd { color: var(--verde-2bbox); font-weight: 700; }
+        .r-ped { font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--verde-2bbox); }
+        .r-pedlabel { font-size: 0.68rem; color: #5a5f68; letter-spacing: 1px; }
+        .r-pedfim { color: var(--branco); }
+        .r-org.whatsapp { color: var(--verde-2bbox); font-weight: 700; }
+        .r-org.mercadolivre { color: var(--amarelo); font-weight: 700; }
+        .r-org.shopee { color: var(--laranja); font-weight: 700; }
+        .r-org.tray { color: var(--azul); font-weight: 700; }
+        .r-org.outro { color: #8a8f98; font-weight: 700; }
+        .r-prazo { color: #8a8f98; }
+        .r-prazo.late { color: var(--vermelho); font-weight: 700; }
 
         /* ===== CARDS (maiores) ===== */
         .card {
@@ -737,6 +798,12 @@ function isAtrasado(p) {
     const hoje = new Date(); hoje.setHours(0,0,0,0);
     return d < hoje;
 }
+function diasAtraso(p) {
+    const d = parseDate(p.prazo);
+    if (!d) return 0;
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    return d < hoje ? Math.round((hoje - d) / 86400000) : 0;
+}
 
 /* ---------- Fetch ---------- */
 async function fetchData() {
@@ -768,54 +835,31 @@ function origemClass(o) {
     return ['outro', o || '—'];   // Carteira e quaisquer outras do combo: cinza
 }
 
-function createCard(p, cls) {
+function createRow(p, cls) {
     const atrasado = isAtrasado(p);
     const [oCls, oLabel] = origemClass(p.origem);
-    const obsTexto = (p.obs && p.obs.trim()) ? esc(p.obs) : '<span class="obs-vazia">—</span>';
-
     const titulo = esc(p.nomecard) || esc(p.sku) || '—';
     const skuTxt = esc(p.sku) || '—';
-    const matTxt = esc(p.material) || '';
+    const matTxt = esc(p.material) || '—';
     const qtdTxt = p.qtd ? esc(p.qtd) + ' un' : '';
+    const prazoTxt = esc(p.prazo) || '—';
+    const dias = atrasado ? diasAtraso(p) : 0;
+    const ped = (() => { const v = esc(p.id) || '—'; return v.length > 3 ? v.slice(0, -3) + '<span class="r-pedfim">' + v.slice(-3) + '</span>' : v; })();
 
-    // Carimbo da fase ATUAL (cada fase tem o seu, write-once).
-    const carimboFase = {
-        'Aguardando':  p.entrada,
-        'Produção 1':  p.dtProducao,
-        'Produção 2':  p.dtProducao2
-    };
-    const dtFase = parseDate(carimboFase[p.status]) || parseDate(p.entrada);
-    let timerHTML;
-    if (dtFase) {
-        timerHTML = '<div class="card-timer" data-since="' + dtFase.getTime() + '">'
-            + '<span class="tlabel">⏱ nesta fase</span> <span class="tval">' + formatDuracao(Date.now() - dtFase.getTime()) + '</span></div>';
-    } else {
-        timerHTML = '<div class="card-timer sem-dado"><span class="tlabel">⏱ nesta fase</span> <span class="tval">—</span></div>';
-    }
+    let l2 = '<span class="r-sku">' + skuTxt + '</span>';
+    l2 += '<span class="r-dot">·</span><span class="r-mat">' + matTxt + '</span>';
+    if (qtdTxt) l2 += '<span class="r-dot">·</span><span class="r-qtd">' + qtdTxt + '</span>';
+    l2 += '<span class="r-dot">·</span><span class="r-ped"><span class="r-pedlabel">PED</span> ' + ped + '</span>';
+    l2 += '<span class="r-dot">·</span><span class="r-org ' + oCls + '">' + esc(oLabel) + '</span>';
+    l2 += '<span class="r-dot">·</span><span class="r-prazo' + (atrasado ? ' late' : '') + '">' + prazoTxt + '</span>';
 
     return `
-        <div class="card ${cls}${atrasado ? ' atrasado' : ''}">
-            <div class="card-top">
-                <div class="card-title">${titulo}</div>
-                <span class="badge ${oCls}">${esc(oLabel)}</span>
+        <div class="row ${cls}${atrasado ? ' atrasado' : ''}">
+            <div class="row-l1">
+                <span class="r-nome">${titulo}</span>
+                <span class="r-cli">👤 ${esc(p.cliente) || '—'}${atrasado ? ' <span class="r-atraso">⚠ ' + dias + 'd</span>' : ''}</span>
             </div>
-            <div class="card-skuline">
-                <span class="sku">${skuTxt}</span>
-                <span class="sep"></span>
-                <span class="mat">${matTxt || '—'}</span>
-                ${qtdTxt ? '<span class="qtd">' + qtdTxt + '</span>' : ''}
-            </div>
-            <div class="card-obs"><span class="obs-label">OBS:</span> ${obsTexto}</div>
-            <div class="card-idcli">
-                <span class="ped"><span class="ped-label">PED:</span> ${(() => { const v = esc(p.id) || '—'; if (v.length > 3) { return v.slice(0, -3) + '<span class="ped-fim">' + v.slice(-3) + '</span>'; } return v; })()}</span>
-                <span class="cli">👤 ${esc(p.cliente) || 'Cliente não informado'}</span>
-            </div>
-            <div class="card-footer">
-                <span>Entrada: <strong>${esc(p.entrada) || '—'}</strong></span>
-                <span>Prazo: <strong>${esc(p.prazo) || '—'}</strong></span>
-            </div>
-            ${timerHTML}
-            ${atrasado ? '<div class="alerta-atraso">⚠ Pedido atrasado</div>' : ''}
+            <div class="row-l2">${l2}</div>
         </div>`;
 }
 
@@ -827,28 +871,29 @@ function render(pedidos) {
     const byStatus = { 'Aguardando': [], 'Produção 1': [], 'Produção 2': [] };
     pedidos.forEach(p => { if (byStatus[p.status]) byStatus[p.status].push(p); });
 
-    // Totais fixos no header (não rolam)
+    // Totais fixos no header (não rolam) — contagem antes do nome, em balão próprio
     document.getElementById('headerTotals').innerHTML = `
-        <div class="htot aguardando"><span>⏳ Aguardando</span><span class="n">${byStatus['Aguardando'].length}</span></div>
-        <div class="htot producao1"><span>🔧 Produção 1</span><span class="n">${byStatus['Produção 1'].length}</span></div>
-        <div class="htot producao2"><span>🛠 Produção 2</span><span class="n">${byStatus['Produção 2'].length}</span></div>`;
+        <div class="htot aguardando"><span class="n">${byStatus['Aguardando'].length}</span><span>Aguardando</span></div>
+        <div class="htot producao1"><span class="n">${byStatus['Produção 1'].length}</span><span>Produção 1</span></div>
+        <div class="htot producao2"><span class="n">${byStatus['Produção 2'].length}</span><span>Produção 2</span></div>`;
 
-    // Fases empilhadas (vertical); cards de cada fase em grade de 3 colunas
+    // 3 colunas lado a lado, cada uma uma lista densa
     const cols = [
-        ['Aguardando', 'aguardando', '⏳ Aguardando'],
-        ['Produção 1', 'producao1', '🔧 Produção 1'],
-        ['Produção 2', 'producao2', '🛠 Produção 2']
+        ['Aguardando', 'aguardando'],
+        ['Produção 1', 'producao1'],
+        ['Produção 2', 'producao2']
     ];
-    let html = '';
-    cols.forEach(([key, cls, label]) => {
-        const cards = byStatus[key].map(p => createCard(p, cls)).join('')
+    let html = '<div class="board">';
+    cols.forEach(([key, cls]) => {
+        const rows = byStatus[key].map(p => createRow(p, cls)).join('')
             || '<div class="col-empty">— sem pedidos —</div>';
         html += `
-            <section class="fase ${cls}">
-                <div class="fase-head ${cls}">${label} <span class="fase-count">${byStatus[key].length}</span></div>
-                <div class="fase-grid">${cards}</div>
-            </section>`;
+            <div class="col">
+                <div class="col-head ${cls}"><span class="col-count">${byStatus[key].length}</span> ${key}</div>
+                <div class="col-list">${rows}</div>
+            </div>`;
     });
+    html += '</div>';
     document.getElementById('content').innerHTML = html;
 }
 
