@@ -756,8 +756,8 @@ function classifyFull(s) {
     if (t.includes('envi') || t.includes('despach') || t.includes('postado')) return 'Enviado';
     if (t.includes('final') || t.includes('pronto') || t.includes('conclu')) return 'Finalizado';
     if (t.includes('aguard') || t.includes('pendente') || t.includes('fila')) return 'Aguardando';
-    if (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois'))) return 'Produção 2';
-    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Produção 1';
+    if (t.includes('colag') || (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois')))) return 'Colagem';
+    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Montagem';
     return 'Aguardando';
 }
 function parseRows(rows) {
@@ -825,7 +825,7 @@ function formatDuracao(ms) {
 }
 
 function isAtrasado(p) {
-    if (p.status !== 'Aguardando' && p.status !== 'Produção 1' && p.status !== 'Produção 2') return false;
+    if (p.status !== 'Aguardando' && p.status !== 'Montagem' && p.status !== 'Colagem') return false;
     const d = parseDate(p.prazo);
     if (!d) return false;
     const hoje = new Date(); hoje.setHours(0,0,0,0);
@@ -925,15 +925,15 @@ function render(pedidos) {
     byStatus['Aguardando'].sort(ordena);
 
     // Contagem completa (para referência das outras fases)
-    const ref = { 'Produção 1':0, 'Produção 2':0, 'Finalizado':0 };
+    const ref = { 'Montagem':0, 'Colagem':0, 'Finalizado':0 };
     pedidos.forEach(p => { if (ref[p.statusFull] !== undefined) ref[p.statusFull]++; });
 
     // Total fixo no header: Aguardando (sua) + referência das fases seguintes
     document.getElementById('headerTotals').innerHTML = `
         <div class="htot aguardando"><span class="n">${byStatus['Aguardando'].length}</span><span>Aguardando</span></div>
         <span class="htot-sep">ref</span>
-        <div class="htot producao1 ref"><span class="n">${ref['Produção 1']}</span><span>Produção 1</span></div>
-        <div class="htot producao2 ref"><span class="n">${ref['Produção 2']}</span><span>Produção 2</span></div>
+        <div class="htot producao1 ref"><span class="n">${ref['Montagem']}</span><span>Montagem</span></div>
+        <div class="htot producao2 ref"><span class="n">${ref['Colagem']}</span><span>Colagem</span></div>
         <div class="htot finalizado ref"><span class="n">${ref['Finalizado']}</span><span>Finalizado</span></div>`;
 
     // Separa por origem: normais (grade) vs Estoque (coluna vermelha ao lado)
