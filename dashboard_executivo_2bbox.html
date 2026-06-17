@@ -392,7 +392,7 @@
 
 const REFRESH_MS = 5 * 60 * 1000;   // 5 minutos
 const HORA_INI = 7, HORA_FIM = 19;
-function dentroDoHorario() { const h = new Date().getHours(); return h >= HORA_INI && h < HORA_FIM; }
+function dentroDoHorario() { const d = new Date(); const dia = d.getDay(); if (dia === 0 || dia === 6) return false; const h = d.getHours(); return h >= HORA_INI && h < HORA_FIM; }
 const SCROLL_STEP = 1;              // px por tick
 const SCROLL_TICK = 35;             // ms entre ticks
 const SCROLL_PAUSE_END = 4000;      // pausa no fim (ms)
@@ -572,7 +572,7 @@ function diasAtraso(p) {
 /* ---------- Fetch ---------- */
 async function fetchData() {
     if (demoMode || !csvUrl) return;
-    if (!dentroDoHorario()) { setUpdated('fora do horário (7h–19h) — atualização pausada'); return; }
+    if (!dentroDoHorario()) { setUpdated('fora do horário (seg–sex, 7h–19h) — atualização pausada'); return; }
     try {
         const resp = await fetch(csvUrl + (csvUrl.includes('?') ? '&' : '?') + 't=' + Date.now());
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
