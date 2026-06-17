@@ -545,13 +545,29 @@ function fmtDuracaoMedia(ms) {
     if (h > 0) return h + 'h ' + m + 'm';
     return m + 'm';
 }
-/* Média das diferenças entre dois carimbos, só p/ pedidos que têm ambos */
+/* Tempo decorrido entre dois instantes contando SÓ dias úteis (seg–sex);
+   sábados e domingos inteiros são descontados. Retorna milissegundos úteis. */
+function msUteis(a, b) {
+    if (b <= a) return 0;
+    let total = 0;
+    let cur = new Date(a.getTime());
+    while (cur < b) {
+        // fim do dia corrente (meia-noite seguinte)
+        const fimDia = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate() + 1, 0, 0, 0, 0);
+        const trechoFim = b < fimDia ? b : fimDia;
+        const dia = cur.getDay();           // 0=dom, 6=sab
+        if (dia !== 0 && dia !== 6) total += (trechoFim - cur);
+        cur = fimDia;
+    }
+    return total;
+}
+/* Média das diferenças entre dois carimbos (só dias úteis), p/ pedidos que têm ambos */
 function mediaFase(pedidos, campoIni, campoFim) {
     const difs = [];
     pedidos.forEach(p => {
         const a = parseDate(p[campoIni]);
         const b = parseDate(p[campoFim]);
-        if (a && b && b > a) difs.push(b - a);
+        if (a && b && b > a) difs.push(msUteis(a, b));
     });
     if (!difs.length) return { media: null, n: 0 };
     return { media: difs.reduce((s, x) => s + x, 0) / difs.length, n: difs.length };
