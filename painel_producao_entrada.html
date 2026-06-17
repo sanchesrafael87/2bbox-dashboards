@@ -328,6 +328,10 @@
         .r-org.outro { color: #8a8f98; font-weight: 700; }
         .r-prazo { color: #8a8f98; }
         .r-prazo.late { color: var(--vermelho); font-weight: 700; }
+        .row-datas { margin-top: 4px; }
+        .r-data { color: #8a8f98; }
+        .r-datalabel { font-size: 0.66rem; color: #5a5f68; letter-spacing: 1px; font-weight: 700; text-transform: uppercase; }
+        .r-late { color: var(--vermelho); font-weight: 700; }
         .row-obs {
             margin-top: 5px;
             font-size: 0.92rem;
@@ -847,6 +851,7 @@ function createRow(p, cls) {
     const matTxt = esc(p.material) || '—';
     const qtdTxt = p.qtd ? esc(p.qtd) + ' un' : '';
     const prazoTxt = esc(p.prazo) || '—';
+    const entradaTxt = esc(p.entrada) || '—';
     const dias = atrasado ? diasAtraso(p) : 0;
     const obsTxt = (p.obs && p.obs.trim()) ? esc(p.obs) : '';
 
@@ -854,7 +859,9 @@ function createRow(p, cls) {
     l2 += '<span class="r-dot">·</span><span class="r-mat">' + matTxt + '</span>';
     if (qtdTxt) l2 += '<span class="r-dot">·</span><span class="r-qtd">' + qtdTxt + '</span>';
     l2 += '<span class="r-dot">·</span><span class="r-org ' + oCls + '">' + esc(oLabel) + '</span>';
-    l2 += '<span class="r-dot">·</span><span class="r-prazo' + (atrasado ? ' late' : '') + '">' + prazoTxt + '</span>';
+
+    let l3 = '<span class="r-data"><span class="r-datalabel">Entrada</span> ' + entradaTxt + '</span>';
+    l3 += '<span class="r-dot">·</span><span class="r-data"><span class="r-datalabel">Prazo</span> <span class="' + (atrasado ? 'r-late' : '') + '">' + prazoTxt + '</span></span>';
 
     const obsHTML = obsTxt
         ? '<div class="row-obs"><span class="r-obslabel">OBS</span> ' + obsTxt + '</div>'
@@ -867,6 +874,7 @@ function createRow(p, cls) {
                 <span class="r-cli">👤 ${esc(p.cliente) || '—'}${atrasado ? ' <span class="r-atraso">⚠ ' + dias + 'd</span>' : ''}</span>
             </div>
             <div class="row-l2">${l2}</div>
+            <div class="row-l2 row-datas">${l3}</div>
             ${obsHTML}
         </div>`;
 }
