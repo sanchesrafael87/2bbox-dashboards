@@ -881,13 +881,14 @@ function render(pedidos) {
     const byStatus = { 'Aguardando': [], 'Produção 1': [], 'Produção 2': [] };
     pedidos.forEach(p => { if (byStatus[p.status]) byStatus[p.status].push(p); });
 
-    // Ordena cada coluna por data de entrada — mais antigo no topo
+    // Ordena cada coluna por data de entrada (mais antigo no topo); empata pela ordem de chegada (ID)
+    const numId = p => { const n = parseInt(String(p.id).replace(/\D/g, ''), 10); return isNaN(n) ? Infinity : n; };
     const ordena = (a, b) => {
         const da = parseDate(a.entrada), db = parseDate(b.entrada);
-        if (!da && !db) return 0;
-        if (!da) return 1;      // sem data vai pro fim
-        if (!db) return -1;
-        return da - db;          // crescente: antigo primeiro
+        if (da && db) { const diff = da - db; if (diff !== 0) return diff; }
+        else if (da && !db) return -1;
+        else if (!da && db) return 1;
+        return numId(a) - numId(b);   // desempate: ordem de chegada
     };
     Object.keys(byStatus).forEach(k => byStatus[k].sort(ordena));
 
