@@ -749,8 +749,8 @@ function classifyFull(s) {
     if (t.includes('envi') || t.includes('despach') || t.includes('postado')) return 'Enviado';
     if (t.includes('final') || t.includes('pronto') || t.includes('conclu')) return 'Finalizado';
     if (t.includes('aguard') || t.includes('pendente') || t.includes('fila')) return 'Aguardando';
-    if (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois'))) return 'Produção 2';
-    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Produção 1';
+    if (t.includes('colag') || (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois')))) return 'Colagem';
+    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Montagem';
     return 'Aguardando';
 }
 function parseRows(rows) {
@@ -786,8 +786,8 @@ function normalizeStatus(s) {
     if (t.includes('envi') || t.includes('despach') || t.includes('postado')) return null;
     if (t.includes('aguard') || t.includes('pendente') || t.includes('fila')) return null;
     if (t.includes('final') || t.includes('pronto') || t.includes('conclu')) return 'Finalizado';
-    if (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois'))) return 'Produção 2';
-    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Produção 1';
+    if (t.includes('colag') || (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois')))) return 'Colagem';
+    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Montagem';
     return null;
 }
 
@@ -821,7 +821,7 @@ function formatDuracao(ms) {
 }
 
 function isAtrasado(p) {
-    if (p.status !== 'Aguardando' && p.status !== 'Produção 1' && p.status !== 'Produção 2') return false;
+    if (p.status !== 'Aguardando' && p.status !== 'Montagem' && p.status !== 'Colagem') return false;
     const d = parseDate(p.prazo);
     if (!d) return false;
     const hoje = new Date(); hoje.setHours(0,0,0,0);
@@ -911,7 +911,7 @@ function esc(s) {
 }
 
 function render(pedidos) {
-    const byStatus = { 'Produção 1': [], 'Produção 2': [], 'Finalizado': [] };
+    const byStatus = { 'Montagem': [], 'Colagem': [], 'Finalizado': [] };
     pedidos.forEach(p => { if (byStatus[p.status]) byStatus[p.status].push(p); });
     // Finalizado: só os finalizados hoje (zera diariamente, por DT_FINALIZADO)
     byStatus['Finalizado'] = byStatus['Finalizado'].filter(p => ehHoje(p.dtFinalizado));
@@ -928,21 +928,21 @@ function render(pedidos) {
     Object.keys(byStatus).forEach(k => byStatus[k].sort(ordena));
 
     // Contagem completa (para referência das outras fases)
-    const ref = { 'Aguardando':0, 'Produção 1':0, 'Produção 2':0, 'Finalizado':0 };
+    const ref = { 'Aguardando':0, 'Montagem':0, 'Colagem':0, 'Finalizado':0 };
     pedidos.forEach(p => { if (ref[p.statusFull] !== undefined) ref[p.statusFull]++; });
 
     // Totais fixos no header: suas fases + referência (Aguardando)
     document.getElementById('headerTotals').innerHTML = `
-        <div class="htot producao1"><span class="n">${byStatus['Produção 1'].length}</span><span>Produção 1</span></div>
-        <div class="htot producao2"><span class="n">${byStatus['Produção 2'].length}</span><span>Produção 2</span></div>
+        <div class="htot producao1"><span class="n">${byStatus['Montagem'].length}</span><span>Montagem</span></div>
+        <div class="htot producao2"><span class="n">${byStatus['Colagem'].length}</span><span>Colagem</span></div>
         <div class="htot finalizado"><span class="n">${byStatus['Finalizado'].length}</span><span>Finalizado</span></div>
         <span class="htot-sep">ref</span>
         <div class="htot aguardando ref"><span class="n">${ref['Aguardando']}</span><span>Aguardando</span></div>`;
 
     // 3 colunas lado a lado, cada uma uma lista densa
     const cols = [
-        ['Produção 1', 'producao1'],
-        ['Produção 2', 'producao2'],
+        ['Montagem', 'producao1'],
+        ['Colagem', 'producao2'],
         ['Finalizado', 'finalizado']
     ];
     let html = '<div class="board">';
