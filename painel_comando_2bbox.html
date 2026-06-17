@@ -190,7 +190,7 @@ const CMD_URL     = 'https://cases2bbox.app.n8n.cloud/webhook/comando-fase';
 const CMD_TOKEN   = '2bx_cmd_7kM9pQ';
 const CFG_SET_URL = 'https://cases2bbox.app.n8n.cloud/webhook/config-baixa-estoque';
 const CFG_GET_URL = 'https://cases2bbox.app.n8n.cloud/webhook/config-baixa-estado';
-const REFRESH_MS  = 2 * 60 * 1000;   // 2 minutos
+const REFRESH_MS = 5 * 60 * 1000;   // 5 minutos
 const HORA_INI = 7, HORA_FIM = 19;
 function dentroDoHorario() { const d = new Date(); const dia = d.getDay(); if (dia === 0 || dia === 6) return false; const h = d.getHours(); return h >= HORA_INI && h < HORA_FIM; }
 
