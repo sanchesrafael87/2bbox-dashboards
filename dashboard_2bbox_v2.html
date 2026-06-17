@@ -814,6 +814,11 @@ function diasAtraso(p) {
     const hoje = new Date(); hoje.setHours(0,0,0,0);
     return d < hoje ? Math.round((hoje - d) / 86400000) : 0;
 }
+function ehHoje(s) {
+    const d = parseDate(s); if (!d) return false;
+    const h = new Date();
+    return d.getFullYear() === h.getFullYear() && d.getMonth() === h.getMonth() && d.getDate() === h.getDate();
+}
 
 /* ---------- Fetch ---------- */
 async function fetchData() {
@@ -884,6 +889,8 @@ function esc(s) {
 function render(pedidos) {
     const byStatus = { 'Aguardando': [], 'Produção 1': [], 'Produção 2': [], 'Finalizado': [] };
     pedidos.forEach(p => { if (byStatus[p.status]) byStatus[p.status].push(p); });
+    // Finalizado: só os finalizados hoje (zera diariamente, por DT_FINALIZADO)
+    byStatus['Finalizado'] = byStatus['Finalizado'].filter(p => ehHoje(p.dtFinalizado));
 
     // Ordena cada coluna por data de entrada (mais antigo no topo); empata pela ordem de chegada (ID)
     const numId = p => { const n = parseInt(String(p.id).replace(/\D/g, ''), 10); return isNaN(n) ? Infinity : n; };
