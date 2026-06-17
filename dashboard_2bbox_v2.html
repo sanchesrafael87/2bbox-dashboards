@@ -179,7 +179,7 @@
         /* ===== RESUMO ===== */
         .summary-bar {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             padding: 20px 40px;
         }
@@ -193,7 +193,7 @@
             justify-content: space-between;
         }
         .summary-item .label {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 600;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -201,118 +201,172 @@
         }
         .summary-item .value {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
+            font-size: 1.9rem;
             font-weight: 700;
         }
         .summary-item.aguardando .value { color: var(--amarelo); }
-        .summary-item.producao .value { color: var(--azul); }
-        .summary-item.finalizado .value { color: var(--verde-2bbox); }
-        .summary-item.enviado .value { color: var(--roxo); }
+        .summary-item.producao1 .value { color: var(--azul); }
+        .summary-item.producao2 .value { color: #7aa7ff; }
 
-        /* ===== SEÇÕES ===== */
-        .content { padding: 0 40px 60px; }
-        .section { margin-bottom: 30px; }
-        .section-title {
+        /* ===== BOARD KANBAN (3 colunas, sem scroll horizontal) ===== */
+        .content { padding: 0 32px 60px; }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+            align-items: start;
+        }
+        .col { min-width: 0; }
+        .col-head {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.05rem;
+            font-size: 1.25rem;
             font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
-            padding: 8px 14px;
-            margin-bottom: 16px;
+            padding: 12px 16px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #0d0d0d;
         }
-        .section-title.aguardando { color: var(--amarelo); border-left: 3px solid var(--amarelo); }
-        .section-title.producao { color: var(--azul); border-left: 3px solid var(--azul); }
-        .section-title.finalizado { color: var(--verde-2bbox); border-left: 3px solid var(--verde-2bbox); }
-        .section-title.enviado { color: var(--roxo); border-left: 3px solid var(--roxo); }
-
-        .cards-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 16px;
+        .col-head.aguardando { background: var(--amarelo); }
+        .col-head.producao1  { background: var(--azul); }
+        .col-head.producao2  { background: #7aa7ff; }
+        .col-count {
+            font-size: 1.1rem;
+            background: rgba(0,0,0,0.30);
+            color: #fff;
+            border-radius: 20px;
+            padding: 2px 14px;
         }
+        .col-cards { display: flex; flex-direction: column; gap: 18px; }
+        .col-empty { color:#555; font-size:1rem; padding: 10px 4px; }
 
-        /* ===== CARDS ===== */
+        /* ===== CARDS (maiores) ===== */
         .card {
             background: var(--preto-card);
             border: 1px solid var(--preto-borda);
-            border-radius: 12px;
-            padding: 18px 20px;
+            border-left-width: 8px;
+            border-radius: 14px;
+            padding: 22px 24px;
             position: relative;
             transition: transform 0.2s, border-color 0.2s;
         }
         .card:hover { transform: translateY(-2px); }
-        .card.aguardando { border-top: 3px solid var(--amarelo); }
-        .card.producao { border-top: 3px solid var(--azul); }
-        .card.finalizado { border-top: 3px solid var(--verde-2bbox); }
-        .card.enviado { border-top: 3px solid var(--roxo); }
+        /* Cor da fase BEM forte (borda esquerda grossa + leve glow) */
+        .card.aguardando { border-left-color: var(--amarelo); box-shadow: -4px 0 14px rgba(255,217,61,0.10); }
+        .card.producao1  { border-left-color: var(--azul);    box-shadow: -4px 0 14px rgba(77,166,255,0.12); }
+        .card.producao2  { border-left-color: #7aa7ff;        box-shadow: -4px 0 14px rgba(122,167,255,0.12); }
         .card.atrasado {
             border-color: var(--vermelho);
-            box-shadow: 0 0 14px rgba(255, 71, 87, 0.25);
+            border-left-color: var(--vermelho);
+            box-shadow: 0 0 16px rgba(255, 71, 87, 0.30);
             animation: alertPulse 2.4s infinite;
         }
         @keyframes alertPulse {
-            0%, 100% { box-shadow: 0 0 8px rgba(255, 71, 87, 0.15); }
-            50% { box-shadow: 0 0 20px rgba(255, 71, 87, 0.45); }
+            0%, 100% { box-shadow: 0 0 8px rgba(255, 71, 87, 0.18); }
+            50% { box-shadow: 0 0 22px rgba(255, 71, 87, 0.50); }
         }
 
-        .card-header {
+        .card-top {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 14px;
         }
-        .card-id {
+        .card-title {
             font-family: 'Orbitron', sans-serif;
             font-weight: 700;
-            font-size: 1.05rem;
-            color: var(--verde-2bbox);
+            font-size: 1.45rem;
+            line-height: 1.2;
+            color: var(--branco);
+            flex: 1;
+            min-width: 0;
         }
+        /* Origem: container menor, não quebra linha */
         .badge {
-            font-size: 0.72rem;
+            flex: 0 0 auto;
+            font-size: 0.66rem;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
-            padding: 3px 10px;
-            border-radius: 20px;
+            padding: 3px 9px;
+            border-radius: 14px;
+            white-space: nowrap;
+            line-height: 1.5;
         }
         .badge.whatsapp { background: rgba(76,217,100,0.12); color: var(--verde-2bbox); border: 1px solid rgba(76,217,100,0.35); }
         .badge.mercadolivre { background: rgba(255,217,61,0.10); color: var(--amarelo); border: 1px solid rgba(255,217,61,0.35); }
+        .badge.shopee { background: rgba(255,122,69,0.12); color: #ff7a45; border: 1px solid rgba(255,122,69,0.40); }
+        .badge.carteira { background: rgba(160,132,232,0.12); color: #b39aff; border: 1px solid rgba(160,132,232,0.40); }
         .badge.tray { background: rgba(77,166,255,0.10); color: var(--azul); border: 1px solid rgba(77,166,255,0.35); }
         .badge.outro { background: rgba(136,136,136,0.10); color: var(--cinza); border: 1px solid rgba(136,136,136,0.35); }
 
-        .card-obs {
-            font-size: 1.3rem;
+        /* SKU + MATERIAL: ambos grandes, mesmo destaque, separados */
+        .card-skuline {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--preto-borda);
+        }
+        .card-skuline .sku {
+            font-family: 'Orbitron', sans-serif;
             font-weight: 700;
-            line-height: 1.3;
+            font-size: 1.55rem;
+            color: var(--verde-2bbox);
+            letter-spacing: 0.5px;
+        }
+        .card-skuline .sep { width: 2px; height: 1.5em; background: var(--preto-borda); display:inline-block; }
+        .card-skuline .mat {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.35rem;
             color: var(--branco);
-            margin-bottom: 10px;
-            min-height: 2.6em;
+            letter-spacing: 0.5px;
+        }
+        .card-skuline .qtd {
+            margin-left: auto;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--amarelo);
+        }
+
+        .card-obs {
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.3;
+            color: #e8e8e8;
+            margin-bottom: 12px;
         }
         .obs-label {
             color: var(--verde-2bbox);
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.72em;
+            font-size: 0.7em;
             font-weight: 700;
             letter-spacing: 1px;
             vertical-align: middle;
         }
         .obs-vazia { color: #444; }
-        /* Cronômetro no rodapé do card — cor discreta (sem verde) */
         .card-timer {
             display: flex;
             align-items: baseline;
             justify-content: space-between;
             gap: 8px;
-            margin-top: 8px;
-            padding-top: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
             border-top: 1px dashed var(--preto-borda);
             font-family: 'Rajdhani', sans-serif;
             color: #8a8f98;
             white-space: nowrap;
         }
         .card-timer .tlabel {
-            font-size: 0.72rem;
+            font-size: 0.78rem;
             font-weight: 600;
             color: #6a6f78;
             letter-spacing: 1.5px;
@@ -320,40 +374,31 @@
         }
         .card-timer .tval {
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.95rem;
+            font-size: 1.05rem;
             font-weight: 700;
             color: #b8bdc6;
             letter-spacing: 0.5px;
         }
-        /* Atrasado: leve realce âmbar discreto, sem gritar */
-        .card.atrasado .card-timer .tval { color: #d99a3a; }
+        .card.atrasado .card-timer .tval { color: #ff8a4d; }
         .card-timer.sem-dado .tval { color:#555; }
-        .card-meta {
-            font-size: 0.98rem;
-            color: #ccc;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--preto-borda);
-        }
-        .card-meta strong { color: var(--branco); }
         .card-cliente {
-            font-size: 0.95rem;
+            font-size: 1.1rem;
             font-weight: 600;
-            color: #bbb;
-            margin-bottom: 12px;
+            color: #cfcfcf;
+            margin-bottom: 14px;
         }
         .card-footer {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             color: var(--cinza);
             border-top: 1px solid var(--preto-borda);
-            padding-top: 10px;
+            padding-top: 12px;
         }
         .card-footer strong { color: var(--branco); font-weight: 600; }
         .alerta-atraso {
             margin-top: 10px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 700;
             letter-spacing: 1px;
             color: var(--vermelho);
@@ -538,20 +583,22 @@ function mapHeaders(header) {
     const h = header.map(x => x.toLowerCase().trim());
     const find = (...keys) => h.findIndex(col => keys.some(k => col.includes(k)));
     return {
-        id:      find('pedido', 'id', 'nº', 'numero', 'número'),
-        cliente: find('cliente', 'nome'),
-        produto: find('produto', 'item', 'descri'),
-        sku:     find('sku'),
-        modelo:  find('modelo'),
-        qtd:     find('qtd', 'quant'),
-        origem:  find('origem', 'canal', 'fonte'),
-        entrada: find('entrada', 'data'),
-        prazo:   find('prazo', 'entrega', 'limite'),
-        obs:     find('obs', 'observa'),
-        dtProducao:  find('dt_producao','dt_produ','data_producao'),
-        dtFinalizado:find('dt_finalizado','dt_final','data_finalizado'),
-        dtFim:       find('data_fim','dt_fim','data_envio'),
-        status:  find('status', 'situa')
+        id:       find('id pedido', 'pedido'),
+        material: find('material'),
+        nomecard: find('nome card', 'card'),
+        sku:      find('sku'),
+        qtd:      find('qtd', 'quant'),
+        cliente:  find('cliente'),
+        origem:   find('origem', 'canal', 'fonte'),
+        entrada:  find('data_entrada', 'entrada'),
+        prazo:    find('prazo', 'entrega', 'limite'),
+        obs:      find('obs', 'observa'),
+        dtProducao:   find('dt_producao'),
+        dtProducao2:  find('dt_producao_2', 'producao_2', 'producao 2'),
+        dtFinalizado: find('dt_finalizado', 'dt_final'),
+        dtFim:        find('data_fim', 'dt_fim', 'data_envio'),
+        dtEntregue:   find('dt_entregue', 'entregue'),
+        status:   find('status', 'situa')
     };
 }
 
@@ -561,29 +608,34 @@ function parseRows(rows) {
     const get = (r, idx) => (idx >= 0 && r[idx] !== undefined) ? r[idx].trim() : '';
     return rows.slice(1).map(r => ({
         id:      get(r, m.id),
-        cliente: get(r, m.cliente),
-        produto: get(r, m.produto),
+        material:get(r, m.material),
+        nomecard:get(r, m.nomecard),
         sku:     get(r, m.sku),
-        modelo:  get(r, m.modelo),
         qtd:     get(r, m.qtd),
+        cliente: get(r, m.cliente),
         origem:  get(r, m.origem),
         entrada: get(r, m.entrada),
         prazo:   get(r, m.prazo),
         obs:     get(r, m.obs),
         dtProducao:  get(r, m.dtProducao),
+        dtProducao2: get(r, m.dtProducao2),
         dtFinalizado:get(r, m.dtFinalizado),
         dtFim:       get(r, m.dtFim),
+        dtEntregue:  get(r, m.dtEntregue),
         status:  normalizeStatus(get(r, m.status))
-    })).filter(p => (p.id || p.cliente || p.produto) && p.status !== null);
+    })).filter(p => (p.id || p.cliente || p.nomecard) && p.status !== null);
 }
 
 function normalizeStatus(s) {
     const t = (s || '').toLowerCase();
-    if (t.includes('cancel') || t.includes('entreg')) return null; // fora do painel
-    if (t.includes('aguard') || t.includes('pendente') || t.includes('fila') || t.includes('process')) return 'Aguardando';
-    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica')) return 'Em Produção';
-    if (t.includes('final') || t.includes('pronto') || t.includes('conclu')) return 'Finalizado';
-    if (t.includes('envi') || t.includes('despach') || t.includes('postado')) return 'Enviado';
+    // No painel de TV mostramos só as 3 fases ativas. As demais saem (null).
+    if (t.includes('cancel')) return null;
+    if (t.includes('entreg')) return null;
+    if (t.includes('final') || t.includes('pronto') || t.includes('conclu')) return null;
+    if (t.includes('envi') || t.includes('despach') || t.includes('postado')) return null;
+    if (t.includes('aguard') || t.includes('pendente') || t.includes('fila')) return 'Aguardando';
+    if (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois'))) return 'Produção 2';
+    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Produção 1';
     return 'Aguardando';
 }
 
@@ -615,7 +667,7 @@ function formatDuracao(ms) {
 }
 
 function isAtrasado(p) {
-    if (p.status === 'Finalizado' || p.status === 'Enviado') return false;
+    if (p.status !== 'Aguardando' && p.status !== 'Produção 1' && p.status !== 'Produção 2') return false;
     const d = parseDate(p.prazo);
     if (!d) return false;
     const hoje = new Date(); hoje.setHours(0,0,0,0);
@@ -647,27 +699,27 @@ function origemClass(o) {
     const t = (o || '').toLowerCase();
     if (t.includes('whats') || t.includes('zap')) return ['whatsapp', 'WhatsApp'];
     if (t.includes('mercado') || t === 'ml') return ['mercadolivre', 'Mercado Livre'];
-    if (t.includes('tray') || t.includes('site')) return ['tray', 'Site Tray'];
+    if (t.includes('shopee')) return ['shopee', 'Shopee'];
+    if (t.includes('carteira')) return ['carteira', 'Carteira'];
+    if (t.includes('tray') || t.includes('site')) return ['tray', 'Site'];
     return ['outro', o || '—'];
 }
 
 function createCard(p, cls) {
     const atrasado = isAtrasado(p);
     const [oCls, oLabel] = origemClass(p.origem);
-    const obsTexto = (p.obs && p.obs.trim()) ? esc(p.obs) : '<span class="obs-vazia">—</span>';
-    const metaParts = [];
-    if (p.sku) metaParts.push('<strong>' + esc(p.sku) + '</strong>');
-    if (p.produto) metaParts.push(esc(p.produto));
-    if (p.modelo) metaParts.push('<strong style="color:var(--verde-2bbox)">[' + esc(p.modelo) + ']</strong>');
-    if (p.qtd) metaParts.push('<strong>' + esc(p.qtd) + 'x</strong>');
+    const obsTexto = (p.obs && p.obs.trim()) ? esc(p.obs) : '';
 
-    // Cronômetro: tempo na FASE ATUAL = agora − carimbo de entrada da fase.
-    // Cada fase tem seu próprio carimbo (write-once), então o histórico nunca se perde.
+    const titulo = esc(p.nomecard) || esc(p.sku) || '—';
+    const skuTxt = esc(p.sku) || '—';
+    const matTxt = esc(p.material) || '';
+    const qtdTxt = p.qtd ? esc(p.qtd) + 'x' : '';
+
+    // Carimbo da fase ATUAL (cada fase tem o seu, write-once).
     const carimboFase = {
         'Aguardando':  p.entrada,
-        'Em Produção': p.dtProducao,
-        'Finalizado':  p.dtFinalizado,
-        'Enviado':     p.dtFim
+        'Produção 1':  p.dtProducao,
+        'Produção 2':  p.dtProducao2
     };
     const dtFase = parseDate(carimboFase[p.status]) || parseDate(p.entrada);
     let timerHTML;
@@ -677,14 +729,20 @@ function createCard(p, cls) {
     } else {
         timerHTML = '<div class="card-timer sem-dado"><span class="tlabel">⏱ nesta fase</span> <span class="tval">—</span></div>';
     }
+
     return `
         <div class="card ${cls}${atrasado ? ' atrasado' : ''}">
-            <div class="card-header">
-                <span class="card-id">#${esc(p.id) || '—'}</span>
+            <div class="card-top">
+                <div class="card-title">${titulo}</div>
                 <span class="badge ${oCls}">${esc(oLabel)}</span>
             </div>
-            <div class="card-meta">${metaParts.join(' · ') || '—'}</div>
-            <div class="card-obs"><span class="obs-label">OBS:</span> ${obsTexto}</div>
+            <div class="card-skuline">
+                <span class="sku">${skuTxt}</span>
+                <span class="sep"></span>
+                <span class="mat">${matTxt || '—'}</span>
+                ${qtdTxt ? '<span class="qtd">' + qtdTxt + '</span>' : ''}
+            </div>
+            ${obsTexto ? '<div class="card-obs"><span class="obs-label">OBS:</span> ' + obsTexto + '</div>' : ''}
             <div class="card-cliente">👤 ${esc(p.cliente) || 'Cliente não informado'}</div>
             <div class="card-footer">
                 <span>Entrada: <strong>${esc(p.entrada) || '—'}</strong></span>
@@ -700,37 +758,33 @@ function esc(s) {
 }
 
 function render(pedidos) {
-    const byStatus = { 'Aguardando': [], 'Em Produção': [], 'Finalizado': [], 'Enviado': [] };
-    pedidos.forEach(p => (byStatus[p.status] || byStatus['Aguardando']).push(p));
+    const byStatus = { 'Aguardando': [], 'Produção 1': [], 'Produção 2': [] };
+    pedidos.forEach(p => { if (byStatus[p.status]) byStatus[p.status].push(p); });
 
-    // Resumo
+    // Resumo (3 fases ativas)
     document.getElementById('summaryBar').innerHTML = `
         <div class="summary-item aguardando"><span class="label">⏳ Aguardando</span><span class="value">${byStatus['Aguardando'].length}</span></div>
-        <div class="summary-item producao"><span class="label">🔨 Em Produção</span><span class="value">${byStatus['Em Produção'].length}</span></div>
-        <div class="summary-item finalizado"><span class="label">✅ Finalizado</span><span class="value">${byStatus['Finalizado'].length}</span></div>
-        <div class="summary-item enviado"><span class="label">📦 Enviado</span><span class="value">${byStatus['Enviado'].length}</span></div>`;
+        <div class="summary-item producao1"><span class="label">🔧 Produção 1</span><span class="value">${byStatus['Produção 1'].length}</span></div>
+        <div class="summary-item producao2"><span class="label">🛠 Produção 2</span><span class="value">${byStatus['Produção 2'].length}</span></div>`;
 
-    // Seções
-    let html = '';
-    const sections = [
+    // Board kanban: 3 colunas lado a lado, sem scroll horizontal
+    const cols = [
         ['Aguardando', 'aguardando', '⏳ Aguardando'],
-        ['Em Produção', 'producao', '🔨 Em Produção'],
-        ['Finalizado', 'finalizado', '✅ Finalizado'],
-        ['Enviado', 'enviado', '📦 Enviado']
+        ['Produção 1', 'producao1', '🔧 Produção 1'],
+        ['Produção 2', 'producao2', '🛠 Produção 2']
     ];
-    sections.forEach(([key, cls, label]) => {
-        if (byStatus[key].length > 0) {
-            html += `
-                <div class="section">
-                    <div class="section-title ${cls}">${label} (${byStatus[key].length})</div>
-                    <div class="cards-container">
-                        ${byStatus[key].map(p => createCard(p, cls)).join('')}
-                    </div>
-                </div>`;
-        }
+    let html = '<div class="board">';
+    cols.forEach(([key, cls, label]) => {
+        const cards = byStatus[key].map(p => createCard(p, cls)).join('')
+            || '<div class="col-empty">— sem pedidos —</div>';
+        html += `
+            <div class="col ${cls}">
+                <div class="col-head ${cls}">${label} <span class="col-count">${byStatus[key].length}</span></div>
+                <div class="col-cards">${cards}</div>
+            </div>`;
     });
-    document.getElementById('content').innerHTML =
-        html || '<div class="empty-msg">Nenhum pedido encontrado na planilha.</div>';
+    html += '</div>';
+    document.getElementById('content').innerHTML = html;
 }
 
 /* ---------- Auto-scroll ---------- */
@@ -790,10 +844,9 @@ const DEMO_DATA = [
 
 /* ---------- Init ---------- */
 window.addEventListener('load', () => {
-    if (csvUrl) {
-        document.getElementById('configOverlay').classList.add('hidden');
-        fetchData();
-    }
+    if (!csvUrl) csvUrl = FONTE_DADOS;   // TV/stick: sempre puxa do webhook sem precisar configurar
+    document.getElementById('configOverlay').classList.add('hidden');
+    fetchData();
     setInterval(fetchData, REFRESH_MS);
     startScroll();
 });
