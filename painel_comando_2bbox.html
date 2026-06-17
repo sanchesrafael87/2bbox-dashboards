@@ -169,7 +169,7 @@
         <div class="config-row">
             <div class="config-text">
                 <div class="config-title">Baixa automática de estoque</div>
-                <div class="config-desc">Quando ligada, o estoque é baixado assim que o pedido entra em <b>Produção 1</b> — subtrai da planilha as quantidades de material da categoria/variante do case.</div>
+                <div class="config-desc">Quando ligada, o estoque é baixado assim que o pedido entra em <b>Montagem</b> — subtrai da planilha as quantidades de material da categoria/variante do case.</div>
             </div>
             <div class="switch" id="switchEstoque" onclick="toggleEstoque()"><div class="knob"></div></div>
         </div>
@@ -193,16 +193,16 @@ const CFG_GET_URL = 'https://cases2bbox.app.n8n.cloud/webhook/config-baixa-estad
 const REFRESH_MS  = 30000;
 
 /* Pipeline de 6 fases + Cancelado (última baia, vermelho) */
-const PIPELINE = ['Aguardando', 'Produção 1', 'Produção 2', 'Finalizado', 'Enviado', 'Entregue', 'Cancelado'];
-const PROXIMA  = { 'Aguardando': 'Produção 1', 'Produção 1': 'Produção 2', 'Produção 2': 'Finalizado', 'Finalizado': 'Enviado', 'Enviado': 'Entregue' };
+const PIPELINE = ['Aguardando', 'Montagem', 'Colagem', 'Finalizado', 'Enviado', 'Entregue', 'Cancelado'];
+const PROXIMA  = { 'Aguardando': 'Montagem', 'Montagem': 'Colagem', 'Colagem': 'Finalizado', 'Finalizado': 'Enviado', 'Enviado': 'Entregue' };
 const ACAO_LABEL = {
-    'Aguardando': 'Iniciar Produção 1',
-    'Produção 1': 'Ir para Produção 2',
-    'Produção 2': 'Finalizar',
+    'Aguardando': 'Iniciar Montagem',
+    'Montagem': 'Ir para Colagem',
+    'Colagem': 'Finalizar',
     'Finalizado': 'Marcar enviado',
     'Enviado':    'Marcar entregue'
 };
-const CLS = { 'Aguardando':'aguardando', 'Produção 1':'producao1', 'Produção 2':'producao2', 'Finalizado':'finalizado', 'Enviado':'enviado', 'Entregue':'entregue', 'Cancelado':'cancelado' };
+const CLS = { 'Aguardando':'aguardando', 'Montagem':'producao1', 'Colagem':'producao2', 'Finalizado':'finalizado', 'Enviado':'enviado', 'Entregue':'entregue', 'Cancelado':'cancelado' };
 
 let pedidos = [];
 
@@ -257,8 +257,8 @@ function normalizeStatus(s) {
     if (t.includes('final') || t.includes('pronto') || t.includes('conclu')) return 'Finalizado';
     if (t.includes('envi') || t.includes('despach') || t.includes('postado')) return 'Enviado';
     if (t.includes('aguard') || t.includes('pendente') || t.includes('fila')) return 'Aguardando';
-    if (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois'))) return 'Produção 2';
-    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Produção 1';
+    if (t.includes('colag') || (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois')))) return 'Colagem';
+    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Montagem';
     return 'Aguardando';
 }
 function parseDate(s) {
