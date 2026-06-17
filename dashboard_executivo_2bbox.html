@@ -569,6 +569,13 @@ function diasAtraso(p) {
 
 /* ---------- Fetch ---------- */
 async function fetchData() {
+    // DESATIVADO temporariamente para poupar execuções do n8n.
+    // Para reativar: remova o bloco abaixo.
+    setUpdated && setUpdated('painel desativado');
+    const c = document.getElementById('kpiGrid');
+    if (c) c.innerHTML = '<div style="padding:60px;text-align:center;color:#8a8f98;font-size:1.4rem;grid-column:1/-1;">Painel Executivo desativado temporariamente<br><span style="font-size:1rem;">(para poupar execuções — reative quando quiser)</span></div>';
+    return;
+    /* eslint-disable no-unreachable */
     if (demoMode || !csvUrl) return;
     try {
         const resp = await fetch(csvUrl + (csvUrl.includes('?') ? '&' : '?') + 't=' + Date.now());
