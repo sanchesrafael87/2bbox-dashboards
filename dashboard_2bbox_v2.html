@@ -673,9 +673,11 @@ function normalizeStatus(s) {
 
 function parseDate(s) {
     if (!s) return null;
-    const br = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[ ,T]+(\d{1,2}):(\d{2}))?/);
+    // dd/mm/aaaa (com hora opcional) OU dd/mm (sem ano → assume ano corrente)
+    const br = s.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?(?:[ ,T]+(\d{1,2}):(\d{2}))?/);
     if (br) {
-        let y = parseInt(br[3]); if (y < 100) y += 2000;
+        let y = br[3] !== undefined ? parseInt(br[3]) : new Date().getFullYear();
+        if (y < 100) y += 2000;
         const hh = br[4] !== undefined ? parseInt(br[4]) : 0;
         const mm = br[5] !== undefined ? parseInt(br[5]) : 0;
         return new Date(y, parseInt(br[2]) - 1, parseInt(br[1]), hh, mm);
