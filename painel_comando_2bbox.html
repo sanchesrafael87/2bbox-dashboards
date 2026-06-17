@@ -76,6 +76,7 @@
     .card.enviado    { border-left-color: var(--teal); }
     .card.entregue   { border-left-color: #9aa0a6; }
     .card.cancelado  { border-left-color: var(--vermelho); }
+    .card.estoque    { border-left-color: var(--vermelho); background: #1c1414; }
 
     .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
     .card-title { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.25rem; line-height: 1.2; color: var(--branco); flex: 1; min-width: 0; min-height: 2.4em; display: flex; align-items: flex-start; }
@@ -83,6 +84,7 @@
     .badge-origem.whatsapp { background: rgba(76,217,100,0.14); color: var(--verde); }
     .badge-origem.mercadolivre { background: rgba(255,176,32,0.14); color: var(--amarelo); }
     .badge-origem.shopee { background: rgba(255,122,69,0.16); color: var(--laranja); }
+    .badge-origem.estoque { background: rgba(255,90,90,0.18); color: var(--vermelho); }
     .badge-origem.tray { background: rgba(59,158,255,0.14); color: var(--azul); }
     .badge-origem.outro { background: #222; color: var(--cinza); }
 
@@ -107,6 +109,7 @@
     .btn-avancar:active { transform: scale(0.98); }
     .btn-avancar .arrow { font-size: 1.2rem; }
     .btn-avancar.fase-aguardando { background: var(--amarelo); color: #2a1c00; }
+    .btn-avancar.fase-estoque { background: var(--vermelho); color: #fff; }
     .btn-avancar.fase-producao1  { background: var(--azul);    color: #04203a; }
     .btn-avancar.fase-producao2  { background: var(--roxo);    color: #fff; }
     .btn-avancar.fase-finalizado { background: var(--verde);   color: #06210d; }
@@ -275,6 +278,7 @@ function origemBadge(o) {
     if (t.includes('whats') || t.includes('zap')) return ['whatsapp', 'WhatsApp'];
     if (t.includes('mercado') || t === 'ml') return ['mercadolivre', 'Mercado Livre'];
     if (t.includes('shopee')) return ['shopee', 'Shopee'];
+    if (t.includes('estoque')) return ['estoque', 'Estoque'];
     if (t.includes('tray') || t.includes('site')) return ['tray', 'Site'];
     return ['outro', o || '—'];
 }
@@ -365,19 +369,22 @@ function render() {
 
 function card(p) {
     const [oCls, oLabel] = origemBadge(p.origem);
+    const ehEstoque = oCls === 'estoque';
     const atraso = diasAtraso(p);
     const ehFinal = (p.status === 'Entregue' || p.status === 'Cancelado');
     const titulo = esc(p.nomecard) || esc(p.sku) || '—';
     const skuTxt = esc(p.sku) || '—';
     const matTxt = esc(p.material) || '—';
     const qtdTxt = p.qtd ? esc(p.qtd) + ' un' : '';
+    const cardCls = ehEstoque ? 'estoque' : CLS[p.status];
+    const btnCls = ehEstoque ? 'fase-estoque' : ('fase-' + CLS[p.status]);
 
     const chips = PIPELINE.map(f =>
         `<span class="chip ${f === p.status ? 'atual' : ''} ${f === 'Cancelado' ? 'cancelar' : ''}" onclick="event.stopPropagation(); definir('${esc(p.id)}','${f}','${esc(p.cliente)}')">${f}</span>`
     ).join('');
 
     return `
-    <div class="card ${CLS[p.status]}" id="card-${esc(p.id)}">
+    <div class="card ${cardCls}" id="card-${esc(p.id)}">
         <div class="card-top">
             <div class="card-title">${titulo}</div>
             <span class="badge-origem ${oCls}">${esc(oLabel)}</span>
@@ -397,7 +404,7 @@ function card(p) {
             <span>Prazo: <strong>${esc(p.prazo) || '—'}</strong></span>
             ${atraso > 0 ? `<span class="atraso">⚠ ${atraso}d atrasado</span>` : ''}
         </div>
-        ${ehFinal ? '' : `<button class="btn-avancar fase-${CLS[p.status]}" onclick="avancar('${esc(p.id)}','${p.status}','${esc(p.cliente)}')">
+        ${ehFinal ? '' : `<button class="btn-avancar ${btnCls}" onclick="avancar('${esc(p.id)}','${p.status}','${esc(p.cliente)}')">
             ${ACAO_LABEL[p.status]} <span class="arrow">→</span>
         </button>`}
         <div class="corrigir-toggle" onclick="toggleCorrigir('${esc(p.id)}')">corrigir fase ⌄</div>
