@@ -190,7 +190,9 @@ const CMD_URL     = 'https://cases2bbox.app.n8n.cloud/webhook/comando-fase';
 const CMD_TOKEN   = '2bx_cmd_7kM9pQ';
 const CFG_SET_URL = 'https://cases2bbox.app.n8n.cloud/webhook/config-baixa-estoque';
 const CFG_GET_URL = 'https://cases2bbox.app.n8n.cloud/webhook/config-baixa-estado';
-const REFRESH_MS  = 30000;
+const REFRESH_MS  = 2 * 60 * 1000;   // 2 minutos
+const HORA_INI = 7, HORA_FIM = 19;
+function dentroDoHorario() { const h = new Date().getHours(); return h >= HORA_INI && h < HORA_FIM; }
 
 /* Pipeline de 6 fases + Cancelado (última baia, vermelho) */
 const PIPELINE = ['Aguardando', 'Montagem', 'Colagem', 'Finalizado', 'Enviado', 'Entregue', 'Cancelado'];
@@ -288,6 +290,7 @@ function pedBicolor(id) { const v = esc(id) || '—'; return v.length > 3 ? v.sl
 /* ====== Fetch + render ====== */
 async function fetchData(manual) {
     const btn = document.getElementById('refreshBtn');
+    if (!manual && !dentroDoHorario()) { setStatus('fora do horário (7h–19h) — toque em Atualizar', false); return; }
     if (manual) btn.classList.add('loading');
     try {
         const resp = await fetch(FONTE_DADOS + '&t=' + Date.now());
