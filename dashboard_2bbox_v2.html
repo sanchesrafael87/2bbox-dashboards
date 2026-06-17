@@ -235,41 +235,40 @@
         .summary-item.producao1 .value { color: var(--azul); }
         .summary-item.producao2 .value { color: var(--roxo); }
 
-        /* ===== BOARD KANBAN (3 colunas, sem scroll horizontal) ===== */
+        /* ===== FASES EMPILHADAS, cards em grade de 3 colunas ===== */
         .content { padding: 24px 32px 60px; }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 22px;
-            align-items: start;
-        }
-        .col { min-width: 0; }
-        .col-head {
+        .fase { margin-bottom: 34px; }
+        .fase-head {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
-            padding: 12px 16px;
+            padding: 10px 18px;
             margin-bottom: 18px;
             border-radius: 10px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 14px;
             color: #0d0d0d;
         }
-        .col-head.aguardando { background: var(--amarelo); }
-        .col-head.producao1  { background: var(--azul); }
-        .col-head.producao2  { background: var(--roxo); color: #fff; }
-        .col-count {
-            font-size: 1.1rem;
+        .fase-head.aguardando { background: var(--amarelo); }
+        .fase-head.producao1  { background: var(--azul); }
+        .fase-head.producao2  { background: var(--roxo); color: #fff; }
+        .fase-count {
+            font-size: 1.05rem;
             background: rgba(0,0,0,0.30);
             color: #fff;
             border-radius: 20px;
-            padding: 2px 14px;
+            padding: 1px 13px;
         }
-        .col-cards { display: flex; flex-direction: column; gap: 18px; }
-        .col-empty { color:#555; font-size:1rem; padding: 10px 4px; }
+        .fase-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+        .col-empty { color:#555; font-size:1rem; padding: 6px 4px; grid-column: 1 / -1; }
 
         /* ===== CARDS (maiores) ===== */
         .card {
@@ -361,7 +360,7 @@
             margin-left: auto;
             font-size: 1.1rem;
             font-weight: 700;
-            color: var(--amarelo);
+            color: var(--verde-2bbox);
         }
 
         .card-obs {
@@ -733,9 +732,8 @@ function origemClass(o) {
     if (t.includes('whats') || t.includes('zap')) return ['whatsapp', 'WhatsApp'];
     if (t.includes('mercado') || t === 'ml') return ['mercadolivre', 'Mercado Livre'];
     if (t.includes('shopee')) return ['shopee', 'Shopee'];
-    if (t.includes('carteira')) return ['carteira', 'Carteira'];
     if (t.includes('tray') || t.includes('site')) return ['tray', 'Site'];
-    return ['outro', o || '—'];
+    return ['outro', o || '—'];   // Carteira e quaisquer outras do combo: cinza
 }
 
 function createCard(p, cls) {
@@ -746,7 +744,7 @@ function createCard(p, cls) {
     const titulo = esc(p.nomecard) || esc(p.sku) || '—';
     const skuTxt = esc(p.sku) || '—';
     const matTxt = esc(p.material) || '';
-    const qtdTxt = p.qtd ? esc(p.qtd) + 'x' : '';
+    const qtdTxt = p.qtd ? esc(p.qtd) + ' un' : '';
 
     // Carimbo da fase ATUAL (cada fase tem o seu, write-once).
     const carimboFase = {
@@ -800,23 +798,22 @@ function render(pedidos) {
         <div class="htot producao1"><span>🔧 Produção 1</span><span class="n">${byStatus['Produção 1'].length}</span></div>
         <div class="htot producao2"><span>🛠 Produção 2</span><span class="n">${byStatus['Produção 2'].length}</span></div>`;
 
-    // Board kanban: 3 colunas lado a lado, sem scroll horizontal
+    // Fases empilhadas (vertical); cards de cada fase em grade de 3 colunas
     const cols = [
         ['Aguardando', 'aguardando', '⏳ Aguardando'],
         ['Produção 1', 'producao1', '🔧 Produção 1'],
         ['Produção 2', 'producao2', '🛠 Produção 2']
     ];
-    let html = '<div class="board">';
+    let html = '';
     cols.forEach(([key, cls, label]) => {
         const cards = byStatus[key].map(p => createCard(p, cls)).join('')
             || '<div class="col-empty">— sem pedidos —</div>';
         html += `
-            <div class="col ${cls}">
-                <div class="col-head ${cls}">${label} <span class="col-count">${byStatus[key].length}</span></div>
-                <div class="col-cards">${cards}</div>
-            </div>`;
+            <section class="fase ${cls}">
+                <div class="fase-head ${cls}">${label} <span class="fase-count">${byStatus[key].length}</span></div>
+                <div class="fase-grid">${cards}</div>
+            </section>`;
     });
-    html += '</div>';
     document.getElementById('content').innerHTML = html;
 }
 
