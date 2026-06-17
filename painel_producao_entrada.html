@@ -292,6 +292,12 @@
         }
         .col-list { display: flex; flex-direction: column; gap: 7px; }
         .entrada-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 10px; align-items: start; }
+        .entrada-wrap { display: flex; gap: 16px; align-items: start; }
+        .entrada-main { flex: 1; min-width: 0; }
+        .entrada-estoque { flex: 0 0 420px; }
+        .col-head.estoque { background: var(--vermelho); color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.15rem; letter-spacing: 2px; text-transform: uppercase; padding: 9px 14px; border-radius: 9px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; position: sticky; top: 86px; z-index: 40; }
+        .col-head.estoque .col-count { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 700; background: rgba(0,0,0,0.28); color: #fff; border-radius: 9px; min-width: 34px; text-align: center; padding: 2px 8px; }
+        .row.estoque { border-left-color: var(--vermelho); background: #1c1414; }
         .col-empty { color:#555; font-size:1rem; padding: 8px 4px; }
 
         /* ===== LINHA COMPACTA ===== */
@@ -328,6 +334,7 @@
         .r-org.whatsapp { color: var(--verde-2bbox); font-weight: 700; }
         .r-org.mercadolivre { color: var(--amarelo); font-weight: 700; }
         .r-org.shopee { color: var(--laranja); font-weight: 700; }
+        .r-org.estoque { color: var(--vermelho); font-weight: 700; }
         .r-org.tray { color: var(--azul); font-weight: 700; }
         .r-org.outro { color: #8a8f98; font-weight: 700; }
         .r-prazo { color: #8a8f98; }
@@ -855,6 +862,7 @@ function origemClass(o) {
     if (t.includes('whats') || t.includes('zap')) return ['whatsapp', 'WhatsApp'];
     if (t.includes('mercado') || t === 'ml') return ['mercadolivre', 'Mercado Livre'];
     if (t.includes('shopee')) return ['shopee', 'Shopee'];
+    if (t.includes('estoque')) return ['estoque', 'Estoque'];
     if (t.includes('tray') || t.includes('site')) return ['tray', 'Site'];
     return ['outro', o || '—'];   // Carteira e quaisquer outras do combo: cinza
 }
@@ -926,11 +934,24 @@ function render(pedidos) {
         <div class="htot producao2 ref"><span class="n">${ref['Produção 2']}</span><span>Produção 2</span></div>
         <div class="htot finalizado ref"><span class="n">${ref['Finalizado']}</span><span>Finalizado</span></div>`;
 
-    // Grade única que enche a tela (vários cards por linha)
-    const rows = byStatus['Aguardando'].map(p => createRow(p, 'aguardando')).join('')
+    // Separa por origem: normais (grade) vs Estoque (coluna vermelha ao lado)
+    const ehEstoque = p => (p.origem || '').toLowerCase().includes('estoque');
+    const normais = byStatus['Aguardando'].filter(p => !ehEstoque(p));
+    const estoque = byStatus['Aguardando'].filter(ehEstoque);
+
+    const rowsNorm = normais.map(p => createRow(p, 'aguardando')).join('')
         || '<div class="col-empty">— sem pedidos —</div>';
+    const rowsEstoque = estoque.map(p => createRow(p, 'estoque')).join('')
+        || '<div class="col-empty">— nenhum —</div>';
+
     document.getElementById('content').innerHTML =
-        '<div class="entrada-grid">' + rows + '</div>';
+        '<div class="entrada-wrap">' +
+            '<div class="entrada-main"><div class="entrada-grid">' + rowsNorm + '</div></div>' +
+            '<div class="entrada-estoque">' +
+                '<div class="col-head estoque"><span class="col-count">' + estoque.length + '</span> Estoque</div>' +
+                '<div class="col-list">' + rowsEstoque + '</div>' +
+            '</div>' +
+        '</div>';
 }
 
 /* ---------- Auto-scroll ---------- */
