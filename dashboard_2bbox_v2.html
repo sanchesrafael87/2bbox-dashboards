@@ -432,6 +432,7 @@
             color: #6a6f78;
             letter-spacing: 1px;
         }
+        .card-idcli .ped-fim { color: var(--branco); }
         .card-idcli .cli {
             font-size: 1.1rem;
             font-weight: 600;
@@ -800,7 +801,7 @@ function createCard(p, cls) {
             </div>
             <div class="card-obs"><span class="obs-label">OBS:</span> ${obsTexto}</div>
             <div class="card-idcli">
-                <span class="ped"><span class="ped-label">PED:</span> ${esc(p.id) || '—'}</span>
+                <span class="ped"><span class="ped-label">PED:</span> ${(() => { const v = esc(p.id) || '—'; if (v.length > 3) { return v.slice(0, -3) + '<span class="ped-fim">' + v.slice(-3) + '</span>'; } return v; })()}</span>
                 <span class="cli">👤 ${esc(p.cliente) || 'Cliente não informado'}</span>
             </div>
             <div class="card-footer">
