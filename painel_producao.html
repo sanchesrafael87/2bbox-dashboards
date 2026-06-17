@@ -329,6 +329,7 @@
         .r-org.whatsapp { color: var(--verde-2bbox); font-weight: 700; }
         .r-org.mercadolivre { color: var(--amarelo); font-weight: 700; }
         .r-org.shopee { color: var(--laranja); font-weight: 700; }
+        .r-org.estoque { color: var(--vermelho); font-weight: 700; }
         .r-org.tray { color: var(--azul); font-weight: 700; }
         .r-org.outro { color: #8a8f98; font-weight: 700; }
         .r-prazo { color: #8a8f98; }
@@ -864,6 +865,7 @@ function origemClass(o) {
     if (t.includes('whats') || t.includes('zap')) return ['whatsapp', 'WhatsApp'];
     if (t.includes('mercado') || t === 'ml') return ['mercadolivre', 'Mercado Livre'];
     if (t.includes('shopee')) return ['shopee', 'Shopee'];
+    if (t.includes('estoque')) return ['estoque', 'Estoque'];
     if (t.includes('tray') || t.includes('site')) return ['tray', 'Site'];
     return ['outro', o || '—'];   // Carteira e quaisquer outras do combo: cinza
 }
