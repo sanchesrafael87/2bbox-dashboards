@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2BBOX - Painel de Produção</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --verde-2bbox: #4CD964;
+            --verde-escuro: #2D8C3C;
+            --verde-brilho: #6EFF85;
+            --preto: #0A0A0A;
+            --preto-card: #141414;
+            --preto-borda: #1E1E1E;
+            --branco: #FFFFFF;
+            --cinza: #888888;
+            --amarelo: #FFD93D;
+            --azul: #4DA6FF;
+            --roxo: #9B59B6;
+            --vermelho: #FF4757;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--preto);
+            color: var(--branco);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(ellipse at top left, rgba(76, 217, 100, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(76, 217, 100, 0.02) 0%, transparent 50%);
+        }
+
+        /* ===== CONFIG OVERLAY ===== */
+        .config-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 10, 10, 0.97);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .config-overlay.hidden { display: none; }
+
+        .config-box {
+            background: var(--preto-card);
+            border: 1px solid var(--preto-borda);
+            border-top: 3px solid var(--verde-2bbox);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 560px;
+            width: 92%;
+            text-align: center;
+        }
+        .config-box .logo-text { margin-bottom: 20px; }
+        .config-box h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            color: var(--verde-2bbox);
+            margin-bottom: 16px;
+        }
+        .config-box p { color: var(--cinza); margin-bottom: 16px; }
+        .config-box ol {
+            text-align: left;
+            color: #aaa;
+            margin-bottom: 20px;
+            padding-left: 20px;
+            line-height: 1.7;
+        }
+        .config-box ol strong { color: var(--verde-2bbox); }
+        .config-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--preto);
+            border: 1px solid var(--preto-borda);
+            border-radius: 8px;
+            color: var(--branco);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 14px;
+            outline: none;
+        }
+        .config-input:focus { border-color: var(--verde-2bbox); }
+        .config-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--verde-2bbox);
+            border: none;
+            border-radius: 8px;
+            color: var(--preto);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .config-btn:hover { background: var(--verde-brilho); }
+        .config-btn.secondary {
+            background: transparent;
+            border: 1px solid var(--preto-borda);
+            color: var(--cinza);
+            margin-top: 10px;
+        }
+        .config-btn.secondary:hover { border-color: var(--verde-2bbox); color: var(--verde-2bbox); }
+        .config-note { color: var(--cinza); font-size: 0.85rem; margin-top: 12px; }
+        .config-link {
+            display: inline-block;
+            margin-top: 18px;
+            color: var(--verde-2bbox);
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            border-bottom: 1px dashed var(--verde-escuro);
+            padding-bottom: 2px;
+        }
+        .config-link:hover { color: var(--verde-brilho); }
+
+        /* ===== LOGO (texto estilizado) ===== */
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            color: var(--branco);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-text .box {
+            color: var(--verde-2bbox);
+            text-shadow: 0 0 18px rgba(76, 217, 100, 0.5);
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 40px;
+            background: #0f0f0f;
+            border-bottom: 1px solid var(--preto-borda);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+        }
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            flex: 1;
+            justify-content: center;
+        }
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: var(--verde-2bbox);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .header-totals { display: flex; gap: 12px; }
+        .htot {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 4px 16px 4px 5px;
+            border-radius: 22px;
+            border: 1px solid;
+            white-space: nowrap;
+        }
+        .htot .n {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.05rem;
+            line-height: 1;
+            border-radius: 18px;
+            min-width: 30px;
+            text-align: center;
+            padding: 4px 0;
+        }
+        .htot.aguardando { color: var(--amarelo); border-color: rgba(255,217,61,0.40); background: rgba(255,217,61,0.08); }
+        .htot.producao1  { color: var(--azul);    border-color: rgba(77,166,255,0.40); background: rgba(77,166,255,0.08); }
+        .htot.producao2  { color: var(--roxo);    border-color: rgba(155,89,182,0.45); background: rgba(155,89,182,0.10); }
+        .htot.finalizado { color: var(--verde-2bbox); border-color: rgba(76,217,100,0.40); background: rgba(76,217,100,0.08); }
+        .htot.finalizado .n { background: rgba(76,217,100,0.18); }
+        .htot.aguardando .n { background: rgba(255,217,61,0.18); }
+        .htot.producao1  .n { background: rgba(77,166,255,0.18); }
+        .htot.producao2  .n { background: rgba(155,89,182,0.22); }
+        .header-right { text-align: right; }
+        .clock {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--branco);
+        }
+        .last-update { font-size: 0.85rem; color: var(--cinza); }
+        .last-update .dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--verde-2bbox);
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* ===== RESUMO ===== */
+        .summary-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            padding: 20px 40px;
+        }
+        .summary-item {
+            background: var(--preto-card);
+            border: 1px solid var(--preto-borda);
+            border-radius: 10px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .summary-item .label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--cinza);
+        }
+        .summary-item .value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.9rem;
+            font-weight: 700;
+        }
+        .summary-item.aguardando .value { color: var(--amarelo); }
+        .summary-item.producao1 .value { color: var(--azul); }
+        .summary-item.producao2 .value { color: var(--roxo); }
+
+        /* ===== 3 COLUNAS LADO A LADO, LISTAS DENSAS ===== */
+        .content { padding: 20px 26px 70px; }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+        .col { min-width: 0; }
+        .col-head {
+            position: sticky;
+            top: 86px;
+            z-index: 40;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 9px 14px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #0d0d0d;
+            margin-bottom: 12px;
+        }
+        .col-head.aguardando { background: var(--amarelo); }
+        .col-head.producao1  { background: var(--azul); }
+        .col-head.producao2  { background: var(--roxo); color: #fff; }
+        .col-head.finalizado { background: var(--verde-2bbox); }
+        .col-count {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: rgba(0,0,0,0.28);
+            color: #fff;
+            border-radius: 9px;
+            min-width: 34px;
+            text-align: center;
+            padding: 2px 8px;
+        }
+        .col-list { display: flex; flex-direction: column; gap: 7px; }
+        .col-empty { color:#555; font-size:1rem; padding: 8px 4px; }
+
+        /* ===== LINHA COMPACTA ===== */
+        .row {
+            background: var(--preto-card);
+            border-left: 5px solid var(--preto-borda);
+            border-radius: 0 8px 8px 0;
+            padding: 9px 13px;
+        }
+        .row.aguardando { border-left-color: var(--amarelo); }
+        .row.producao1  { border-left-color: var(--azul); }
+        .row.producao2  { border-left-color: var(--roxo); }
+        .row.finalizado { border-left-color: var(--verde-2bbox); }
+        .row.atrasado   { border-left-color: var(--vermelho); background: #1c1414; animation: pulseRow 1.6s infinite; }
+        @keyframes pulseRow { 0%,100% { box-shadow: 0 0 0 0 rgba(255,90,90,0); } 50% { box-shadow: 0 0 0 2px rgba(255,90,90,0.45); } }
+
+        .row-l1 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+        .r-nome {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.12rem;
+            color: var(--branco);
+            line-height: 1.15;
+            min-width: 0;
+            flex: 1;
+        }
+        .r-cli { font-size: 1.02rem; font-weight: 600; color: #cfcfcf; white-space: nowrap; max-width: 42%; overflow: hidden; text-overflow: ellipsis; flex: 0 0 auto; }
+        .r-atraso { color: var(--vermelho); font-weight: 700; font-size: 0.82rem; margin-left: 6px; }
+
+        .row-l2 { margin-top: 5px; font-size: 0.95rem; color: #8a8f98; display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 7px; line-height: 1.3; }
+        .row-l2 .r-dot { color: #3a3d44; }
+        .r-sku { font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--verde-2bbox); font-size: 1rem; }
+        .r-mat { color: #cfcfcf; }
+        .r-qtd { color: var(--verde-2bbox); font-weight: 700; }
+        .r-org.whatsapp { color: var(--verde-2bbox); font-weight: 700; }
+        .r-org.mercadolivre { color: var(--amarelo); font-weight: 700; }
+        .r-org.shopee { color: var(--laranja); font-weight: 700; }
+        .r-org.tray { color: var(--azul); font-weight: 700; }
+        .r-org.outro { color: #8a8f98; font-weight: 700; }
+        .r-prazo { color: #8a8f98; }
+        .r-prazo.late { color: var(--vermelho); font-weight: 700; }
+        .row-obs {
+            margin-top: 5px;
+            font-size: 0.92rem;
+            color: #b9bdc4;
+            line-height: 1.3;
+            border-top: 1px dashed var(--preto-borda);
+            padding-top: 5px;
+        }
+        .r-obslabel { font-size: 0.66rem; color: #5a5f68; letter-spacing: 1px; font-weight: 700; }
+
+        /* ===== CARDS (maiores) ===== */
+        .card {
+            background: var(--preto-card);
+            border: 1px solid var(--preto-borda);
+            border-left-width: 8px;
+            border-radius: 14px;
+            padding: 22px 24px;
+            position: relative;
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .card .card-footer { margin-top: auto; }
+        .card:hover { transform: translateY(-2px); }
+        /* Cor da fase BEM forte (borda esquerda grossa + leve glow) */
+        .card.aguardando { border-left-color: var(--amarelo); box-shadow: -4px 0 14px rgba(255,217,61,0.10); }
+        .card.producao1  { border-left-color: var(--azul);    box-shadow: -4px 0 14px rgba(77,166,255,0.12); }
+        .card.producao2  { border-left-color: var(--roxo);   box-shadow: -4px 0 14px rgba(157,108,232,0.16); }
+        .card.atrasado {
+            border-color: var(--vermelho);
+            border-left-color: var(--vermelho);
+            box-shadow: 0 0 16px rgba(255, 71, 87, 0.30);
+            animation: alertPulse 2.4s infinite;
+        }
+        @keyframes alertPulse {
+            0%, 100% { box-shadow: 0 0 8px rgba(255, 71, 87, 0.18); }
+            50% { box-shadow: 0 0 22px rgba(255, 71, 87, 0.50); }
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.45rem;
+            line-height: 1.2;
+            color: var(--branco);
+            flex: 1;
+            min-width: 0;
+            min-height: 2.4em;
+            display: flex;
+            align-items: flex-start;
+        }
+        /* Origem: container menor, não quebra linha */
+        .badge {
+            flex: 0 0 auto;
+            font-size: 0.66rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 14px;
+            white-space: nowrap;
+            line-height: 1.5;
+        }
+        .badge.whatsapp { background: rgba(76,217,100,0.12); color: var(--verde-2bbox); border: 1px solid rgba(76,217,100,0.35); }
+        .badge.mercadolivre { background: rgba(255,217,61,0.10); color: var(--amarelo); border: 1px solid rgba(255,217,61,0.35); }
+        .badge.shopee { background: rgba(255,122,69,0.12); color: #ff7a45; border: 1px solid rgba(255,122,69,0.40); }
+        .badge.carteira { background: rgba(160,132,232,0.12); color: #b39aff; border: 1px solid rgba(160,132,232,0.40); }
+        .badge.tray { background: rgba(77,166,255,0.10); color: var(--azul); border: 1px solid rgba(77,166,255,0.35); }
+        .badge.outro { background: rgba(136,136,136,0.10); color: var(--cinza); border: 1px solid rgba(136,136,136,0.35); }
+
+        /* SKU + MATERIAL: ambos grandes, mesmo destaque, separados */
+        .card-skuline {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--preto-borda);
+        }
+        .card-skuline .sku {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.55rem;
+            color: var(--verde-2bbox);
+            letter-spacing: 0.5px;
+        }
+        .card-skuline .sep { width: 2px; height: 1.5em; background: var(--preto-borda); display:inline-block; }
+        .card-skuline .mat {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.35rem;
+            color: var(--branco);
+            letter-spacing: 0.5px;
+        }
+        .card-skuline .qtd {
+            margin-left: auto;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--verde-2bbox);
+        }
+
+        .card-obs {
+            font-size: 1.45rem;
+            font-weight: 700;
+            line-height: 1.25;
+            color: #fff;
+            text-align: center;
+            margin: 4px 0 14px;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--preto-borda);
+            border-radius: 10px;
+        }
+        .card-obs .obs-label {
+            display: block;
+            color: var(--verde-2bbox);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.62em;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+        .obs-vazia { color: #555; font-weight: 600; }
+        .card-timer {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--preto-borda);
+            font-family: 'Rajdhani', sans-serif;
+            color: #8a8f98;
+            white-space: nowrap;
+        }
+        .card-timer .tlabel {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #6a6f78;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .card-timer .tval {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #b8bdc6;
+            letter-spacing: 0.5px;
+        }
+        .card.atrasado .card-timer .tval { color: #ff8a4d; }
+        .card-timer.sem-dado .tval { color:#555; }
+        .card-idcli {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .card-idcli .ped {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--verde-2bbox);
+            white-space: nowrap;
+        }
+        .card-idcli .ped-label {
+            font-size: 0.72em;
+            color: #6a6f78;
+            letter-spacing: 1px;
+        }
+        .card-idcli .ped-fim { color: var(--branco); }
+        .card-idcli .cli {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #cfcfcf;
+            text-align: right;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            color: var(--cinza);
+            border-top: 1px solid var(--preto-borda);
+            padding-top: 12px;
+        }
+        .card-footer strong { color: var(--branco); font-weight: 600; }
+        .alerta-atraso {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--vermelho);
+            text-transform: uppercase;
+        }
+
+        .empty-msg {
+            text-align: center;
+            color: var(--cinza);
+            padding: 60px 20px;
+            font-size: 1.1rem;
+        }
+
+        /* ===== CONTROLES (scroll/config) ===== */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 200;
+        }
+        .ctrl-btn {
+            background: var(--preto-card);
+            border: 1px solid var(--preto-borda);
+            color: var(--cinza);
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .ctrl-btn:hover, .ctrl-btn.active {
+            border-color: var(--verde-2bbox);
+            color: var(--verde-2bbox);
+        }
+
+        @media (max-width: 900px) {
+            .summary-bar { grid-template-columns: repeat(2, 1fr); padding: 16px 20px; }
+            .content { padding: 0 20px 60px; }
+            .header { padding: 16px 20px; }
+            .header-title { display: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .card.atrasado, .last-update .dot { animation: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Tela de configuração -->
+    <div class="config-overlay" id="configOverlay">
+        <div class="config-box">
+            <div class="logo-text">2B<span class="box">BOX</span></div>
+            <h2>CONFIGURAÇÃO INICIAL</h2>
+            
+            <button class="config-btn" onclick="saveConfig()">CONECTAR À PLANILHA</button>
+            <button class="config-btn secondary" onclick="loadDemo()">VER MODO DEMO</button>
+            <a class="config-link" href="https://docs.google.com/spreadsheets/d/1wmyU-mvObHDjShwHOECrIeeyuo8tBtMY7Z_buJYNVrc/edit" target="_blank" rel="noopener">📄 Abrir planilha PRODUCAO_2BBOX_v2 →</a>
+            <p class="config-note">O dashboard atualiza automaticamente a cada 2 minutos</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-text">2B<span class="box">BOX</span></div>
+        <div class="header-center">
+            <div class="header-title">Painel de Produção</div>
+            <div class="header-totals" id="headerTotals"></div>
+        </div>
+        <div class="header-right">
+            <div class="clock" id="clock">--:--</div>
+            <div class="last-update"><span class="dot"></span><span id="lastUpdate">aguardando dados</span></div>
+        </div>
+    </header>
+
+    <!-- Conteúdo -->
+    <main class="content" id="content">
+        <div class="empty-msg">Configure a planilha para começar.</div>
+    </main>
+
+    <!-- Controles -->
+    <div class="controls">
+        <button class="ctrl-btn active" id="scrollBtn" onclick="toggleScroll()">⏸ SCROLL AUTO</button>
+        <button class="ctrl-btn" onclick="openConfig()">⚙ CONFIG</button>
+    </div>
+
+<script>
+/* ============================================================
+   2BBOX — Painel de Produção (TV)
+   Lê CSV publicado do Google Sheets, agrupa por status,
+   alerta atrasos e rola a tela automaticamente.
+   ============================================================ */
+
+const REFRESH_MS = 2 * 60 * 1000;   // 2 minutos
+const SCROLL_STEP = 1;              // px por tick
+const SCROLL_TICK = 22;            // ms entre ticks
+const SCROLL_PAUSE_END = 1500;      // pausa curta no fim (ms)
+const SCROLL_PAUSE_TOP = 800;       // respiro curto no topo (totais já ficam no header fixo)
+
+let csvUrl = localStorage.getItem('2bbox_csv_url') || '';
+let demoMode = false;
+let autoScroll = true;
+let scrollTimer = null;
+
+/* ---------- Relógio ---------- */
+function tickClock() {
+    const n = new Date();
+    document.getElementById('clock').textContent =
+        n.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+setInterval(tickClock, 1000); tickClock();
+
+/* ---------- Cronômetros ao vivo (1s) ---------- */
+function tickTimers() {
+    const now = Date.now();
+    document.querySelectorAll('.card-timer[data-since]').forEach(el => {
+        const since = parseInt(el.getAttribute('data-since'));
+        if (!isNaN(since)) {
+            const val = el.querySelector('.tval');
+            if (val) val.textContent = formatDuracao(now - since);
+        }
+    });
+}
+setInterval(tickTimers, 1000);
+
+/* ---------- Config ---------- */
+function openConfig() {
+    document.getElementById('configOverlay').classList.remove('hidden');
+}
+const FONTE_DADOS = 'https://cases2bbox.app.n8n.cloud/webhook/dashboard-producao?token=2bx_dash_7kM9pQ';
+function saveConfig() {
+    csvUrl = FONTE_DADOS;
+    demoMode = false;
+    localStorage.setItem('2bbox_csv_url', csvUrl);
+    document.getElementById('configOverlay').classList.add('hidden');
+    fetchData();
+}
+function loadDemo() {
+    demoMode = true;
+    document.getElementById('configOverlay').classList.add('hidden');
+    render(parseRows(DEMO_DATA));
+    setUpdated('modo demo');
+}
+
+/* ---------- CSV ---------- */
+function parseCSV(text) {
+    const rows = [];
+    let row = [], cur = '', inQ = false;
+    for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQ) {
+            if (c === '"' && text[i+1] === '"') { cur += '"'; i++; }
+            else if (c === '"') inQ = false;
+            else cur += c;
+        } else {
+            if (c === '"') inQ = true;
+            else if (c === ',') { row.push(cur); cur = ''; }
+            else if (c === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+            else if (c !== '\r') cur += c;
+        }
+    }
+    if (cur || row.length) { row.push(cur); rows.push(row); }
+    return rows.filter(r => r.some(c => c.trim() !== ''));
+}
+
+/* Mapeia colunas pelo nome do cabeçalho (flexível) */
+
+/* Converte resposta JSON do webhook n8n em linhas (header + rows) */
+function rowsFromJSON(data) {
+    const arr = Array.isArray(data) ? data : [data];
+    const objs = arr.map(o => (o && o.json) ? o.json : o).filter(o => o && typeof o === 'object');
+    if (!objs.length) return [];
+    const header = Object.keys(objs[0]).filter(k => k !== 'row_number');
+    return [header, ...objs.map(o => header.map(k => (o[k] !== undefined && o[k] !== null) ? String(o[k]) : ''))];
+}
+
+function mapHeaders(header) {
+    const h = header.map(x => x.toLowerCase().trim());
+    const find = (...keys) => h.findIndex(col => keys.some(k => col.includes(k)));
+    return {
+        id:       find('id pedido', 'pedido'),
+        material: find('material'),
+        nomecard: find('nome card', 'card'),
+        sku:      find('sku'),
+        qtd:      find('qtd', 'quant'),
+        cliente:  find('cliente'),
+        origem:   find('origem', 'canal', 'fonte'),
+        entrada:  find('data_entrada', 'entrada'),
+        prazo:    find('prazo', 'entrega', 'limite'),
+        obs:      find('obs', 'observa'),
+        dtProducao:   find('dt_producao'),
+        dtProducao2:  find('dt_producao_2', 'producao_2', 'producao 2'),
+        dtFinalizado: find('dt_finalizado', 'dt_final'),
+        dtFim:        find('data_fim', 'dt_fim', 'data_envio'),
+        dtEntregue:   find('dt_entregue', 'entregue'),
+        status:   find('status', 'situa')
+    };
+}
+
+function parseRows(rows) {
+    if (!rows.length) return [];
+    const m = mapHeaders(rows[0]);
+    const get = (r, idx) => (idx >= 0 && r[idx] !== undefined) ? r[idx].trim() : '';
+    return rows.slice(1).map(r => ({
+        id:      get(r, m.id),
+        material:get(r, m.material),
+        nomecard:get(r, m.nomecard),
+        sku:     get(r, m.sku),
+        qtd:     get(r, m.qtd),
+        cliente: get(r, m.cliente),
+        origem:  get(r, m.origem),
+        entrada: get(r, m.entrada),
+        prazo:   get(r, m.prazo),
+        obs:     get(r, m.obs),
+        dtProducao:  get(r, m.dtProducao),
+        dtProducao2: get(r, m.dtProducao2),
+        dtFinalizado:get(r, m.dtFinalizado),
+        dtFim:       get(r, m.dtFim),
+        dtEntregue:  get(r, m.dtEntregue),
+        status:  normalizeStatus(get(r, m.status))
+    })).filter(p => (p.id || p.cliente || p.nomecard) && p.status !== null);
+}
+
+function normalizeStatus(s) {
+    const t = (s || '').toLowerCase();
+    // Painel de Produção: P1 / P2 / Finalizado. As demais saem (null).
+    if (t.includes('cancel')) return null;
+    if (t.includes('entreg')) return null;
+    if (t.includes('envi') || t.includes('despach') || t.includes('postado')) return null;
+    if (t.includes('aguard') || t.includes('pendente') || t.includes('fila')) return null;
+    if (t.includes('final') || t.includes('pronto') || t.includes('conclu')) return 'Finalizado';
+    if (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois'))) return 'Produção 2';
+    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Produção 1';
+    return null;
+}
+
+function parseDate(s) {
+    if (!s) return null;
+    // dd/mm/aaaa (com hora opcional) OU dd/mm (sem ano → assume ano corrente)
+    const br = s.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?(?:[ ,T]+(\d{1,2}):(\d{2}))?/);
+    if (br) {
+        let y = br[3] !== undefined ? parseInt(br[3]) : new Date().getFullYear();
+        if (y < 100) y += 2000;
+        const hh = br[4] !== undefined ? parseInt(br[4]) : 0;
+        const mm = br[5] !== undefined ? parseInt(br[5]) : 0;
+        return new Date(y, parseInt(br[2]) - 1, parseInt(br[1]), hh, mm);
+    }
+    const d = new Date(s);
+    return isNaN(d) ? null : d;
+}
+
+/* Formata duração entre dois instantes em 'Xd Yh Zm' (ou 'Zm Ws' se < 1h) */
+function formatDuracao(ms) {
+    if (ms < 0) ms = 0;
+    const s = Math.floor(ms / 1000);
+    const d = Math.floor(s / 86400);
+    const h = Math.floor((s % 86400) / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (d > 0) return d + 'd ' + h + 'h ' + m + 'm';
+    if (h > 0) return h + 'h ' + m + 'm';
+    if (m > 0) return m + 'm ' + sec + 's';
+    return sec + 's';
+}
+
+function isAtrasado(p) {
+    if (p.status !== 'Aguardando' && p.status !== 'Produção 1' && p.status !== 'Produção 2') return false;
+    const d = parseDate(p.prazo);
+    if (!d) return false;
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    return d < hoje;
+}
+function diasAtraso(p) {
+    const d = parseDate(p.prazo);
+    if (!d) return 0;
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    return d < hoje ? Math.round((hoje - d) / 86400000) : 0;
+}
+
+/* ---------- Fetch ---------- */
+async function fetchData() {
+    if (demoMode || !csvUrl) return;
+    try {
+        const resp = await fetch(csvUrl + (csvUrl.includes('?') ? '&' : '?') + 't=' + Date.now());
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const text = await resp.text();
+        const trimmed = text.trim();
+        const rows = (trimmed.startsWith('[') || trimmed.startsWith('{'))
+            ? rowsFromJSON(JSON.parse(trimmed))
+            : parseCSV(text);
+        render(parseRows(rows));
+        setUpdated('atualizado ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}));
+    } catch (e) {
+        setUpdated('erro ao ler planilha — verifique o link publicado');
+        console.error(e);
+    }
+}
+function setUpdated(msg) { document.getElementById('lastUpdate').textContent = msg; }
+
+/* ---------- Render ---------- */
+function origemClass(o) {
+    const t = (o || '').toLowerCase();
+    if (t.includes('whats') || t.includes('zap')) return ['whatsapp', 'WhatsApp'];
+    if (t.includes('mercado') || t === 'ml') return ['mercadolivre', 'Mercado Livre'];
+    if (t.includes('shopee')) return ['shopee', 'Shopee'];
+    if (t.includes('tray') || t.includes('site')) return ['tray', 'Site'];
+    return ['outro', o || '—'];   // Carteira e quaisquer outras do combo: cinza
+}
+
+function createRow(p, cls) {
+    const atrasado = isAtrasado(p);
+    const [oCls, oLabel] = origemClass(p.origem);
+    const titulo = esc(p.nomecard) || esc(p.sku) || '—';
+    const skuTxt = esc(p.sku) || '—';
+    const matTxt = esc(p.material) || '—';
+    const qtdTxt = p.qtd ? esc(p.qtd) + ' un' : '';
+    const prazoTxt = esc(p.prazo) || '—';
+    const dias = atrasado ? diasAtraso(p) : 0;
+    const obsTxt = (p.obs && p.obs.trim()) ? esc(p.obs) : '';
+
+    let l2 = '<span class="r-sku">' + skuTxt + '</span>';
+    l2 += '<span class="r-dot">·</span><span class="r-mat">' + matTxt + '</span>';
+    if (qtdTxt) l2 += '<span class="r-dot">·</span><span class="r-qtd">' + qtdTxt + '</span>';
+    l2 += '<span class="r-dot">·</span><span class="r-org ' + oCls + '">' + esc(oLabel) + '</span>';
+    l2 += '<span class="r-dot">·</span><span class="r-prazo' + (atrasado ? ' late' : '') + '">' + prazoTxt + '</span>';
+
+    const obsHTML = obsTxt
+        ? '<div class="row-obs"><span class="r-obslabel">OBS</span> ' + obsTxt + '</div>'
+        : '';
+
+    return `
+        <div class="row ${cls}${atrasado ? ' atrasado' : ''}">
+            <div class="row-l1">
+                <span class="r-nome">${titulo}</span>
+                <span class="r-cli">👤 ${esc(p.cliente) || '—'}${atrasado ? ' <span class="r-atraso">⚠ ' + dias + 'd</span>' : ''}</span>
+            </div>
+            <div class="row-l2">${l2}</div>
+            ${obsHTML}
+        </div>`;
+}
+
+function esc(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function render(pedidos) {
+    const byStatus = { 'Produção 1': [], 'Produção 2': [], 'Finalizado': [] };
+    pedidos.forEach(p => { if (byStatus[p.status]) byStatus[p.status].push(p); });
+
+    // Ordena cada coluna por data de entrada (mais antigo no topo); empata pela ordem de chegada (ID)
+    const numId = p => { const n = parseInt(String(p.id).replace(/\D/g, ''), 10); return isNaN(n) ? Infinity : n; };
+    const ordena = (a, b) => {
+        const da = parseDate(a.entrada), db = parseDate(b.entrada);
+        if (da && db) { const diff = da - db; if (diff !== 0) return diff; }
+        else if (da && !db) return -1;
+        else if (!da && db) return 1;
+        return numId(a) - numId(b);   // desempate: ordem de chegada
+    };
+    Object.keys(byStatus).forEach(k => byStatus[k].sort(ordena));
+
+    // Totais fixos no header (não rolam) — contagem antes do nome, em balão próprio
+    document.getElementById('headerTotals').innerHTML = `
+        <div class="htot producao1"><span class="n">${byStatus['Produção 1'].length}</span><span>Produção 1</span></div>
+        <div class="htot producao2"><span class="n">${byStatus['Produção 2'].length}</span><span>Produção 2</span></div>
+        <div class="htot finalizado"><span class="n">${byStatus['Finalizado'].length}</span><span>Finalizado</span></div>`;
+
+    // 3 colunas lado a lado, cada uma uma lista densa
+    const cols = [
+        ['Produção 1', 'producao1'],
+        ['Produção 2', 'producao2'],
+        ['Finalizado', 'finalizado']
+    ];
+    let html = '<div class="board">';
+    cols.forEach(([key, cls]) => {
+        const rows = byStatus[key].map(p => createRow(p, cls)).join('')
+            || '<div class="col-empty">— sem pedidos —</div>';
+        html += `
+            <div class="col">
+                <div class="col-head ${cls}"><span class="col-count">${byStatus[key].length}</span> ${key}</div>
+                <div class="col-list">${rows}</div>
+            </div>`;
+    });
+    html += '</div>';
+    document.getElementById('content').innerHTML = html;
+}
+
+/* ---------- Auto-scroll ---------- */
+function startScroll() {
+    stopScroll();
+    // Começa o ciclo com a pausa no topo (que também dispara o 1o refresh visual)
+    topPauseThenScroll();
+    scrollTimer = setInterval(() => {
+        if (!autoScroll) return;
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        if (max <= 0) return;                 // cabe tudo na tela: sem scroll
+        window.scrollBy(0, SCROLL_STEP);
+        if (window.scrollY >= max - 2) {
+            // chegou no fim: pausa, volta ao topo, atualiza dados e re-pausa no topo
+            autoScroll = false;
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setTimeout(topPauseThenScroll, 900);   // espera o scroll suave terminar
+            }, SCROLL_PAUSE_END);
+        }
+    }, SCROLL_TICK);
+}
+
+/* Pausa no topo por SCROLL_PAUSE_TOP e força refresh dos dados antes de descer */
+function topPauseThenScroll() {
+    autoScroll = false;
+    fetchData();                              // refresh automático a cada volta ao topo
+    setTimeout(() => { autoScroll = btnActive(); }, SCROLL_PAUSE_TOP);
+}
+function btnActive() { return document.getElementById('scrollBtn').classList.contains('active'); }
+function toggleScroll() {
+    const btn = document.getElementById('scrollBtn');
+    btn.classList.toggle('active');
+    autoScroll = btn.classList.contains('active');
+    btn.textContent = autoScroll ? '⏸ SCROLL AUTO' : '▶ SCROLL AUTO';
+}
+function stopScroll() { if (scrollTimer) clearInterval(scrollTimer); }
+
+/* ---------- Dados demo ---------- */
+const DEMO_DATA = [
+    ['ID_PEDIDO','DATA_ENTRADA','ORIGEM','SKU','PRODUTO','MODELO','QTD','CLIENTE','VALOR','STATUS','PRAZO','DATA_FIM','DT_PRODUCAO','DT_FINALIZADO','OBS'],
+    ['P-2026-042','13/06/2026 09:40','WhatsApp','CDJ3000-DUO','Case CDJ-3000 + DJM-900 NXS2','BVC','1','DJ Marcola','2890,00','Aguardando','20/06/2026','','','',''],
+    ['P-2026-043','13/06/2026 08:15','MercadoLivre','MAL-PQ80','Maleta PQ vinil 80 discos','BSC','2','Studio Mix BH','780,00','Aguardando','22/06/2026','','','',''],
+    ['P-2026-044','12/06/2026 17:30','Site','REV7-STD','Case DDJ-REV7','BVB','1','Carla Eventos','1450,00','Aguardando','25/06/2026','','','','Com rodinhas'],
+    ['P-2026-045','13/06/2026 07:05','WhatsApp','XDJRX3-RB','Case XDJ-RX3','BSB','1','DJ FiiL','1980,00','Aguardando','26/06/2026','','','','Linha Robust'],
+    ['P-2026-036','09/06/2026 10:00','WhatsApp','FLX10-NB','Case DDJ-FLX10 + notebook','BVC','1','DJ Alemao','1690,00','Em Produção','19/06/2026','','11/06/2026 10:00','','Pintura preta fosca + espuma extra'],
+    ['P-2026-037','09/06/2026 14:20','Site','MG16-STD','Case mesa Yamaha MG16','BSB','1','Eventos Prime SP','980,00','Em Produção','21/06/2026','','12/06/2026 08:30','',''],
+    ['P-2026-038','10/06/2026 09:10','MercadoLivre','MAL-PQ60','Maleta PQ 60 discos','BSC','3','Lucas Beats','650,00','Em Produção','23/06/2026','','12/06/2026 13:10','','Logo do cliente na tampa'],
+    ['P-2026-039','10/06/2026 16:45','WhatsApp','MIXSTR-PP','Case Numark Mixstream Pro+','BVB','1','DJ Nanda','1280,00','Em Produção','24/06/2026','','13/06/2026 07:45','',''],
+    ['P-2026-031','05/06/2026 08:00','WhatsApp','DDJ1K-SRT','Case DDJ-1000 SRT','BSC','1','DJ Ratinho','1390,00','Finalizado','13/06/2026','','08/06/2026 09:00','13/06/2026 08:00','Cliente retira na fabrica'],
+    ['P-2026-032','05/06/2026 11:30','MercadoLivre','PLX1K-PAR','Case toca-discos PLX-1000 (par)','BVC','1','Mega Som Eventos','1860,00','Finalizado','14/06/2026','','09/06/2026 10:00','12/06/2026 16:40',''],
+    ['P-2026-033','06/06/2026 09:15','Site','MAL-RB100','Maleta Robust 100 discos','BSB','1','Fernanda Prod.','920,00','Finalizado','15/06/2026','','10/06/2026 08:00','13/06/2026 06:20',''],
+    ['P-2026-027','30/05/2026 10:00','MercadoLivre','REV1-STD','Case DDJ-REV1','BSC','1','Pedro Henrique','740,00','Enviado','10/06/2026','12/06/2026 09:30','04/06/2026 09:00','09/06/2026 09:00',''],
+    ['P-2026-028','31/05/2026 14:00','WhatsApp','CDJ2K-PAR','Case CDJ-2000 NXS (par)','BVC','1','Balada Mix Floripa','2480,00','Enviado','11/06/2026','11/06/2026 14:00','05/06/2026 09:00','10/06/2026 09:00',''],
+    ['P-2026-029','01/06/2026 09:30','Site','MAL-PQ40','Maleta PQ 40 discos','BSC','2','DJ Tati','520,00','Enviado','12/06/2026','13/06/2026 05:10','06/06/2026 09:00','11/06/2026 09:00','']
+];
+
+/* ---------- Init ---------- */
+window.addEventListener('load', () => {
+    if (!csvUrl) csvUrl = FONTE_DADOS;   // TV/stick: sempre puxa do webhook sem precisar configurar
+    document.getElementById('configOverlay').classList.add('hidden');
+    fetchData();
+    setInterval(fetchData, REFRESH_MS);
+    startScroll();
+});
+</script>
+</body>
+</html>
