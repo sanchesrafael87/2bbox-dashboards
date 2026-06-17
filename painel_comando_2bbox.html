@@ -27,6 +27,8 @@
     .brand .logo b { color: var(--verde); }
     .brand .sub { font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--cinza-fraco); font-weight: 600; }
     .top-actions { display: flex; gap: 8px; }
+    .mes-sel { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--branco); background: var(--bg2); border: 1px solid var(--borda); border-radius: 8px; padding: 9px 12px; cursor: pointer; letter-spacing: 0.5px; text-transform: capitalize; }
+    .mes-sel:hover { border-color: var(--verde); }
     .refresh-btn { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--cinza); background: var(--bg2); border: 1px solid var(--borda); border-radius: 8px; padding: 9px 14px; cursor: pointer; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
     .refresh-btn:hover { border-color: var(--verde); color: var(--verde); }
     .refresh-btn:active { transform: scale(0.96); }
@@ -152,6 +154,7 @@
                 <span class="sub">Comando de Produção</span>
             </div>
             <div class="top-actions">
+                <select class="mes-sel" id="mesSel" onchange="onMesChange()" aria-label="Filtrar por mês"></select>
                 <button class="refresh-btn" onclick="toggleConfig()"><span>⚙</span> Config</button>
                 <button class="refresh-btn" id="refreshBtn" onclick="fetchData(true)"><span class="ricon">⟳</span> Atualizar</button>
             </div>
@@ -224,6 +227,14 @@ function mapHeaders(header) {
         status:   find('status', 'situa')
     };
 }
+function mesPedido(id, entrada) {
+    // Mês via ID PEDIDO (prefixo AAAAMM) — mais confiável; fallback na data de entrada
+    const mId = String(id || '').match(/^(\d{4})(\d{2})/);
+    if (mId) return mId[1] + '-' + mId[2];
+    const d = parseDate(entrada);
+    if (d) return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2);
+    return '';
+}
 function parseRows(rows) {
     if (!rows.length) return [];
     const m = mapHeaders(rows[0]);
@@ -232,7 +243,8 @@ function parseRows(rows) {
         id: g(r, m.id), material: g(r, m.material), nomecard: g(r, m.nomecard),
         sku: g(r, m.sku), qtd: g(r, m.qtd), cliente: g(r, m.cliente),
         origem: g(r, m.origem), entrada: g(r, m.entrada), prazo: g(r, m.prazo),
-        status: normalizeStatus(g(r, m.status))
+        status: normalizeStatus(g(r, m.status)),
+        mes: mesPedido(g(r, m.id), g(r, m.entrada))
     })).filter(p => p.id && p.status !== null);
 }
 function normalizeStatus(s) {
@@ -292,10 +304,45 @@ function setStatus(msg, err) {
     document.getElementById('statusLine').classList.toggle('err', !!err);
 }
 
+/* Fases "concluídas" filtram pelo mês selecionado; as pendentes de produção aparecem sempre */
+const FASES_CONCLUIDAS = ['Enviado', 'Entregue', 'Cancelado'];
+let mesSelecionado = '';   // '' = mês atual (definido ao montar o seletor)
+
+function mesAtualStr() {
+    const d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2);
+}
+function rotuloMes(ym) {
+    const [a, m] = ym.split('-');
+    const nomes = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    return nomes[parseInt(m) - 1] + '/' + a;
+}
+function montarSeletorMes() {
+    const sel = document.getElementById('mesSel');
+    const meses = Array.from(new Set(pedidos.map(p => p.mes).filter(Boolean)));
+    const atual = mesAtualStr();
+    if (!meses.includes(atual)) meses.push(atual);
+    meses.sort().reverse();   // mais recente primeiro
+    if (!mesSelecionado || !meses.includes(mesSelecionado)) mesSelecionado = meses.includes(atual) ? atual : meses[0];
+    sel.innerHTML = meses.map(ym => `<option value="${ym}"${ym === mesSelecionado ? ' selected' : ''}>${rotuloMes(ym)}</option>`).join('');
+}
+function onMesChange() {
+    mesSelecionado = document.getElementById('mesSel').value;
+    render();
+}
+function pedidoVisivel(p) {
+    // Concluídos: só do mês selecionado. Pendentes de produção: sempre (precisam ser feitos).
+    if (FASES_CONCLUIDAS.includes(p.status)) return p.mes === mesSelecionado;
+    return true;
+}
+
 function render() {
+    montarSeletorMes();
+    const visiveis = pedidos.filter(pedidoVisivel);
+
     const cont = {};
     PIPELINE.forEach(f => cont[f] = 0);
-    pedidos.forEach(p => { if (cont[p.status] !== undefined) cont[p.status]++; });
+    visiveis.forEach(p => { if (cont[p.status] !== undefined) cont[p.status]++; });
     document.getElementById('pipe').innerHTML = PIPELINE.map(f => `
         <div class="pipe-item ${CLS[f]}">
             <div class="n">${cont[f]}</div>
@@ -304,7 +351,7 @@ function render() {
 
     let html = '';
     PIPELINE.forEach(fase => {
-        const lista = pedidos.filter(p => p.status === fase);
+        const lista = visiveis.filter(p => p.status === fase);
         if (!lista.length) return;
         html += `
             <section class="fase">
@@ -313,7 +360,7 @@ function render() {
             </section>`;
     });
     document.getElementById('content').innerHTML = html ||
-        `<div class="empty"><div class="big">—</div>Nenhum pedido encontrado na planilha.</div>`;
+        `<div class="empty"><div class="big">—</div>Nenhum pedido encontrado para este mês.</div>`;
 }
 
 function card(p) {
