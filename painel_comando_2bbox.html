@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0a0a0a">
 <title>Painel de Comando · 2BBOX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,138 +10,121 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
     :root {
-        --bg: #0a0a0a;
-        --bg2: #141414;
-        --card: #181818;
-        --borda: #262626;
-        --branco: #f5f5f5;
-        --cinza: #8a8f98;
-        --cinza-fraco: #5a5f68;
-        --verde: #4CD964;
-        --amarelo: #FFB020;
-        --azul: #3B9EFF;
-        --roxo: #A77BFF;
-        --vermelho: #FF5A5A;
+        --bg: #0a0a0a; --bg2: #141414; --card: #181818; --borda: #262626;
+        --branco: #f5f5f5; --cinza: #8a8f98; --cinza-fraco: #5a5f68;
+        --verde: #4CD964; --amarelo: #FFB020; --azul: #3B9EFF; --roxo: #9B59B6;
+        --teal: #2dd4bf; --vermelho: #FF5A5A; --laranja: #ff7a45;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { background: var(--bg); color: var(--branco); font-family: 'Rajdhani', sans-serif; }
-    body { padding-bottom: 40px; }
+    body { padding-bottom: 50px; }
 
     /* ===== Topo ===== */
-    .topbar {
-        position: sticky; top: 0; z-index: 50;
-        background: rgba(10,10,10,0.92);
-        backdrop-filter: blur(8px);
-        border-bottom: 1px solid var(--borda);
-        padding: 14px 16px 12px;
-    }
+    .topbar { position: sticky; top: 0; z-index: 50; background: #0f0f0f; border-bottom: 1px solid var(--borda); padding: 14px 28px 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.45); }
     .topbar-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .brand { display: flex; align-items: baseline; gap: 8px; }
-    .brand .logo { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.15rem; letter-spacing: 1px; color: var(--branco); }
+    .brand { display: flex; align-items: baseline; gap: 10px; }
+    .brand .logo { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.3rem; letter-spacing: 1px; color: var(--branco); }
     .brand .logo b { color: var(--verde); }
-    .brand .sub { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--cinza-fraco); font-weight: 600; }
-    .refresh-btn {
-        font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.82rem;
-        color: var(--cinza); background: var(--bg2); border: 1px solid var(--borda);
-        border-radius: 8px; padding: 8px 12px; cursor: pointer; letter-spacing: 0.5px;
-        display: flex; align-items: center; gap: 6px;
-    }
+    .brand .sub { font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--cinza-fraco); font-weight: 600; }
+    .top-actions { display: flex; gap: 8px; }
+    .refresh-btn { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--cinza); background: var(--bg2); border: 1px solid var(--borda); border-radius: 8px; padding: 9px 14px; cursor: pointer; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+    .refresh-btn:hover { border-color: var(--verde); color: var(--verde); }
     .refresh-btn:active { transform: scale(0.96); }
     .refresh-btn.loading .ricon { animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .status-line { margin-top: 8px; font-size: 0.78rem; color: var(--cinza-fraco); display: flex; align-items: center; gap: 6px; }
+    .status-line { margin-top: 8px; font-size: 0.8rem; color: var(--cinza-fraco); display: flex; align-items: center; gap: 6px; }
     .status-line .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--verde); box-shadow: 0 0 8px var(--verde); }
     .status-line.err .dot { background: var(--vermelho); box-shadow: 0 0 8px var(--vermelho); }
 
     /* ===== Resumo do pipeline ===== */
-    .pipe { display: flex; gap: 6px; padding: 12px 16px 4px; }
-    .pipe-item { flex: 1; background: var(--bg2); border: 1px solid var(--borda); border-radius: 10px; padding: 8px 4px; text-align: center; }
-    .pipe-item .n { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.2rem; line-height: 1; }
-    .pipe-item .l { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--cinza); margin-top: 4px; font-weight: 600; }
+    .pipe { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 28px 2px; }
+    .pipe-item { flex: 1; min-width: 90px; background: var(--bg2); border: 1px solid var(--borda); border-radius: 10px; padding: 9px 6px; text-align: center; }
+    .pipe-item .n { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.25rem; line-height: 1; }
+    .pipe-item .l { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--cinza); margin-top: 5px; font-weight: 600; }
     .pipe-item.aguardando .n { color: var(--amarelo); }
-    .pipe-item.producao .n { color: var(--azul); }
+    .pipe-item.producao1 .n { color: var(--azul); }
+    .pipe-item.producao2 .n { color: var(--roxo); }
     .pipe-item.finalizado .n { color: var(--verde); }
-    .pipe-item.enviado .n { color: var(--roxo); }
+    .pipe-item.enviado .n { color: var(--teal); }
+    .pipe-item.entregue .n { color: #9aa0a6; }
+    .pipe-item.cancelado .n { color: var(--vermelho); }
 
-    /* ===== Seções ===== */
-    .wrap { padding: 8px 16px 0; }
-    .section-title {
-        font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.8rem; letter-spacing: 1px;
-        text-transform: uppercase; margin: 18px 0 10px; padding-left: 10px; border-left: 3px solid var(--cinza);
-        display: flex; align-items: center; gap: 8px;
-    }
-    .section-title .count { color: var(--cinza-fraco); font-family: 'Rajdhani', sans-serif; font-weight: 600; }
-    .section-title.aguardando { border-color: var(--amarelo); color: var(--amarelo); }
-    .section-title.producao { border-color: var(--azul); color: var(--azul); }
-    .section-title.finalizado { border-color: var(--verde); color: var(--verde); }
-    .section-title.enviado { border-color: var(--roxo); color: var(--roxo); }
+    /* ===== Seções (fases empilhadas) ===== */
+    .wrap { padding: 10px 28px 0; }
+    .fase { margin-bottom: 30px; }
+    .fase-head { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; padding: 10px 16px; margin-bottom: 16px; border-radius: 10px; display: inline-flex; align-items: center; gap: 12px; color: #0d0d0d; }
+    .fase-head .count { font-size: 0.95rem; background: rgba(0,0,0,0.28); color: #fff; border-radius: 20px; padding: 1px 12px; }
+    .fase-head.aguardando { background: var(--amarelo); }
+    .fase-head.producao1  { background: var(--azul); }
+    .fase-head.producao2  { background: var(--roxo); color: #fff; }
+    .fase-head.finalizado { background: var(--verde); }
+    .fase-head.enviado    { background: var(--teal); }
+    .fase-head.entregue   { background: #9aa0a6; }
+    .fase-head.cancelado  { background: var(--vermelho); color: #fff; }
+    .fase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; align-items: start; }
 
-    /* ===== Card ===== */
-    .card {
-        background: var(--card); border: 1px solid var(--borda); border-radius: 14px;
-        padding: 14px; margin-bottom: 12px; position: relative; overflow: hidden;
-    }
-    .card.busy { opacity: 0.55; pointer-events: none; }
-    .card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
-    .card-id { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.05rem; color: var(--branco); }
-    .badge-origem { font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.5px; white-space: nowrap; }
+    /* ===== Card (estilo dashboard) ===== */
+    .card { background: var(--card); border: 1px solid var(--borda); border-left-width: 8px; border-radius: 14px; padding: 18px 20px; position: relative; }
+    .card.busy { opacity: 0.5; pointer-events: none; }
+    .card.aguardando { border-left-color: var(--amarelo); }
+    .card.producao1  { border-left-color: var(--azul); }
+    .card.producao2  { border-left-color: var(--roxo); }
+    .card.finalizado { border-left-color: var(--verde); }
+    .card.enviado    { border-left-color: var(--teal); }
+    .card.entregue   { border-left-color: #9aa0a6; }
+    .card.cancelado  { border-left-color: var(--vermelho); }
+
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .card-title { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.25rem; line-height: 1.2; color: var(--branco); flex: 1; min-width: 0; }
+    .badge-origem { flex: 0 0 auto; font-size: 0.64rem; font-weight: 700; padding: 3px 9px; border-radius: 14px; letter-spacing: 0.5px; white-space: nowrap; }
     .badge-origem.whatsapp { background: rgba(76,217,100,0.14); color: var(--verde); }
     .badge-origem.mercadolivre { background: rgba(255,176,32,0.14); color: var(--amarelo); }
+    .badge-origem.shopee { background: rgba(255,122,69,0.16); color: var(--laranja); }
     .badge-origem.tray { background: rgba(59,158,255,0.14); color: var(--azul); }
     .badge-origem.outro { background: #222; color: var(--cinza); }
-    .card-cliente { font-size: 1.05rem; font-weight: 700; color: var(--branco); line-height: 1.2; }
-    .card-produto { font-size: 0.9rem; color: var(--cinza); margin-top: 2px; line-height: 1.3; }
-    .card-produto .modelo { color: var(--verde); font-weight: 700; }
 
-    .card-meta { display: flex; gap: 14px; margin-top: 8px; font-size: 0.8rem; color: var(--cinza-fraco); }
+    .card-skuline { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--borda); }
+    .card-skuline .sku { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--verde); }
+    .card-skuline .sep { width: 2px; height: 1.4em; background: var(--borda); display: inline-block; }
+    .card-skuline .mat { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--branco); }
+    .card-skuline .qtd { margin-left: auto; font-size: 1rem; font-weight: 700; color: var(--verde); }
+
+    .card-idcli { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .card-idcli .ped { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700; color: var(--verde); white-space: nowrap; }
+    .card-idcli .ped-label { font-size: 0.7em; color: var(--cinza-fraco); letter-spacing: 1px; }
+    .card-idcli .ped-fim { color: var(--branco); }
+    .card-idcli .cli { font-size: 1.05rem; font-weight: 600; color: #cfcfcf; text-align: right; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .card-meta { display: flex; gap: 16px; font-size: 0.85rem; color: var(--cinza-fraco); }
     .card-meta strong { color: var(--cinza); font-weight: 600; }
-    .card-meta .atraso { color: var(--vermelho); font-weight: 700; }
+    .card-meta .atraso { color: var(--vermelho); font-weight: 700; margin-left: auto; }
 
     /* Ação principal */
-    .btn-avancar {
-        width: 100%; margin-top: 12px; border: none; border-radius: 11px;
-        font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.05rem; letter-spacing: 0.5px;
-        padding: 15px; cursor: pointer; color: #06210d; background: var(--verde);
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
+    .btn-avancar { width: 100%; margin-top: 14px; border: none; border-radius: 11px; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.05rem; letter-spacing: 0.5px; padding: 14px; cursor: pointer; color: #06210d; background: var(--verde); display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-avancar:active { transform: scale(0.98); }
     .btn-avancar .arrow { font-size: 1.2rem; }
-    .btn-avancar.final { background: var(--roxo); color: #160a26; }
     .btn-avancar.fase-aguardando { background: var(--amarelo); color: #2a1c00; }
-    .btn-avancar.fase-producao   { background: var(--azul);    color: #04203a; }
+    .btn-avancar.fase-producao1  { background: var(--azul);    color: #04203a; }
+    .btn-avancar.fase-producao2  { background: var(--roxo);    color: #fff; }
     .btn-avancar.fase-finalizado { background: var(--verde);   color: #06210d; }
+    .btn-avancar.fase-enviado    { background: var(--teal);    color: #04261f; }
 
     /* Corrigir */
-    .corrigir-toggle {
-        margin-top: 9px; text-align: center; font-size: 0.82rem; font-weight: 600; color: var(--cinza-fraco);
-        cursor: pointer; padding: 6px; letter-spacing: 0.5px;
-    }
-    .corrigir-toggle:active { color: var(--cinza); }
+    .corrigir-toggle { margin-top: 9px; text-align: center; font-size: 0.82rem; font-weight: 600; color: var(--cinza-fraco); cursor: pointer; padding: 6px; letter-spacing: 0.5px; }
+    .corrigir-toggle:hover { color: var(--cinza); }
     .corrigir-box { display: none; margin-top: 8px; padding-top: 12px; border-top: 1px dashed var(--borda); }
     .corrigir-box.open { display: block; }
     .corrigir-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--cinza-fraco); margin-bottom: 8px; font-weight: 600; }
     .chips { display: flex; flex-wrap: wrap; gap: 7px; }
-    .chip {
-        font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.85rem;
-        padding: 8px 12px; border-radius: 9px; cursor: pointer; border: 1px solid var(--borda);
-        background: var(--bg2); color: var(--cinza); letter-spacing: 0.3px;
-    }
-    .chip:active { transform: scale(0.96); }
+    .chip { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.85rem; padding: 8px 12px; border-radius: 9px; cursor: pointer; border: 1px solid var(--borda); background: var(--bg2); color: var(--cinza); letter-spacing: 0.3px; }
+    .chip:hover { border-color: var(--cinza); }
     .chip.atual { border-color: var(--branco); color: var(--branco); }
-    .chip.cancelar { border-color: rgba(255,90,90,0.4); color: var(--vermelho); margin-left: auto; }
+    .chip.cancelar { border-color: rgba(255,90,90,0.4); color: var(--vermelho); }
 
-    /* Estados vazio/carregando */
     .empty, .loading-msg { text-align: center; color: var(--cinza-fraco); padding: 60px 20px; font-size: 1rem; }
     .empty .big { font-size: 2.4rem; margin-bottom: 12px; }
 
-    /* Toast */
-    #toast {
-        position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(140%);
-        background: #1d1d1d; border: 1px solid var(--borda); color: var(--branco);
-        padding: 13px 20px; border-radius: 12px; font-weight: 600; font-size: 0.92rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100; transition: transform 0.3s ease;
-        max-width: 90vw; text-align: center;
-    }
+    #toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(160%); background: #1d1d1d; border: 1px solid var(--borda); color: var(--branco); padding: 14px 22px; border-radius: 12px; font-weight: 600; font-size: 0.95rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100; transition: transform 0.3s ease; max-width: 90vw; text-align: center; }
     #toast.show { transform: translateX(-50%) translateY(0); }
     #toast.ok { border-color: rgba(76,217,100,0.5); }
     #toast.err { border-color: rgba(255,90,90,0.5); }
@@ -149,9 +132,9 @@
     /* Config / toggle baixa de estoque */
     .config-panel { max-height: 0; overflow: hidden; transition: max-height 0.25s ease; background: var(--bg2); border-bottom: 1px solid transparent; }
     .config-panel.open { max-height: 260px; border-bottom-color: var(--borda); }
-    .config-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px; }
+    .config-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 28px; }
     .config-title { font-weight: 700; font-size: 1rem; color: var(--branco); }
-    .config-desc { font-size: 0.82rem; color: var(--cinza); margin-top: 4px; line-height: 1.4; }
+    .config-desc { font-size: 0.85rem; color: var(--cinza); margin-top: 4px; line-height: 1.4; max-width: 720px; }
     .config-desc b { color: var(--azul); }
     .switch { width: 52px; height: 30px; border-radius: 30px; background: #333; position: relative; cursor: pointer; flex-shrink: 0; transition: background 0.2s; border: 1px solid var(--borda); }
     .switch.on { background: rgba(76,217,100,0.30); border-color: var(--verde); }
@@ -167,23 +150,19 @@
                 <span class="logo">2<b>BBOX</b></span>
                 <span class="sub">Comando de Produção</span>
             </div>
-            <button class="refresh-btn" id="refreshBtn" onclick="fetchData(true)">
-                <span class="ricon">⟳</span> Atualizar
-            </button>
+            <div class="top-actions">
+                <button class="refresh-btn" onclick="toggleConfig()"><span>⚙</span> Config</button>
+                <button class="refresh-btn" id="refreshBtn" onclick="fetchData(true)"><span class="ricon">⟳</span> Atualizar</button>
+            </div>
         </div>
         <div class="status-line" id="statusLine"><span class="dot"></span><span id="statusMsg">carregando…</span></div>
     </div>
 
-    <div class="topbar" style="border-top:0;padding-top:0;">
-        <div class="topbar-row" style="justify-content:flex-end;">
-            <button class="refresh-btn" onclick="toggleConfig()"><span>⚙</span> Config</button>
-        </div>
-    </div>
     <div class="config-panel" id="configPanel">
         <div class="config-row">
             <div class="config-text">
                 <div class="config-title">Baixa automática de estoque</div>
-                <div class="config-desc">Quando ligada, o estoque é baixado assim que o pedido entra em <b>Produção</b> — subtrai da planilha as quantidades de material da categoria/variante do case.</div>
+                <div class="config-desc">Quando ligada, o estoque é baixado assim que o pedido entra em <b>Produção 1</b> — subtrai da planilha as quantidades de material da categoria/variante do case.</div>
             </div>
             <div class="switch" id="switchEstoque" onclick="toggleEstoque()"><div class="knob"></div></div>
         </div>
@@ -206,20 +185,21 @@ const CFG_SET_URL = 'https://cases2bbox.app.n8n.cloud/webhook/config-baixa-estoq
 const CFG_GET_URL = 'https://cases2bbox.app.n8n.cloud/webhook/config-baixa-estado';
 const REFRESH_MS  = 30000;
 
-/* Pipeline linear + rótulos de ação (voz ativa: diz o que acontece). Enviado = fase final. */
-const PIPELINE = ['Aguardando', 'Em Produção', 'Finalizado', 'Enviado'];
-const PROXIMA  = { 'Aguardando': 'Em Produção', 'Em Produção': 'Finalizado', 'Finalizado': 'Enviado' };
+/* Pipeline de 6 fases + Cancelado (última baia, vermelho) */
+const PIPELINE = ['Aguardando', 'Produção 1', 'Produção 2', 'Finalizado', 'Enviado', 'Entregue', 'Cancelado'];
+const PROXIMA  = { 'Aguardando': 'Produção 1', 'Produção 1': 'Produção 2', 'Produção 2': 'Finalizado', 'Finalizado': 'Enviado', 'Enviado': 'Entregue' };
 const ACAO_LABEL = {
-    'Aguardando': 'Iniciar produção',
-    'Em Produção': 'Marcar como finalizado',
-    'Finalizado': 'Marcar como enviado'
+    'Aguardando': 'Iniciar Produção 1',
+    'Produção 1': 'Ir para Produção 2',
+    'Produção 2': 'Finalizar',
+    'Finalizado': 'Marcar enviado',
+    'Enviado':    'Marcar entregue'
 };
-const TODAS_FASES = ['Aguardando', 'Em Produção', 'Finalizado', 'Enviado'];
-const CLS = { 'Aguardando': 'aguardando', 'Em Produção': 'producao', 'Finalizado': 'finalizado', 'Enviado': 'enviado' };
+const CLS = { 'Aguardando':'aguardando', 'Produção 1':'producao1', 'Produção 2':'producao2', 'Finalizado':'finalizado', 'Enviado':'enviado', 'Entregue':'entregue', 'Cancelado':'cancelado' };
 
 let pedidos = [];
 
-/* ====== Parsing (igual aos dashboards) ====== */
+/* ====== Parsing ====== */
 function rowsFromJSON(data) {
     const arr = Array.isArray(data) ? data : [data];
     const objs = arr.map(o => (o && o.json) ? o.json : o).filter(o => o && typeof o === 'object');
@@ -231,16 +211,16 @@ function mapHeaders(header) {
     const h = header.map(x => x.toLowerCase().trim());
     const find = (...keys) => h.findIndex(col => keys.some(k => col.includes(k)));
     return {
-        id: find('pedido', 'id', 'numero', 'número'),
-        cliente: find('cliente', 'nome'),
-        produto: find('produto', 'item', 'descri'),
-        sku: find('sku'),
-        modelo: find('modelo'),
-        qtd: find('qtd', 'quant'),
-        origem: find('origem', 'canal', 'fonte'),
-        entrada: find('entrada'),
-        prazo: find('prazo', 'entrega', 'limite'),
-        status: find('status', 'situa')
+        id:       find('id pedido', 'pedido'),
+        material: find('material'),
+        nomecard: find('nome card', 'card'),
+        sku:      find('sku'),
+        qtd:      find('qtd', 'quant'),
+        cliente:  find('cliente'),
+        origem:   find('origem', 'canal', 'fonte'),
+        entrada:  find('data_entrada', 'entrada'),
+        prazo:    find('prazo', 'entrega', 'limite'),
+        status:   find('status', 'situa')
     };
 }
 function parseRows(rows) {
@@ -248,29 +228,31 @@ function parseRows(rows) {
     const m = mapHeaders(rows[0]);
     const g = (r, i) => (i >= 0 && r[i] !== undefined) ? String(r[i]).trim() : '';
     return rows.slice(1).map(r => ({
-        id: g(r, m.id), cliente: g(r, m.cliente), produto: g(r, m.produto),
-        sku: g(r, m.sku), modelo: g(r, m.modelo), qtd: g(r, m.qtd),
+        id: g(r, m.id), material: g(r, m.material), nomecard: g(r, m.nomecard),
+        sku: g(r, m.sku), qtd: g(r, m.qtd), cliente: g(r, m.cliente),
         origem: g(r, m.origem), entrada: g(r, m.entrada), prazo: g(r, m.prazo),
-        status: normalizeStatus(g(r, m.status)), statusRaw: g(r, m.status)
+        status: normalizeStatus(g(r, m.status))
     })).filter(p => p.id && p.status !== null);
 }
 function normalizeStatus(s) {
     const t = (s || '').toLowerCase();
-    if (t.includes('cancel') || t.includes('entreg')) return null; // saiu do pipeline ativo
-    if (t.includes('aguard') || t.includes('pendente') || t.includes('fila')) return 'Aguardando';
-    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica')) return 'Em Produção';
+    if (t.includes('cancel')) return 'Cancelado';
+    if (t.includes('entreg')) return 'Entregue';
     if (t.includes('final') || t.includes('pronto') || t.includes('conclu')) return 'Finalizado';
     if (t.includes('envi') || t.includes('despach') || t.includes('postado')) return 'Enviado';
+    if (t.includes('aguard') || t.includes('pendente') || t.includes('fila')) return 'Aguardando';
+    if (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois'))) return 'Produção 2';
+    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Produção 1';
     return 'Aguardando';
 }
 function parseDate(s) {
     if (!s) return null;
-    const br = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
-    if (br) { let y = parseInt(br[3]); if (y < 100) y += 2000; return new Date(y, parseInt(br[2]) - 1, parseInt(br[1])); }
+    const br = s.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
+    if (br) { let y = br[3] !== undefined ? parseInt(br[3]) : new Date().getFullYear(); if (y < 100) y += 2000; return new Date(y, parseInt(br[2]) - 1, parseInt(br[1])); }
     const d = new Date(s); return isNaN(d) ? null : d;
 }
 function diasAtraso(p) {
-    if (p.status === 'Finalizado' || p.status === 'Enviado') return 0;
+    if (['Finalizado','Enviado','Entregue','Cancelado'].includes(p.status)) return 0;
     const d = parseDate(p.prazo); if (!d) return 0;
     const hoje = new Date(); hoje.setHours(0,0,0,0);
     return d < hoje ? Math.round((hoje - d) / 86400000) : 0;
@@ -279,10 +261,12 @@ function origemBadge(o) {
     const t = (o || '').toLowerCase();
     if (t.includes('whats') || t.includes('zap')) return ['whatsapp', 'WhatsApp'];
     if (t.includes('mercado') || t === 'ml') return ['mercadolivre', 'Mercado Livre'];
+    if (t.includes('shopee')) return ['shopee', 'Shopee'];
     if (t.includes('tray') || t.includes('site')) return ['tray', 'Site'];
     return ['outro', o || '—'];
 }
 function esc(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function pedBicolor(id) { const v = esc(id) || '—'; return v.length > 3 ? v.slice(0,-3) + '<span class="ped-fim">' + v.slice(-3) + '</span>' : v; }
 
 /* ====== Fetch + render ====== */
 async function fetchData(manual) {
@@ -308,91 +292,94 @@ function setStatus(msg, err) {
 }
 
 function render() {
-    // resumo do pipeline
     const cont = {};
     PIPELINE.forEach(f => cont[f] = 0);
-    pedidos.forEach(p => cont[p.status] = (cont[p.status] || 0) + 1);
+    pedidos.forEach(p => { if (cont[p.status] !== undefined) cont[p.status]++; });
     document.getElementById('pipe').innerHTML = PIPELINE.map(f => `
         <div class="pipe-item ${CLS[f]}">
             <div class="n">${cont[f]}</div>
-            <div class="l">${f === 'Em Produção' ? 'Produção' : f}</div>
+            <div class="l">${f}</div>
         </div>`).join('');
 
-    // seções por fase, na ordem do pipeline
     let html = '';
     PIPELINE.forEach(fase => {
         const lista = pedidos.filter(p => p.status === fase);
         if (!lista.length) return;
-        html += `<div class="section-title ${CLS[fase]}">${fase} <span class="count">(${lista.length})</span></div>`;
-        html += lista.map(card).join('');
+        html += `
+            <section class="fase">
+                <div class="fase-head ${CLS[fase]}">${fase} <span class="count">${lista.length}</span></div>
+                <div class="fase-grid">${lista.map(card).join('')}</div>
+            </section>`;
     });
     document.getElementById('content').innerHTML = html ||
-        `<div class="empty"><div class="big">✓</div>Nenhum pedido ativo no momento.<br>Pedidos entregues e cancelados não aparecem aqui.</div>`;
+        `<div class="empty"><div class="big">—</div>Nenhum pedido encontrado na planilha.</div>`;
 }
 
 function card(p) {
     const [oCls, oLabel] = origemBadge(p.origem);
     const atraso = diasAtraso(p);
-    const prox = PROXIMA[p.status];
-    const ehFinal = p.status === 'Enviado';
-    const produto = [p.sku ? '<strong>'+esc(p.sku)+'</strong>' : '', esc(p.produto),
-        p.modelo ? '<span class="modelo">['+esc(p.modelo)+']</span>' : '', p.qtd ? esc(p.qtd)+'x' : '']
-        .filter(Boolean).join(' · ');
-    const chips = TODAS_FASES.map(f =>
-        `<span class="chip ${f === p.status ? 'atual' : ''}" onclick="event.stopPropagation(); definir('${p.id}','${f}','${esc(p.cliente)}')">${f === 'Em Produção' ? 'Produção' : f}</span>`
-    ).join('') +
-        `<span class="chip cancelar" onclick="event.stopPropagation(); definir('${p.id}','Cancelado','${esc(p.cliente)}')">Cancelar</span>`;
+    const ehFinal = (p.status === 'Entregue' || p.status === 'Cancelado');
+    const titulo = esc(p.nomecard) || esc(p.sku) || '—';
+    const skuTxt = esc(p.sku) || '—';
+    const matTxt = esc(p.material) || '—';
+    const qtdTxt = p.qtd ? esc(p.qtd) + ' un' : '';
+
+    const chips = PIPELINE.map(f =>
+        `<span class="chip ${f === p.status ? 'atual' : ''} ${f === 'Cancelado' ? 'cancelar' : ''}" onclick="event.stopPropagation(); definir('${esc(p.id)}','${f}','${esc(p.cliente)}')">${f}</span>`
+    ).join('');
 
     return `
-    <div class="card" id="card-${p.id}">
+    <div class="card ${CLS[p.status]}" id="card-${esc(p.id)}">
         <div class="card-top">
-            <span class="card-id">#${esc(p.id)}</span>
+            <div class="card-title">${titulo}</div>
             <span class="badge-origem ${oCls}">${esc(oLabel)}</span>
         </div>
-        <div class="card-cliente">${esc(p.cliente) || 'Cliente não informado'}</div>
-        <div class="card-produto">${produto || '—'}</div>
+        <div class="card-skuline">
+            <span class="sku">${skuTxt}</span>
+            <span class="sep"></span>
+            <span class="mat">${matTxt}</span>
+            ${qtdTxt ? '<span class="qtd">' + qtdTxt + '</span>' : ''}
+        </div>
+        <div class="card-idcli">
+            <span class="ped"><span class="ped-label">PED:</span> ${pedBicolor(p.id)}</span>
+            <span class="cli">👤 ${esc(p.cliente) || 'Cliente não informado'}</span>
+        </div>
         <div class="card-meta">
             <span>Entrada: <strong>${esc(p.entrada) || '—'}</strong></span>
             <span>Prazo: <strong>${esc(p.prazo) || '—'}</strong></span>
             ${atraso > 0 ? `<span class="atraso">⚠ ${atraso}d atrasado</span>` : ''}
         </div>
-        ${ehFinal ? '' : `<button class="btn-avancar fase-${CLS[p.status]}" onclick="avancar('${p.id}','${p.status}','${esc(p.cliente)}')">
+        ${ehFinal ? '' : `<button class="btn-avancar fase-${CLS[p.status]}" onclick="avancar('${esc(p.id)}','${p.status}','${esc(p.cliente)}')">
             ${ACAO_LABEL[p.status]} <span class="arrow">→</span>
         </button>`}
-        <div class="corrigir-toggle" onclick="toggleCorrigir('${p.id}')">corrigir fase ⌄</div>
-        <div class="corrigir-box" id="corr-${p.id}">
+        <div class="corrigir-toggle" onclick="toggleCorrigir('${esc(p.id)}')">corrigir fase ⌄</div>
+        <div class="corrigir-box" id="corr-${esc(p.id)}">
             <div class="corrigir-label">Mudar para qualquer fase</div>
             <div class="chips">${chips}</div>
         </div>
     </div>`;
 }
 
-function toggleCorrigir(id) {
-    document.getElementById('corr-' + id).classList.toggle('open');
-}
+function toggleCorrigir(id) { document.getElementById('corr-' + id).classList.toggle('open'); }
 
 /* ====== Ações ====== */
-function avancar(id, atual, cliente) {
-    mudarFase(id, PROXIMA[atual], cliente);
-}
+function avancar(id, atual, cliente) { mudarFase(id, PROXIMA[atual], cliente); }
 function definir(id, fase, cliente) {
     if (fase === 'Cancelado') {
-        if (!confirm('Cancelar o pedido #' + id + ' (' + cliente + ')?\nEle some do painel.')) return;
+        if (!confirm('Cancelar o pedido ' + id + ' (' + cliente + ')?')) return;
     }
     mudarFase(id, fase, cliente);
 }
-
 async function mudarFase(id, novo, cliente) {
     const cardEl = document.getElementById('card-' + id);
     if (cardEl) cardEl.classList.add('busy');
     try {
-        // form-urlencoded = requisição simples (sem preflight CORS)
         const body = new URLSearchParams({ id, status: novo, token: CMD_TOKEN });
         const resp = await fetch(CMD_URL, { method: 'POST', body });
         const data = await resp.json().catch(() => ({}));
         if (resp.ok && data.ok) {
-            toast('#' + id + ' → ' + novo, 'ok');
-            await fetchData(false);   // recarrega pra refletir o estado real
+            toast(id + ' → ' + novo, 'ok');
+            await fetchData(false);
         } else {
             throw new Error(data.msg || ('HTTP ' + resp.status));
         }
@@ -413,10 +400,8 @@ function toast(msg, tipo) {
 }
 
 /* ====== Config: baixa automática de estoque ====== */
-let baixaLigada = null;     // estado atual conhecido
-let baixaBusy = false;
+let baixaLigada = null, baixaBusy = false;
 function toggleConfig() { document.getElementById('configPanel').classList.toggle('open'); }
-
 async function carregarEstadoBaixa() {
     try {
         const resp = await fetch(CFG_GET_URL + '?t=' + Date.now());
@@ -425,7 +410,6 @@ async function carregarEstadoBaixa() {
         document.getElementById('switchEstoque').classList.toggle('on', baixaLigada);
     } catch (e) { console.error('estado baixa', e); }
 }
-
 async function toggleEstoque() {
     if (baixaBusy) return;
     const sw = document.getElementById('switchEstoque');
@@ -439,14 +423,9 @@ async function toggleEstoque() {
             baixaLigada = (String(data.valor).toUpperCase() === 'SIM');
             sw.classList.toggle('on', baixaLigada);
             toast(baixaLigada ? 'Baixa de estoque LIGADA' : 'Baixa de estoque DESLIGADA', baixaLigada ? 'ok' : '');
-        } else {
-            throw new Error(data.erro || ('HTTP ' + resp.status));
-        }
-    } catch (e) {
-        toast('Falhou: ' + e.message, 'err'); console.error(e);
-    } finally {
-        baixaBusy = false; sw.classList.remove('loading');
-    }
+        } else { throw new Error(data.erro || ('HTTP ' + resp.status)); }
+    } catch (e) { toast('Falhou: ' + e.message, 'err'); console.error(e); }
+    finally { baixaBusy = false; sw.classList.remove('loading'); }
 }
 
 /* ====== Init ====== */
