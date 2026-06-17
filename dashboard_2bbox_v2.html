@@ -320,9 +320,6 @@
         .r-sku { font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--verde-2bbox); font-size: 1rem; }
         .r-mat { color: #cfcfcf; }
         .r-qtd { color: var(--verde-2bbox); font-weight: 700; }
-        .r-ped { font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--verde-2bbox); }
-        .r-pedlabel { font-size: 0.68rem; color: #5a5f68; letter-spacing: 1px; }
-        .r-pedfim { color: var(--branco); }
         .r-org.whatsapp { color: var(--verde-2bbox); font-weight: 700; }
         .r-org.mercadolivre { color: var(--amarelo); font-weight: 700; }
         .r-org.shopee { color: var(--laranja); font-weight: 700; }
@@ -330,6 +327,15 @@
         .r-org.outro { color: #8a8f98; font-weight: 700; }
         .r-prazo { color: #8a8f98; }
         .r-prazo.late { color: var(--vermelho); font-weight: 700; }
+        .row-obs {
+            margin-top: 5px;
+            font-size: 0.92rem;
+            color: #b9bdc4;
+            line-height: 1.3;
+            border-top: 1px dashed var(--preto-borda);
+            padding-top: 5px;
+        }
+        .r-obslabel { font-size: 0.66rem; color: #5a5f68; letter-spacing: 1px; font-weight: 700; }
 
         /* ===== CARDS (maiores) ===== */
         .card {
@@ -844,14 +850,17 @@ function createRow(p, cls) {
     const qtdTxt = p.qtd ? esc(p.qtd) + ' un' : '';
     const prazoTxt = esc(p.prazo) || '—';
     const dias = atrasado ? diasAtraso(p) : 0;
-    const ped = (() => { const v = esc(p.id) || '—'; return v.length > 3 ? v.slice(0, -3) + '<span class="r-pedfim">' + v.slice(-3) + '</span>' : v; })();
+    const obsTxt = (p.obs && p.obs.trim()) ? esc(p.obs) : '';
 
     let l2 = '<span class="r-sku">' + skuTxt + '</span>';
     l2 += '<span class="r-dot">·</span><span class="r-mat">' + matTxt + '</span>';
     if (qtdTxt) l2 += '<span class="r-dot">·</span><span class="r-qtd">' + qtdTxt + '</span>';
-    l2 += '<span class="r-dot">·</span><span class="r-ped"><span class="r-pedlabel">PED</span> ' + ped + '</span>';
     l2 += '<span class="r-dot">·</span><span class="r-org ' + oCls + '">' + esc(oLabel) + '</span>';
     l2 += '<span class="r-dot">·</span><span class="r-prazo' + (atrasado ? ' late' : '') + '">' + prazoTxt + '</span>';
+
+    const obsHTML = obsTxt
+        ? '<div class="row-obs"><span class="r-obslabel">OBS</span> ' + obsTxt + '</div>'
+        : '';
 
     return `
         <div class="row ${cls}${atrasado ? ' atrasado' : ''}">
@@ -860,6 +869,7 @@ function createRow(p, cls) {
                 <span class="r-cli">👤 ${esc(p.cliente) || '—'}${atrasado ? ' <span class="r-atraso">⚠ ' + dias + 'd</span>' : ''}</span>
             </div>
             <div class="row-l2">${l2}</div>
+            ${obsHTML}
         </div>`;
 }
 
@@ -870,6 +880,16 @@ function esc(s) {
 function render(pedidos) {
     const byStatus = { 'Aguardando': [], 'Produção 1': [], 'Produção 2': [] };
     pedidos.forEach(p => { if (byStatus[p.status]) byStatus[p.status].push(p); });
+
+    // Ordena cada coluna por data de entrada — mais antigo no topo
+    const ordena = (a, b) => {
+        const da = parseDate(a.entrada), db = parseDate(b.entrada);
+        if (!da && !db) return 0;
+        if (!da) return 1;      // sem data vai pro fim
+        if (!db) return -1;
+        return da - db;          // crescente: antigo primeiro
+    };
+    Object.keys(byStatus).forEach(k => byStatus[k].sort(ordena));
 
     // Totais fixos no header (não rolam) — contagem antes do nome, em balão próprio
     document.getElementById('headerTotals').innerHTML = `
