@@ -142,13 +142,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 40px;
-            background: linear-gradient(180deg, rgba(20,20,20,1) 0%, rgba(10,10,10,0) 100%);
+            padding: 16px 40px;
+            background: #0f0f0f;
             border-bottom: 1px solid var(--preto-borda);
             position: sticky;
             top: 0;
             z-index: 100;
-            backdrop-filter: blur(6px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+        }
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            flex: 1;
+            justify-content: center;
         }
         .header-title {
             font-family: 'Orbitron', sans-serif;
@@ -157,7 +164,27 @@
             letter-spacing: 4px;
             color: var(--verde-2bbox);
             text-transform: uppercase;
+            white-space: nowrap;
         }
+        .header-totals { display: flex; gap: 12px; }
+        .htot {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 5px 16px;
+            border-radius: 22px;
+            border: 1px solid;
+            white-space: nowrap;
+        }
+        .htot .n { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; line-height: 1; }
+        .htot.aguardando { color: var(--amarelo); border-color: rgba(255,217,61,0.40); background: rgba(255,217,61,0.08); }
+        .htot.producao1  { color: var(--azul);    border-color: rgba(77,166,255,0.40); background: rgba(77,166,255,0.08); }
+        .htot.producao2  { color: var(--roxo);    border-color: rgba(155,89,182,0.45); background: rgba(155,89,182,0.10); }
         .header-right { text-align: right; }
         .clock {
             font-family: 'Orbitron', sans-serif;
@@ -209,7 +236,7 @@
         .summary-item.producao2 .value { color: var(--roxo); }
 
         /* ===== BOARD KANBAN (3 colunas, sem scroll horizontal) ===== */
-        .content { padding: 0 32px 60px; }
+        .content { padding: 24px 32px 60px; }
         .board {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -474,15 +501,15 @@
     <!-- Header -->
     <header class="header">
         <div class="logo-text">2B<span class="box">BOX</span></div>
-        <div class="header-title">Painel de Produção</div>
+        <div class="header-center">
+            <div class="header-title">Painel de Produção</div>
+            <div class="header-totals" id="headerTotals"></div>
+        </div>
         <div class="header-right">
             <div class="clock" id="clock">--:--</div>
             <div class="last-update"><span class="dot"></span><span id="lastUpdate">aguardando dados</span></div>
         </div>
     </header>
-
-    <!-- Resumo -->
-    <div class="summary-bar" id="summaryBar"></div>
 
     <!-- Conteúdo -->
     <main class="content" id="content">
@@ -767,11 +794,11 @@ function render(pedidos) {
     const byStatus = { 'Aguardando': [], 'Produção 1': [], 'Produção 2': [] };
     pedidos.forEach(p => { if (byStatus[p.status]) byStatus[p.status].push(p); });
 
-    // Resumo (3 fases ativas)
-    document.getElementById('summaryBar').innerHTML = `
-        <div class="summary-item aguardando"><span class="label">⏳ Aguardando</span><span class="value">${byStatus['Aguardando'].length}</span></div>
-        <div class="summary-item producao1"><span class="label">🔧 Produção 1</span><span class="value">${byStatus['Produção 1'].length}</span></div>
-        <div class="summary-item producao2"><span class="label">🛠 Produção 2</span><span class="value">${byStatus['Produção 2'].length}</span></div>`;
+    // Totais fixos no header (não rolam)
+    document.getElementById('headerTotals').innerHTML = `
+        <div class="htot aguardando"><span>⏳ Aguardando</span><span class="n">${byStatus['Aguardando'].length}</span></div>
+        <div class="htot producao1"><span>🔧 Produção 1</span><span class="n">${byStatus['Produção 1'].length}</span></div>
+        <div class="htot producao2"><span>🛠 Produção 2</span><span class="n">${byStatus['Produção 2'].length}</span></div>`;
 
     // Board kanban: 3 colunas lado a lado, sem scroll horizontal
     const cols = [
