@@ -61,10 +61,11 @@
     .fase-head.enviado    { background: var(--teal); }
     .fase-head.entregue   { background: #9aa0a6; }
     .fase-head.cancelado  { background: var(--vermelho); color: #fff; }
-    .fase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; align-items: start; }
+    .fase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; align-items: stretch; }
 
     /* ===== Card (estilo dashboard) ===== */
-    .card { background: var(--card); border: 1px solid var(--borda); border-left-width: 8px; border-radius: 14px; padding: 18px 20px; position: relative; }
+    .card { background: var(--card); border: 1px solid var(--borda); border-left-width: 8px; border-radius: 14px; padding: 18px 20px; position: relative; display: flex; flex-direction: column; }
+    .card .card-meta { margin-top: auto; }
     .card.busy { opacity: 0.5; pointer-events: none; }
     .card.aguardando { border-left-color: var(--amarelo); }
     .card.producao1  { border-left-color: var(--azul); }
@@ -75,7 +76,7 @@
     .card.cancelado  { border-left-color: var(--vermelho); }
 
     .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-    .card-title { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.25rem; line-height: 1.2; color: var(--branco); flex: 1; min-width: 0; }
+    .card-title { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.25rem; line-height: 1.2; color: var(--branco); flex: 1; min-width: 0; min-height: 2.4em; display: flex; align-items: flex-start; }
     .badge-origem { flex: 0 0 auto; font-size: 0.64rem; font-weight: 700; padding: 3px 9px; border-radius: 14px; letter-spacing: 0.5px; white-space: nowrap; }
     .badge-origem.whatsapp { background: rgba(76,217,100,0.14); color: var(--verde); }
     .badge-origem.mercadolivre { background: rgba(255,176,32,0.14); color: var(--amarelo); }
