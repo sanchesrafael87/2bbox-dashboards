@@ -959,7 +959,7 @@ function render(pedidos) {
     const _h = new Date();
     const _ehHoje = s => { const d = parseDate(s); return !!d && d.getFullYear()===_h.getFullYear() && d.getMonth()===_h.getMonth() && d.getDate()===_h.getDate(); };
     pedidos.forEach(p => {
-        if (p.statusFull === 'Finalizado') { if (_ehHoje(p.dtFinalizado)) ref['Finalizado']++; }
+        if (p.statusFull === 'Finalizado' || p.statusFull === 'Enviado') { if (_ehHoje(p.dtFinalizado)) ref['Finalizado']++; }
         else if (ref[p.statusFull] !== undefined) ref[p.statusFull]++;
     });
 
