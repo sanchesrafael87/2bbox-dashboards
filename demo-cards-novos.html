@@ -1032,10 +1032,14 @@ const DEMO_DATA = [
 ];
 
 /* ---------- Init ---------- */
+function fmtRel(minAgo){ const d=new Date(Date.now()-minAgo*60000); const p=n=>('0'+n).slice(-2); return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()); }
 window.addEventListener('load', () => {
     document.getElementById('configOverlay').classList.add('hidden');
     demoMode = true;
-    render(parseRows(DEMO_DATA));
+    // Horarios calculados com o RELOGIO DO NAVEGADOR -> cards realmente recentes p/ quem abrir
+    const rel = { '202606060': 30, '202606061': 90, '202606062': 25 }; // min atras
+    const data = DEMO_DATA.map((row,i)=>{ if(i===0) return row; const r=row.slice(); if(rel[r[0]]!==undefined) r[1]=fmtRel(rel[r[0]]); return r; });
+    render(parseRows(data));
     setUpdated('PRÉVIA · cards novos (<2h) em verde');
     startScroll();
 });
