@@ -488,7 +488,7 @@ async function toggleEstoque() {
 
 /* ====== Init ====== */
 carregarEstadoBaixa();
-fetchData(false);
+fetchData(true);   // 1a carga sempre busca (mesmo fora do horário)
 setInterval(() => fetchData(false), REFRESH_MS);
 </script>
 </body>
