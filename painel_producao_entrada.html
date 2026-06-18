@@ -936,8 +936,14 @@ function render(pedidos) {
     byStatus['Aguardando'].sort(ordena);
 
     // Contagem completa (para referência das outras fases)
+    // Finalizado conta só os de hoje, igual ao painel de Produção (zera diariamente)
     const ref = { 'Montagem':0, 'Colagem':0, 'Finalizado':0 };
-    pedidos.forEach(p => { if (ref[p.statusFull] !== undefined) ref[p.statusFull]++; });
+    const _h = new Date();
+    const _ehHoje = s => { const d = parseDate(s); return !!d && d.getFullYear()===_h.getFullYear() && d.getMonth()===_h.getMonth() && d.getDate()===_h.getDate(); };
+    pedidos.forEach(p => {
+        if (p.statusFull === 'Finalizado') { if (_ehHoje(p.dtFinalizado)) ref['Finalizado']++; }
+        else if (ref[p.statusFull] !== undefined) ref[p.statusFull]++;
+    });
 
     // Total fixo no header: Aguardando (sua) + referência das fases seguintes
     document.getElementById('headerTotals').innerHTML = `
