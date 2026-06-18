@@ -562,22 +562,20 @@
 
         /* ===== CONTROLES (scroll/config) ===== */
         .controls {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
             display: flex;
-            gap: 10px;
-            z-index: 200;
+            gap: 6px;
+            justify-content: flex-end;
+            margin-top: 6px;
         }
         .ctrl-btn {
             background: var(--preto-card);
             border: 1px solid var(--preto-borda);
             color: var(--cinza);
-            border-radius: 8px;
-            padding: 10px 16px;
+            border-radius: 7px;
+            padding: 4px 10px;
             font-family: 'Rajdhani', sans-serif;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.72rem;
             letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.2s;
@@ -623,6 +621,10 @@
         <div class="header-right">
             <div class="clock" id="clock">--:--</div>
             <div class="last-update"><span class="dot"></span><span id="lastUpdate">aguardando dados</span></div>
+            <div class="controls">
+                <button class="ctrl-btn active" id="scrollBtn" onclick="toggleScroll()">⏸ SCROLL</button>
+                <button class="ctrl-btn" onclick="openConfig()">⚙</button>
+            </div>
         </div>
     </header>
 
@@ -631,11 +633,6 @@
         <div class="empty-msg">Configure a planilha para começar.</div>
     </main>
 
-    <!-- Controles -->
-    <div class="controls">
-        <button class="ctrl-btn active" id="scrollBtn" onclick="toggleScroll()">⏸ SCROLL AUTO</button>
-        <button class="ctrl-btn" onclick="openConfig()">⚙ CONFIG</button>
-    </div>
 
 <script>
 /* ============================================================
@@ -1021,7 +1018,7 @@ function toggleScroll() {
     const btn = document.getElementById('scrollBtn');
     btn.classList.toggle('active');
     autoScroll = btn.classList.contains('active');
-    btn.textContent = autoScroll ? '⏸ SCROLL AUTO' : '▶ SCROLL AUTO';
+    btn.textContent = autoScroll ? '⏸ SCROLL' : '▶ SCROLL';
 }
 function stopScroll() { if (scrollTimer) clearInterval(scrollTimer); }
 
