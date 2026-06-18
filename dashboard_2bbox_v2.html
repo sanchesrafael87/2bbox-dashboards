@@ -765,10 +765,22 @@ function parseRows(rows) {
         dtFinalizado:get(r, m.dtFinalizado),
         dtFim:       get(r, m.dtFim),
         dtEntregue:  get(r, m.dtEntregue),
-        status:  normalizeStatus(get(r, m.status))
-    })).filter(p => (p.id || p.cliente || p.nomecard) && p.status !== null);
+        status:  normalizeStatus(get(r, m.status)),
+        statusFull: classifyFull(get(r, m.status))
+    })).filter(p => (p.id || p.cliente || p.nomecard));
 }
 
+function classifyFull(s) {
+    const t = (s || '').toLowerCase();
+    if (t.includes('cancel')) return 'Cancelado';
+    if (t.includes('entreg')) return 'Entregue';
+    if (t.includes('envi') || t.includes('despach') || t.includes('postado')) return 'Enviado';
+    if (t.includes('final') || t.includes('pronto') || t.includes('conclu')) return 'Finalizado';
+    if (t.includes('aguard') || t.includes('pendente') || t.includes('fila')) return 'Aguardando';
+    if (t.includes('colag') || (t.includes('produ') && (t.includes('2') || t.includes('ii') || t.includes('dois')))) return 'Colagem';
+    if (t.includes('produ') || t.includes('andamento') || t.includes('fabrica') || t.includes('montag') || t.includes('colag')) return 'Montagem';
+    return 'Aguardando';
+}
 function normalizeStatus(s) {
     const t = (s || '').toLowerCase();
     // Geral: 4 fases (Aguardando, P1, P2, Finalizado). Enviado/Entregue/Cancelado saem (null).
