@@ -159,9 +159,9 @@
         }
         .header-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.3rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            letter-spacing: 4px;
+            letter-spacing: 2px;
             color: var(--verde-2bbox);
             text-transform: uppercase;
             white-space: nowrap;
@@ -198,7 +198,8 @@
         .htot.producao2  .n { background: rgba(155,89,182,0.22); }
         .htot.finalizado { color: var(--verde-2bbox); border-color: rgba(76,217,100,0.40); background: rgba(76,217,100,0.08); }
         .htot.finalizado .n { background: rgba(76,217,100,0.18); }
-        .header-right { text-align: right; }
+        .header-right { display: flex; align-items: center; justify-content: flex-end; gap: 14px; }
+        .hr-info { text-align: right; }
         .clock {
             font-family: 'Orbitron', sans-serif;
             font-size: 1.6rem;
@@ -557,9 +558,9 @@
         /* ===== CONTROLES (scroll/config) ===== */
         .controls {
             display: flex;
-            gap: 6px;
-            justify-content: flex-end;
-            margin-top: 6px;
+            flex-direction: column;
+            gap: 5px;
+            flex: none;
         }
         .ctrl-btn {
             background: var(--preto-card);
@@ -613,8 +614,10 @@
             <div class="header-totals" id="headerTotals"></div>
         </div>
         <div class="header-right">
-            <div class="clock" id="clock">--:--</div>
-            <div class="last-update"><span class="dot"></span><span id="lastUpdate">aguardando dados</span></div>
+            <div class="hr-info">
+                <div class="clock" id="clock">--:--</div>
+                <div class="last-update"><span class="dot"></span><span id="lastUpdate">aguardando dados</span></div>
+            </div>
             <div class="controls">
                 <button class="ctrl-btn active" id="scrollBtn" onclick="toggleScroll()">⏸ SCROLL</button>
                 <button class="ctrl-btn" onclick="openConfig()">⚙</button>
