@@ -306,6 +306,13 @@
         .row.producao2  { border-left-color: var(--roxo); }
         .row.finalizado { border-left-color: var(--verde-2bbox); }
         .row.atrasado   { border-left-color: var(--vermelho); background: #1c1414; animation: pulseRow 1.6s infinite; }
+        .row.novo { background: rgba(76,217,100,0.14); border-left-color: var(--verde-2bbox); box-shadow: inset 0 0 0 1px rgba(76,217,100,0.35); }
+        .row.novo.atrasado { background: #1c1414; }
+        .row.urgente { background: rgba(255,140,0,0.16); border-left-color: #ff8c00; box-shadow: inset 0 0 0 1px rgba(255,140,0,0.45); }
+        .row.urgente.atrasado { background: #1c1414; }
+        .r-novo { display: inline-block; background: var(--verde-2bbox); color: #04210f; font-weight: 800; font-size: 0.66rem; letter-spacing: 1px; padding: 1px 7px; border-radius: 6px; margin-right: 6px; vertical-align: middle; animation: novoPulse 1.4s ease-in-out infinite; }
+        .r-urgente { display: inline-block; background: #ff8c00; color: #2a1500; font-weight: 800; font-size: 0.66rem; letter-spacing: 1px; padding: 1px 7px; border-radius: 6px; margin-right: 6px; vertical-align: middle; animation: novoPulse 0.9s ease-in-out infinite; }
+        @keyframes novoPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
         @keyframes pulseRow { 0%,100% { box-shadow: 0 0 0 0 rgba(255,90,90,0); } 50% { box-shadow: 0 0 0 2px rgba(255,90,90,0.45); } }
 
         .row-l1 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
@@ -839,6 +846,13 @@ function ehHoje(s) {
     const h = new Date();
     return d.getFullYear() === h.getFullYear() && d.getMonth() === h.getMonth() && d.getDate() === h.getDate();
 }
+// "Novo": entrou nas últimas 2 horas (destaque temporário some sozinho)
+const NOVO_MS = 2 * 60 * 60 * 1000;
+function ehNovo(s) {
+    const d = parseDate(s); if (!d) return false;
+    const diff = Date.now() - d.getTime();
+    return diff >= 0 && diff < NOVO_MS;
+}
 
 /* ---------- Fetch ---------- */
 // Regra de horário comercial: só busca dados entre 7h e 19h (poupa execuções do n8n)
@@ -892,6 +906,11 @@ function createRow(p, cls) {
     const entradaTxt = esc(p.entrada) || '—';
     const dias = atrasado ? diasAtraso(p) : 0;
     const obsTxt = (p.obs && p.obs.trim()) ? esc(p.obs) : '';
+    const novo = ehNovo(p.entrada);
+    const urgente = (p.obs || '').toLowerCase().includes('urgente');
+    // Prioridade do destaque: Urgente (laranja) > Novo (verde). Atraso (vermelho) tem prioridade na borda/fundo.
+    const selo = urgente ? '<span class="r-urgente">URGENTE</span> ' : (novo ? '<span class="r-novo">NOVO</span> ' : '');
+    const flagCls = urgente ? ' urgente' : (novo ? ' novo' : '');
 
     let l2 = '<span class="r-sku">' + skuTxt + '</span>';
     l2 += '<span class="r-dot">·</span><span class="r-mat">' + matTxt + '</span>';
@@ -906,9 +925,9 @@ function createRow(p, cls) {
         : '';
 
     return `
-        <div class="row ${cls}${atrasado ? ' atrasado' : ''}">
+        <div class="row ${cls}${atrasado ? ' atrasado' : ''}${flagCls}">
             <div class="row-l1">
-                <span class="r-nome">${titulo}</span>
+                <span class="r-nome">${selo}${titulo}</span>
                 <span class="r-cli">👤 ${esc(p.cliente) || '—'}${atrasado ? ' <span class="r-atraso">⚠ ' + dias + 'd</span>' : ''}</span>
             </div>
             <div class="row-l2">${l2}</div>
