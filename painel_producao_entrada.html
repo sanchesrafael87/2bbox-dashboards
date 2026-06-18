@@ -849,9 +849,9 @@ function dentroDoHorario() {
     const h = d.getHours();
     return h >= HORA_INI && h < HORA_FIM;
 }
-async function fetchData() {
+async function fetchData(force) {
     if (demoMode || !csvUrl) return;
-    if (!dentroDoHorario()) { setUpdated('fora do horário (seg–sex, 7h–19h) — atualização pausada'); return; }
+    if (!force && !dentroDoHorario()) { setUpdated('fora do horário (seg–sex, 7h–19h) — atualização pausada'); return; }
     try {
         const resp = await fetch(csvUrl + (csvUrl.includes('?') ? '&' : '?') + 't=' + Date.now());
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
@@ -1035,7 +1035,7 @@ const DEMO_DATA = [
 window.addEventListener('load', () => {
     if (!csvUrl) csvUrl = FONTE_DADOS;   // TV/stick: sempre puxa do webhook sem precisar configurar
     document.getElementById('configOverlay').classList.add('hidden');
-    fetchData();
+    fetchData(true);                          // 1a carga sempre busca (mesmo fora do horário)
     setInterval(fetchData, REFRESH_MS);
     startScroll();
 });
