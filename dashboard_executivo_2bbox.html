@@ -477,8 +477,8 @@ function mapHeaders(header) {
     const find = (...keys) => h.findIndex(col => keys.some(k => col.includes(k)));
     return {
         id: find('pedido','id','nº','numero','número'),
-        cliente: find('cliente','nome'),
-        produto: find('produto','item','descri'),
+        cliente: find('cliente'),
+        produto: find('nome card','card','produto','item','descri'),
         modelo: find('modelo'),
         qtd: find('qtd','quant'),
         origem: find('origem','canal','fonte'),
