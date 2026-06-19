@@ -253,11 +253,12 @@
         .content { padding: 20px 26px 70px; }
         .board {
             display: flex;
-            gap: 16px;
+            flex-wrap: nowrap;
             align-items: flex-start;
             width: 100%;
         }
-        .col { flex: 1 1 0; min-width: 0; width: 0; }
+        .col { flex: 1 1 0%; min-width: 0; }
+        .col + .col { margin-left: 16px; }
         .col-head {
             position: sticky;
             top: 86px;
