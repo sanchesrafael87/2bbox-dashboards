@@ -252,12 +252,12 @@
         /* ===== 3 COLUNAS LADO A LADO, LISTAS DENSAS ===== */
         .content { padding: 20px 26px 70px; }
         .board {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            display: flex;
             gap: 16px;
-            align-items: start;
+            align-items: flex-start;
+            width: 100%;
         }
-        .col { min-width: 0; }
+        .col { flex: 1 1 0; min-width: 0; width: 0; }
         .col-head {
             position: sticky;
             top: 86px;
