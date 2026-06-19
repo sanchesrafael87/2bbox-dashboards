@@ -591,6 +591,17 @@
         @media (prefers-reduced-motion: reduce) {
             .card.atrasado, .last-update .dot { animation: none; }
         }
+
+        /* ===== FIX: faixa preta a direita (overflow horizontal do header) =====
+           O header (relogio + SCROLL/engrenagem) estourava a largura em telas
+           estreitas; o body com overflow-x:hidden prendia o board, mas o <html>
+           continuava rolavel, deixando faixa preta. Travamos a pagina na largura
+           da viewport e deixamos o header quebrar/encolher em vez de transbordar. */
+        html, body { overflow-x: hidden; max-width: 100%; }
+        .header { flex-wrap: wrap; gap: 8px 16px; }
+        .header-center { min-width: 0; flex: 1 1 240px; }
+        .header-totals { flex-wrap: wrap; justify-content: center; }
+        .row, .row-l1, .r-nome, .r-sku { overflow-wrap: anywhere; word-break: break-word; }
     </style>
 </head>
 <body>
