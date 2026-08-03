@@ -841,6 +841,8 @@ function diasAtraso(p) {
 /* ---------- Fetch ---------- */
 async function fetchData() {
     if (demoMode || !csvUrl) return;
+    if (fetchData._last && (Date.now() - fetchData._last) < REFRESH_MS - 5000) return;
+    fetchData._last = Date.now();
     try {
         const resp = await fetch(csvUrl + (csvUrl.includes('?') ? '&' : '?') + 't=' + Date.now());
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
