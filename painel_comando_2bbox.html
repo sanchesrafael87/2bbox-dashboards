@@ -491,5 +491,6 @@ carregarEstadoBaixa();
 fetchData(true);   // 1a carga sempre busca (mesmo fora do horário)
 setInterval(() => fetchData(false), REFRESH_MS);
 </script>
+<script>/*auto-reload 04:00 - pega atualizacoes sem recarga manual*/(function(){var n=new Date(),x=new Date(n);x.setHours(4,0,0,0);if(x<=n)x.setDate(x.getDate()+1);setTimeout(function(){location.reload(true);},x-n);})();</script>
 </body>
 </html>
